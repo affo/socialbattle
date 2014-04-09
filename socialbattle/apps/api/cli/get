@@ -1,0 +1,8 @@
+if [[ -z "$1" ]]
+then
+	curl -X GET localhost:8000/api/words/
+else
+	curl -X GET localhost:8000/api/words/$1/
+fi
+
+echo

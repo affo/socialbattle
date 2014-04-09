@@ -1,0 +1,8 @@
+if [[ -z "$1" ]]
+then
+	echo "Please give a new word"
+else
+	curl -d word=$1 -X POST localhost:8000/api/words/ -u root:root
+fi
+
+echo

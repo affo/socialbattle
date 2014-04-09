@@ -1,0 +1,8 @@
+if [[ -z "$1" ]]
+then
+	echo "Please give the id to be updated"
+else
+	curl -d word=$2 -X PUT localhost:8000/api/words/$1/ -u $3:$4
+fi
+
+echo

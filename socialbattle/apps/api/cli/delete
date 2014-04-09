@@ -1,0 +1,6 @@
+if [[ -z "$1" ]]
+then
+	echo "Please give the id to be deleted"
+else
+	curl -X DELETE localhost:8000/api/words/$1/
+fi
