@@ -1,13 +1,24 @@
 \chapter{Introduction}
-	\section{Glossary}
+	Before talking about the project in its details, I think it is worth to spend a few words about the general 
+	requirements imposed by the nature of the Service Technologies Course from which the project comes from.\\
+	We have also to keep in mind that this project will be used to test the performance of a IaaS system.
+
+	\noindent Given this, I will have to fulfill three specific requirements:
+	\begin{itemize}
+		\item The system will have to expose some documented services through an API;
+		\item The system has to integrate other services;
+		\item The system has to be computationally intensive, both for the database and the CPU.
+	\end{itemize}
 	\section{Project Description}
 		The project aims at mixing the features of a social network and a role-playing game 
 		into a web application named \textit{Social Battle}.
 
-		\noindent If we want to do so, first of all, we have to think of the main features of the two elements:
+		\noindent To better define the context we specify the main features of the two elements:
 		\begin{itemize}
 			\item \textbf{Social network}\\
-			Using a social network we can have a relation with other users and interact with them.\\
+			The main features of a social network are
+			the relationship with other users and 
+			the interaction with them.\\
 			The relation could be a friendship (a symmetric one) or a fellowship (an asymmetric one).\\
 			The interaction among (or between) users could be chosen among posts, instant messaging, 
 			deferred messaging, votes, comments, tags and others.
@@ -20,10 +31,10 @@
 		\end{itemize}
 
 		\noindent\textit{Social Battle} will take most of the features of a social network adding the 
-		ones of a role-playing game.\\
-		If we think of \textit{Facebook} as our landmark for the social networking part, we can 
-		better understand what \textit{Social Battle} aims to do.\\
-		I will write here the matching between some \textit{Facebook} components and what 
+		ones of a role-playing game.
+
+		\noindent Thinking think of \textit{Facebook} as our landmark for the social networking part, 
+		you can find below the matching between some \textit{Facebook} components and what 
 		they might become in \textit{Social Battle} context:
 		\begin{itemize}
 			\item \textbf{The page}\\
@@ -35,10 +46,8 @@
 			of \textit{User B};
 
 			\item \textbf{The post}\\
-			Could replace loots.
-
-			\item \textbf{The \textit{like}}\\
-			The action to grab a loot.
+			Could replace loots.\\
+			The \textit{like} on a post could become the grabbing of a loot.
 
 			\item \textbf{Instant messaging}\\
 			The fight between a user and a mob (PVE) or between two users (PVP).
@@ -48,7 +57,24 @@
 		As you may have already understood, the system will not be provided with a GUI except from the one 
 		that usually a social network gives, and so a textual one.
 
+	\section{Glossary}
+	I think it is worth to define some common words that will be used in this documentation.
+	\begin{itemize}
+		\item \textbf{SB} \textit{Social Battle}, the system we are talking about.
+		\item \textbf{RPG} Role-playing game.
+		\item \textbf{Mob} An enemy controlled by an artificial intelligence (maybe the server).\\
+			The user will have to fight against the mob to obtain experience (money, objects, equipment)
+			and to skill his character.
+		\item \textbf{Spawn} The act of ``appearing'' of a mob.
+		\item \textbf{Guil} Term borrowed from \textit{Final Fantasy}.\\
+			A guil is the virtual currency of the RPG.\\
+			Generically ``money''.
+		\item \textbf{Loot} The items dropped by a mob when it has been defeated by the user.
+	\end{itemize}
+
 	\section{Goals}
+	Thinking of the goals we have to think of what our system has to provide both to the end user 
+	(in terms of a web application) and both to the developer (in term of the API).
 
 	\section{Assumptions?}
 
