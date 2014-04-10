@@ -22,7 +22,6 @@
 			The relation could be a friendship (a symmetric one) or a fellowship (an asymmetric one).\\
 			The interaction among (or between) users could be chosen among posts, instant messaging, 
 			deferred messaging, votes, comments, tags and others.
-
 			\item \textbf{Role-playing game}\\
 			The central idea of a role-playing game is the growth of the character (or the team) we 
 			are using, in terms of the level of experience and the equipments and objects in general.\\
@@ -30,7 +29,7 @@
 			no other goal than skilling more and more your main character.
 		\end{itemize}
 
-		\noindent\textit{Social Battle} will take most of the features of a social network adding the 
+		\noindent \textit{Social Battle} will take most of the features of a social network adding the 
 		ones of a role-playing game.
 
 		\noindent Thinking think of \textit{Facebook} as our landmark for the social networking part, 
@@ -42,7 +41,7 @@
 
 			\item \textbf{The friendship}\\
 			It could become an asymmetric relationship, suck as \textit{Twitter}'s fellowship.
-			Once \textit{User A} follows \textit{User B}, he could follow all the progresses
+			Once \textit{User A} follows \textit{User B}, he could follow all the progress
 			of \textit{User B};
 
 			\item \textbf{The post}\\
@@ -60,22 +59,58 @@
 	\section{Glossary}
 	I think it is worth to define some common words that will be used in this documentation.
 	\begin{itemize}
-		\item \textbf{SB} \textit{Social Battle}, the system we are talking about.
-		\item \textbf{RPG} Role-playing game.
-		\item \textbf{Mob} An enemy controlled by an artificial intelligence (maybe the server).\\
+		\item \textbf{SB}: \textit{Social Battle}, the system we are talking about.
+		\item \textbf{RPG}: Role-playing game.
+		\item \textbf{Mob}: An enemy controlled by an artificial intelligence (maybe the server).\\
 			The user will have to fight against the mob to obtain experience (money, objects, equipment)
 			and to skill his character.
-		\item \textbf{Spawn} The act of ``appearing'' of a mob.
-		\item \textbf{Guil} Term borrowed from \textit{Final Fantasy}.\\
-			A guil is the virtual currency of the RPG.\\
-			Generically ``money''.
-		\item \textbf{Loot} The items dropped by a mob when it has been defeated by the user.
+		\item \textbf{Spawn}: The act of ``appearing'' of a mob.\\
+			The idea is that, if the user is at a location (a web page in our case), mobs will appear 
+			randomly and the user will have to fight them.
+		\item \textbf{Guil}: Term borrowed from \textit{Final Fantasy}.\\
+			A guil is the virtual currency of the RPG. Generically ``money''.
+		\item \textbf{Loot}: The items dropped by a mob when it has been defeated by the user.
+		\item \textbf{EXP}: The experience points earned by the user after defeating a mob.
+		\item \textbf{Equip}: Abbreviation of ``equipment''.
 	\end{itemize}
 
 	\section{Goals}
-	Thinking of the goals we have to think of what our system has to provide both to the end user 
-	(in terms of a web application) and both to the developer (in term of the API).
+	To identify the goals, we have to think of what our system has to provide both to the end user 
+	(in terms of a web application) and both to the developer (in terms of the API).\\
+	My aim is to develop both the API and a web application that consumes them.\\
+	For now, when I talk about goals, I mean the goals of the application that the end user will use.
 
-	\section{Assumptions?}
+	\noindent So, the final system should give the user the possibility to, at least:
+	\newcommand{\goalSignup}{Sign up (possibly using a pre-existent social network) and sign in;}
+	\newcommand{\goalSkill}{Skill his character and so fight against mobs (maybe other users) to gain
+			EXP, equipments, loots and guils.}
+	\newcommand{\goalFollow}{Follow some characters to learn about their progress and be followed by other users in turn.}
+	\newcommand{\goalProfile}{Customize his character, at least in terms of the items equipped.}
+	\newcommand{\goalExplore}{Explore the world around him to meet new players and to fight against different mobs.}
+	\newcommand{\goalShare}{Share his results (about battles, earned badges or others) on a social network.}
+	\begin{itemize}
+		\item \goalSignup
+		\item \goalSkill
+		\item \goalFollow
+		\item \goalProfile
+		\item \goalExplore
+		\item \goalShare
+	\end{itemize}
+
+	\noindent It is obvious that the API should be thought with the purpose of making it possible to the developer 
+	(which in this case it is me) to build a web application that fulfills the goals explained above.\\
+	In later chapters a detailed explanation of the API will be provided.
 
 	\section{Actors}
+	The Actors in our system are basically
+	\begin{itemize}
+		\item \textbf{The guest}\\
+		The unregistered user which can only sign up to \textit{Social Battle}.
+		\item \textbf{The user}\\
+		The registered user, which is only a guest which has signed up.
+		\item \textbf{The mob}\\
+		It is only an artificial intelligence spawned by the server itself, but it can be included as an actor in 
+		our system. Even if it is not handled by a human mind it is the subject around which \textit{Social Battle} 
+		will be built.
+	\end{itemize}
+	The topic about which action an actor can perform in the system will be deepened in the \textit{Use Case} section.
