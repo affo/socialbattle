@@ -1,10 +1,52 @@
-\chapter{Requirements}
+\chapter{Requirements and Specifications}
+	In this chapter the requirements for our web application (the one the end user will use) 
+	and for the APIs (that a possible developer will use) will be listed.
 
-	Write down:
+	\noindent It is important to say that the requirements that will be listed below, are the 
+	theoretical requirements of a \textit{full} application.\\
+	I will write a paragraph in which I will specify the minimum functionalities of a working application.
+
+	\noindent So, from the goals written in the previous chapter we can derive our general requirements.\\
+	I will write down here, for each goal the requirements that will fulfill it.
 	\begin{itemize}
-		\item Given the assumptions
-		\item From the goals
-		\item We can derive our requirements
+		\item \textbf{\goalSignup}
+			\begin{itemize}
+				\item Provide a sign up functionality (at least with \textit{Facebook}).
+				\item Provide a sign up functionality not using an already existent social network.
+				\item Provide a sign in functionality.
+			\end{itemize}
+		\item \textbf{\goalExplore}
+			\begin{itemize}
+				\item Provide something like a ``location'' in which a player can simply chat with 
+				other players and find mobs.
+			\end{itemize}
+		\item \textbf{\goalSkill}
+			\begin{itemize}
+				\item Provide the possibility to fight against a spawned mob according to the abilities and 
+				skills of the character.\\
+				This means that the server shouldn't spawn mobs that have a level too high compared to the one 
+				of the player.
+				\item Every time a player defeats an enemy the system should reward the player giving him 
+				EXP, guils and so on.
+				\item Provide a PVP functionality.
+			\end{itemize}
+		\item \textbf{\goalFollow}
+			\begin{itemize}
+				\item Provide the possibility to a user to follow another one.
+				\item If \textit{User A} follows \textit{User B}, the system should properly notify 
+				\textit{User A} about \textit{User B}'s progresses.
+			\end{itemize}
+		\item \textbf{\goalProfile}
+			\begin{itemize}
+				\item Provide a ``edit profile'' functionality in terms of the avatar and other personal 
+				information. Not about character's skills.
+			\end{itemize}
+		\item \textbf{\goalShare}
+			\begin{itemize}
+				\item Provide the possibility to share (using the social network which the user signed in with) his 
+				progresses.\\
+				This progresses could be defeating a mob, earning guils, earn equips or earn badges.
+			\end{itemize}
 	\end{itemize}
 
 	\section{Functional Requirements}
@@ -12,9 +54,9 @@
 		Requirements per actor
 
 	\section{Non Functional Requirements}
-		\begin{itemize}
-			\item APIs??
-			\item User Interface
-		\end{itemize}
+	\subsection{The API}
+	\subsection{The User Interface}
 
 	\section{Specifications}
+
+	 The ``location'' should be something like a \textit{Facebook} page.
