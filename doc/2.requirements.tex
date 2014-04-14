@@ -65,21 +65,45 @@
 			\item Change equipments;
 			\item Add/remove abilities;
 			\item Manage items;
-			\item Follow/un-follow another player;
+			\item Follow/stop following another player;
 			\item Share his results;
 			\item Fight against a mob;
 			\item Fight against a player;
 			\item Post;
 			\item Comment;
-			\item ``Like'';
+			\item \textit{Like};
 			\item Sign out.
 		\end{itemize}
-	\section{Non Functional Requirements}
-	\subsection{The API}
-	\subsection{The User Interface}
+	\section{Non Functional Requirements: the API}
+		First of all the APIs to \textit{GET} and \textit{POST} data from/to the system will be necessary. So, in general, 
+		services as the sign up, posting, comment, \textit{like} and other social facilities will be provided.\\
+		The same thing stands for the peculiarities of the platform, such as, activate an ability, use an object, collect an item and so on. In general, all the possibilities to modify the persistent data will be exposed.\\
+		To built this part of the back-end of the application, I will get ideas from \textit{Facebook's Graph API} which I think it is a great model to build a well organized exposed API.
 
+		In addition to this general services, I think it is worth to provide a \textit{Battle Service}, to let any system 
+		include something like a \textit{widget} that will include a full \textit{SB} battle. In this way, any system will give the possibility to a \textit{Social Battle} user, to face random mobs even outside \textit{SB} itself.\\
+		It would be great if we also give the possibility to fight against a custom mob (in addition of the widget). Thanks to this anyone who includes the \textit{Battle Service} will be able to advertise his brand/company through mobs and enrich the game itself. For example \textit{Facebook} could think of the ``Mark Zuckerberg'' custom mob; \textit{Coca Cola} the ``Polar Bear'' mob; \textit{Stack Overflow} the ``Bad-Code'' mob and so on.\\
+
+		Further considerations about the APIs will be made in Chapter 5.
 	\section{Specifications}
+		Here are some further specification to make better understand how the system will work:
+		\begin{itemize}
+			\item The ``location'' should be something like a \textit{Facebook} page.
+			\item With abilities, I mean the classical RPG kinds of abilities, and so physical and magical.
+			\item The battle will be an ATB one.
+			\item The EXP and guils gained from a battle have to be proportional to the power of the mob.
+			\item When mobs are defeated, they will leave items (objects and/or equipment) and guils to the winner.
+			\item \ldots
+		\end{itemize}
 
-	 The ``location'' should be something like a \textit{Facebook} page.
-
-	 \section{Basic functionalities}
+	\section{Basic functionalities}
+	I think that it will be very difficult to develop the system described above in such a small time of a few months. So I will shrink the features in some basic one. I will list down here the functionalities which will be realized and which will give a minimal working application:
+	\begin{itemize}
+		\item Sign up and sign in;
+	 	\item The battle, which is the core of the application;
+	 	\item The spawning of mobs;
+	 	\item The post and the comments;
+	 	\item The following mechanism;
+	 	\item The ``locations'';
+	 	\item The possibility to skill the character (at least equipment and abilities).
+	\end{itemize} 
