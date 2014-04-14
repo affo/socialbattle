@@ -2,11 +2,11 @@
 	In this chapter the requirements for our web application (the one the end user will use) 
 	and for the APIs (that a possible developer will use) will be listed.
 
-	\noindent It is important to say that the requirements that will be listed below, are the 
+	It is important to say that the requirements that will be listed below, are the 
 	theoretical requirements of a \textit{full} application.\\
 	I will write a paragraph in which I will specify the minimum functionalities of a working application.
 
-	\noindent So, from the goals written in the previous chapter we can derive our general requirements.\\
+	So, from the goals written in the previous chapter we can derive our general requirements.\\
 	I will write down here, for each goal the requirements that will fulfill it.
 	\begin{itemize}
 		\item \textbf{\goalSignup}
@@ -28,6 +28,8 @@
 				of the player.
 				\item Every time a player defeats an enemy the system should reward the player giving him 
 				EXP, guils and so on.
+				\item There should exist a place in which the user can manage the status of his character in terms of 
+				the equipment, the abilities in use and the items collected.
 				\item Provide a PVP functionality.
 			\end{itemize}
 		\item \textbf{\goalFollow}
@@ -41,18 +43,37 @@
 				\item Provide a ``edit profile'' functionality in terms of the avatar and other personal 
 				information. Not about character's skills.
 			\end{itemize}
+		\item \textbf{\goalSocial}
+			\begin{itemize}
+				\item Let the user post, comment, ``like'' and so on.
+			\end{itemize}
 		\item \textbf{\goalShare}
 			\begin{itemize}
 				\item Provide the possibility to share (using the social network which the user signed in with) his 
-				progresses.\\
-				The progresses could be defeating a mob, earning guils, earn equips or earn badges.
+				progresses (defeating a mob, earning guils, earn equips or earn badges).
 			\end{itemize}
 	\end{itemize}
 
 	\section{Functional Requirements}
-
-		Requirements per actor
-
+		From the general requirements wrote above we can define the functional requirements 
+		and so the functionalities that the system has to provide to users. A guest can only sign up to the system; 
+		a user, instead, can exploit the entire set of features provides, so:
+		\begin{itemize}
+			\item Sign in;
+			\item Modify his profile;
+			\item Explore locations;
+			\item Change equipments;
+			\item Add/remove abilities;
+			\item Manage items;
+			\item Follow/un-follow another player;
+			\item Share his results;
+			\item Fight against a mob;
+			\item Fight against a player;
+			\item Post;
+			\item Comment;
+			\item ``Like'';
+			\item Sign out.
+		\end{itemize}
 	\section{Non Functional Requirements}
 	\subsection{The API}
 	\subsection{The User Interface}
@@ -60,3 +81,5 @@
 	\section{Specifications}
 
 	 The ``location'' should be something like a \textit{Facebook} page.
+
+	 \section{Basic functionalities}
