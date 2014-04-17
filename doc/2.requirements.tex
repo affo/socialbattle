@@ -88,22 +88,24 @@
 	\section{Specifications}
 		Here are some further specification to make better understand how the system will work:
 		\begin{itemize}
-			\item The ``location'' should be something like a \textit{Facebook} page.
-			\item With abilities, I mean the classical RPG kinds of abilities, and so physical and magical.
-			\item The battle will be an ATB one.
+			\item The ``location'' should be something like a \textit{Facebook} page, a ``Room'' with its own features. For instance in a specific room a user can find some mobs and some others not.
+			\item Once a user is in a room, mobs will be spawned randomly.
+			\item The battle will be an ATB (Active Time Battle) one. So, any attack (ability) to be performed will require a certain specific time to be performed. Once the user selects an ability, he will have to wait for the time required. After that time passes, the ability will be performed and the user will be able to choose another ability; the battle goes on following this steps.
 			\item The EXP and guils gained from a battle have to be proportional to the power of the mob.
-			\item When mobs are defeated, they will leave items (objects and/or equipment) and guils to the winner.
-			\item \ldots
+			\item When mobs are defeated, they will leave items (loots, objects and/or equipment) and guils to the winner.
+			\item If a user looses a battle (i.e. he dies), it will not be ``game over''. There will be a penalty because of the KO. The penalty could be applied to guils or to the EXP.
+			\item Some rooms in which a user cannot fight mobs will be provided. These rooms will be locations in which a user can chat with some artificial intelligence to buy items; post freely to interact with other users and, maybe, exchange items with them.\\
+			There would be also PVP locations (``Arenas'') in which a user can start fighting (through a chat mechanism) against another user.
 		\end{itemize}
 
 	\section{Basic functionalities}
-	I think that it will be very difficult to develop the system described above in such a small time of a few months. So I will shrink the features in some basic one. I will list down here the functionalities which will be realized and which will give a minimal working application:
+	I think that it will be very difficult to develop the system described above in few months. So I will shrink the features in some basic one. I will list down here the functionalities which will be realized and which will give a minimal working application:
 	\begin{itemize}
 		\item Sign up and sign in;
-	 	\item The battle, which is the core of the application;
+	 	\item The battle (against mobs), which is the core of the application;
 	 	\item The spawning of mobs;
 	 	\item The post and the comments;
 	 	\item The following mechanism;
-	 	\item The ``locations'';
+	 	\item The rooms;
 	 	\item The possibility to skill the character (at least equipment and abilities).
 	\end{itemize} 

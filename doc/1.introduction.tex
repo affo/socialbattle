@@ -1,7 +1,6 @@
 \chapter{Introduction}
 	Before talking about the project in its details, I think it is worth to spend a few words about the general 
-	requirements imposed by the nature of the Service Technologies Course from which the project comes from.\\
-	We have also to keep in mind that this project will be used to test the performance of a IaaS system.
+	requirements imposed by the nature of the Service Technologies Course from which the project comes from, also keeping in mind that the final application will be used to test the performance of a IaaS system.
 
 	Given this, I will have to fulfill three specific requirements:
 	\begin{itemize}
@@ -11,9 +10,9 @@
 	\end{itemize}
 	\section{Project Description}
 		The project aims at mixing the features of a social network and a role-playing game 
-		into a web application named \textit{Social Battle}.
+		into a web application named \SocialBattle.
 
-		To better define the context we specify the main features of the two elements:
+		To better define the context, we specify the main features of the two elements:
 		\begin{itemize}
 			\item \textbf{Social network}\\
 			The main features of a social network are
@@ -29,18 +28,18 @@
 			no other goal than skilling more and more your main character.
 		\end{itemize}
 
-		\textit{Social Battle} will take most of the features of a social network adding the 
+		\SocialBattle will take most of the features of a social network adding the 
 		ones of a role-playing game.
 
-		Thinking of \textit{Facebook} as our landmark for the social networking part, 
-		you can find below the matching between some \textit{Facebook} components and what 
-		they might become in \textit{Social Battle} context:
+		Thinking of \Facebook as our landmark for the social networking part, 
+		you can find below the matching between some \Facebook components and what 
+		they might become in \SocialBattle context:
 		\begin{itemize}
 			\item \textbf{The page}\\
 			Something as a location. A place in which a user can fight mobs.
 
 			\item \textbf{The friendship}\\
-			It could become an asymmetric relationship, suck as \textit{Twitter}'s fellowship.
+			It could become an asymmetric relationship, suck as \Twitter's fellowship.
 			Once \textit{User A} follows \textit{User B}, he could follow all the progress
 			of \textit{User B};
 
@@ -52,14 +51,14 @@
 			The fight between a user and a mob (PVE) or between two users (PVP).
 		\end{itemize}
 
-		These were only examples to better understand what \textit{Social Battle} could become.\\
+		These were only examples to better understand what \SocialBattle could become.\\
 		As you may have already understood, the system will not be provided with a GUI except from the one 
 		that usually a social network gives, and so a textual one.
 
 	\section{Glossary}
 	I think it is worth to define some common words that will be used in this documentation.
 	\begin{itemize}
-		\item \textbf{SB}: \textit{Social Battle}, the system we are talking about.
+		\item \textbf{SB}: \SocialBattle, the system we are talking about.
 		\item \textbf{RPG}: Role-playing game.
 		\item \textbf{Mob}: An enemy controlled by an artificial intelligence (maybe the server).\\
 			The user will have to fight against the mob to obtain experience (money, objects, equipment)
@@ -76,6 +75,8 @@
 			A fight between to users.
 		\item \textbf{PVE}: Player Versus Environment fight.\\
 			A fight between a user and a mob.
+		\item \textbf{Ability}: The skills of the character.\\
+		\SocialBattle will give the possibility to use the classical RPG kinds of abilities, and so physical and magical.
 	\end{itemize}
 
 	\section{Goals}
@@ -89,7 +90,7 @@
 	\newcommand{\goalSkill}{Skill his character and so fight against mobs (maybe other users) to gain
 			EXP, equipments, loots and guils.}
 	\newcommand{\goalFollow}{Follow some characters to learn about their progress and be followed by other users in turn.}
-	\newcommand{\goalProfile}{Customize his character, at least in terms of the items equipped.}
+	\newcommand{\goalProfile}{Edit his personal information.}
 	\newcommand{\goalExplore}{Explore the world around him to meet new players and to fight against different mobs.}
 	\newcommand{\goalSocial}{The system should always be a social platform, so the user should be able to 
 			interact with other users.}
@@ -112,12 +113,12 @@
 	The Actors in our system are only two:
 	\begin{itemize}
 		\item \textbf{The guest}\\
-		The unregistered user which can only sign up to \textit{Social Battle}.
+		The unregistered user which can only sign up to \SocialBattle.
 		\item \textbf{The user}\\
 		The registered user, which is only a guest which has signed up.
 		% \item \textbf{The mob}\\
 		% It is only an artificial intelligence spawned by the server itself, but it can be included as an actor in 
-		% our system. Even if it is not handled by a human mind it is the subject around which \textit{Social Battle} 
+		% our system. Even if it is not handled by a human mind it is the subject around which \SocialBattle 
 		% will be built.
 	\end{itemize}
 	The topic about which action an actor can perform in the system will be deepened in the \textit{Use Case} section.
