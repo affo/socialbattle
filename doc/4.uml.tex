@@ -3,8 +3,8 @@
 	The Use Case Diagram is needed to better which actions any actor can perform in the  system.\\
 	For a better comprehension of the diagrams we will separate the diagrams per actor and per functionality (in the case of the registered user).
 
-	\subsection{The Guest}
-		The guest can only register to the system:
+		\subsection{The Guest}
+		The guest use case diagram is simple, because he can only register to the system:
 		\begin{figure}[ht!]
 			\centering
 			\includegraphics[width=0.9\textwidth]{images/use_case_guest}
@@ -12,16 +12,34 @@
 			\label{fig:use_case_guest}
 		\end{figure}
 
-	\subsection{The User}
-		\subsubsection{Sign in/out}
-		\begin{figure}[ht!]
-			\centering
-			\includegraphics[width=0.9\textwidth]{images/use_case_user_sign_in}
-			\caption{User sign in and sign out Use Case Diagram}
-			\label{fig:use_case_user_sign_in}
-		\end{figure}
-		\subsubsection{Social \ldots}
+		\subsection{The User}
+		In the case of the user, things become more complex. Separating the different set of actions will help in understanding the use case diagram:
+		\begin{itemize}
+		 	\item \textbf{Sign in}
+			\begin{figure}[ht!]
+				\centering
+				\includegraphics[width=0.9\textwidth]{images/use_case_user_sign_in}
+				\caption{User sign in and sign out Use Case Diagram}
+				\label{fig:use_case_user_sign_in}
+			\end{figure}
 
-		\subsubsection{\ldots Battle}
+			\item \textbf{Social \ldots} \hfill \\
+			Any use case pointed by the actor \textit{includes} the use case ``Sign in''.
+			\begin{figure}[ht!]
+				\centering
+				\includegraphics[width=0.9\textwidth]{images/use_case_user_social}
+				\caption{Use Case Diagram for the social features}
+				\label{fig:use_case_user_social}
+			\end{figure}
+
+			\item \textbf{\ldots Battle} \hfill \\
+			Any use case pointed by the actor \textit{includes} the use case ``Sign in''.
+			\begin{figure}[ht!]
+				\centering
+				\includegraphics[width=0.9\textwidth]{images/use_case_user_battle}
+				\caption{Use Case Diagram for the ``battle'' features}
+				\label{fig:use_case_user_battle}
+			\end{figure}
+		\end{itemize} 
 
 	\section{Class Diagram}
