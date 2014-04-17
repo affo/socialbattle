@@ -11,7 +11,7 @@
 	\begin{itemize}
 		\item \textbf{\goalSignup}
 			\begin{itemize}
-				\item Provide a sign up functionality (at least with \textit{Facebook}).
+				\item Provide a sign up functionality (at least with \Facebook{}).
 				\item Provide a sign up functionality not using an already existent social network.
 				\item Provide a sign in functionality.
 			\end{itemize}
@@ -81,14 +81,14 @@
 		To built this part of the back-end of the application, I will get ideas from \textit{Facebook's Graph API} which I think it is a great model to build a well organized exposed API.
 
 		In addition to this general services, I think it is worth to provide a \textit{Battle Service}, to let any system 
-		include something like a \textit{widget} that will include a full \textit{SB} battle. In this way, any system will give the possibility to a \textit{Social Battle} user, to face random mobs even outside \textit{SB} itself.\\
-		It would be great if we also give the possibility to fight against a custom mob (in addition of the widget). Thanks to this anyone who includes the \textit{Battle Service} will be able to advertise his brand/company through mobs and enrich the game itself. For example \textit{Facebook} could think of the ``Mark Zuckerberg'' custom mob; \textit{Coca Cola} the ``Polar Bear'' mob; \textit{Stack Overflow} the ``Bad-Code'' mob and so on.\\
+		include something like a \textit{widget} that will include a full \textit{SB} battle. In this way, any system will give the possibility to a \SocialBattle{} user, to face random mobs even outside \textit{SB} itself.\\
+		It would be great if we also give the possibility to fight against a custom mob (in addition of the widget). Thanks to this anyone who includes the \textit{Battle Service} will be able to advertise his brand/company through mobs and enrich the game itself. For example \Facebook{} could think of the ``Mark Zuckerberg'' custom mob; \textit{Coca Cola} the ``Polar Bear'' mob; \textit{Stack Overflow} the ``Bad-Code'' mob and so on.\\
 
 		Further considerations about the APIs will be made in Chapter 5.
 	\section{Specifications}
 		Here are some further specification to make better understand how the system will work:
 		\begin{itemize}
-			\item The ``location'' should be something like a \textit{Facebook} page, a ``Room'' with its own features. For instance in a specific room a user can find some mobs and some others not.
+			\item The ``location'' should be something like a \Facebook{} page, a ``Room'' with its own features. For instance in a specific room a user can find some mobs and some others not.
 			\item Once a user is in a room, mobs will be spawned randomly.
 			\item The battle will be an ATB (Active Time Battle) one. So, any attack (ability) to be performed will require a certain specific time to be performed. Once the user selects an ability, he will have to wait for the time required. After that time passes, the ability will be performed and the user will be able to choose another ability; the battle goes on following this steps.
 			\item The EXP and guils gained from a battle have to be proportional to the power of the mob.
