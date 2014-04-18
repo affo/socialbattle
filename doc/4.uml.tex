@@ -1,6 +1,6 @@
 \chapter{UML Diagrams}
 	\section{Use Case Diagram}
-	The Use Case Diagram is needed to better which actions any actor can perform in the  system.\\
+	The Use Case Diagram is needed to better understand which actions any actor can perform in the  system and the dependencies between them.\\
 	For a better comprehension of the diagrams we will separate the diagrams per actor and per functionality (in the case of the registered user).
 \newpage
 		\subsection{The Guest}
@@ -44,3 +44,19 @@
 		\end{itemize} 
 \newpage
 	\section{Class Diagram}
+	Eventually, to better understand the entities involved in our system and the interactions between them, we draw a simple class diagram:
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{images/class_diagram}
+		\caption{Class Diagram}
+		\label{fig:class_diagram}
+	\end{figure}
+\newpage
+	Even though the class diagram is complete, it cannot clarify the correspondence between the action that a user can perform and the room in which he is able to perform them.\\
+	Even though this can be acknowledged analyzing carefully the use case diagrams, I think it would be useful to provide a state diagram relating rooms and the action that a user can perform in each room.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{images/state_diagram}
+		\caption{State Diagram for Rooms}
+		\label{fig:state_diagram}
+	\end{figure}
