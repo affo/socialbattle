@@ -1,6 +1,43 @@
 \chapter{Architecture Description}
-	The application will be a client-server one.
+	Before making any consideration about the architecture of the system we have to separate the two applications that will be made, the end-user application and the back-end.
 
+	\section{The Back-end}
+	The back-end is intended to be used by developers that wants to use \SocialBattle{}'s services to develop an end user application. Its architecture will be a SOA (Service Oriented Architecture) for two main reasons: the first one is because of the nature of the course this project is done for; the second one is because SOAs have some features which have lots of pros. For instance, services are independent, loosely coupled, can be distributed with low effort. For this reason a SOA is also easy to maintain and it is easy to evolve.
+\newpage
+	Our back-end will offer basically three services:
+	\begin{description}
+		\item[The Battle Service]: A service which allows to start a battle and to finish it; to retrieve active monsters in a room; to grab loots. Additionally, this service, will give the possibility to include an entire battle (a PVE or a PVP one).
+		\item[The Social Service]: This service will be the social one, and so it will provide the possibility to retrieve user information, to post, to comment, to follow and other similar functionalities. It will also provide the possibility to share results using \Facebook{} or \Twitter{}.
+		\item[The Sign in/up Service]: This service will provide he possibility to sign in, up and out the system (possibly using some security policy).
+	\end{description}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{images/backend_arch}
+		\caption{Scheme of the Back-end System}
+		\label{fig:backend_arch}
+	\end{figure}
+	\section{The Front-end}
+		The front-end, on the other side, will be a simple client-server application.\\
+		This application will exploit the API exposed by the back-end. We report here a diagram identifying subsystems of the application and their interaction with the back-end:
+
+	\begin{landscape}
+		\begin{figure}[H]
+			\centering
+			\includegraphics[width=1.4\textwidth]{images/total_arch}
+			\caption{Scheme of The End-user Application and the interaction with the Back-end}
+			\label{fig:total_arch}
+		\end{figure}
+	\end{landscape}
 
 	\section{Technological Considerations}
+	The back-end will be developed using \textit{Django framework} which already provides a working (WSGI) web server and a ORM to interact with the database. The database will be a MySQL one, and so, a relational one.\\
+	I decided to use, united with the SOA architecture, a REST architecture. To better achieve this I will use \textit{Django REST Framework} on top of \textit{Django}.\\
+	We will need a service to handle asynchronous real-time notifications (at least for the automatic spawning of mobs). For this I will use \textit{Django Announce}, another framework which lays on \textit{SocketIO} and a \textit{NodeJS} server. This framework is still in ``alpha'' state, I hope not having any problem.\\
+	For the security of the authentication \textit{OAuth2} protocol will be used.
+
+	If I will decide to implement a chat mechanism, I will have to decide if relying on \textit{Django Announce} or building an ad-hoc a \textit{SocketIO} server that will ``talk'' with a \textit{Twister} server. This seems to be a common practice to handle chat issues.
+
+	The back-end will have to integrate \Facebook{}'s and \Twitter{}'s services. To achieve this purpose I will use some famous SDK written for python language: \textit{Django Facebook} and \textit{Twython}.
+
+	In addition to this I think I will use \textit{Gravatar} for the auto-generation of random profile images and \textit{Trianglify} for the auto-generation of backgrounds.
 	
