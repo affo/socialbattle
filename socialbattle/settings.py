@@ -39,9 +39,12 @@ INSTALLED_APPS = (
     'rest_framework',
     'djangular',
     'socialbattle.apps.api',
+    'announce',
+    'django_facebook',
 )
 
 MIDDLEWARE_CLASSES = (
+    'announce.middleware.AnnounceCookieMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,8 +90,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/apps/site/'
+#STATICFILES_DIRS = (os.path.join(BASE_DIR, '/socialbattle/apps/site/'),)
 STATICFILES_DIRS = (BASE_DIR + '/socialbattle/apps/site/',)
-TEMPLATE_DIRS = (BASE_DIR + '/socialbattle/apps/site/html')
+#TEMPLATE_DIRS = (os.path.join(BASE_DIR, '/socialbattle/apps/site/html'), )
+TEMPLATE_DIRS = (BASE_DIR + '/socialbattle/apps/site/html', )
 
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
@@ -104,3 +109,31 @@ REST_FRAMEWORK = {
 
     #'PAGINATE_BY': 10
 }
+
+ANNOUNCE_CLIENT_ADDR = 'localhost:5500'
+ANNOUNCE_API_ADDR = 'localhost:6600'
+ANNOUNCE_HTTPS = False
+
+FACEBOOK_APP_ID = '1441968896050367'
+FACEBOOK_APP_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
+    'django_facebook.context_processors.facebook',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'django_facebook.auth_backends.FacebookBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, '/socialbattle/media')

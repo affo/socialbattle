@@ -1,0 +1,17 @@
+<div>
+	<h3>Inside {$ 'Fucking ' + 'Angular' $}</h3>
+	Search: <input ng-model="query"/>
+
+	{# <form ng-submit="submit()">
+		Enter a new word:
+		<input type="text" ng-model="text" name="text"/>
+		<input type="submit" value="POST"/>
+	</form>
+	<p>{$ fill $}</p> #}
+	<ul>
+		<li ng-repeat="user in users | filter:query">
+			<a ui-sref="detail({ user_id: user.id})">{$ user.username $}</a>
+		</li>
+	</ul>
+</div>
+<div ui-view></div>

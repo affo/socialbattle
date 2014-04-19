@@ -1,4 +1,5 @@
 *.py[cod]
+*.log
 
 # C extensions
 *.so
@@ -41,3 +42,7 @@ doc/*
 
 # Angular settings
 socialbattle/apps/site/bower_components/*
+socialbattle/apps/site/node_modules/*
+
+# Media
+socialbattle/media/*

@@ -14,18 +14,23 @@ app.config(function($interpolateProvider) {
 
 app.config(
   function($stateProvider, $urlRouterProvider) {
-    $urlRouterProvider.otherwise("/words");
+    $urlRouterProvider.otherwise("/users");
 
     $stateProvider.
       state('list', {
-        url: '/words',
-        templateUrl: '/apps/site/html/partials/word-list.html',
-        controller: 'WordList'
+        url: '/users',
+        templateUrl: '/apps/site/html/partials/user-list.html',
+        controller: 'UserList'
       }).
 
       state('detail', {
-        url: '/words/:word_id',
-        templateUrl: '/apps/site/html/partials/word-detail.html',
-        controller: 'WordDetail'
+        url: '/users/:user_id',
+        templateUrl: '/apps/site/html/partials/user-detail.html',
+        controller: 'UserDetail'
       })
   });
+
+/*app.config(
+  function(RestangularProvider){
+      RestangularProvider.setDefaultHeaders({'Authorization': 'Basic root:root'});
+  });*/

@@ -1,7 +1,9 @@
+{% load announcetags %}
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
+	{% announce_js %}
 	<script src="/apps/site/bower_components/lodash/dist/lodash.js"></script>
 	<script src="/apps/site/bower_components/angular/angular.js"></script>
 	<script src="/apps/site/bower_components/restangular/dist/restangular.js"></script>
@@ -9,6 +11,16 @@
 
 	<script src="/apps/site/js/app.js"></script>
 	<script src="/apps/site/js/controllers.js"></script>
+	
+	<script type="text/javascript">
+		// use .on() to add a listener. you can add as many listeners as you want.
+		announce.on('notifications', function(data){
+		    alert("Notification received");
+		    console.log("Notification received");
+		}).init();
+		// .init() will authenticate against the announce.js server, and open the WebSocket connection.
+		console.log("Announce.js inited");
+	</script>
 </head>
 <body ng-app="wordsApp">
    <div ui-view></div>
