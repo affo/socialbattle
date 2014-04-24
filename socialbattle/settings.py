@@ -36,21 +36,25 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'socialbattle.api',
     'rest_framework',
-    'djangular',
-    'socialbattle.apps.api',
-    'announce',
-    'django_facebook',
+    'corsheaders',
+    #'djangular',
+    #'announce',
+    #'django_facebook',
+    #'provider',
+    #'provider.oauth2'
 )
 
 MIDDLEWARE_CLASSES = (
-    'announce.middleware.AnnounceCookieMiddleware',
+    #'announce.middleware.AnnounceCookieMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 )
 
 ROOT_URLCONF = 'socialbattle.urls'
@@ -64,7 +68,7 @@ WSGI_APPLICATION = 'socialbattle.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test',
+        'NAME': 'socialbattle',
         'HOST': 'localhost',
         'PORT': 3306,
         'USER': 'py',
@@ -89,11 +93,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_URL = '/apps/site/'
+MEDIA_ROOT = '/media/'
+STATIC_URL = '/static/'
 #STATICFILES_DIRS = (os.path.join(BASE_DIR, '/socialbattle/apps/site/'),)
-STATICFILES_DIRS = (BASE_DIR + '/socialbattle/apps/site/',)
+#STATICFILES_DIRS = (BASE_DIR + '/socialbattle/apps/site/',)
 #TEMPLATE_DIRS = (os.path.join(BASE_DIR, '/socialbattle/apps/site/html'), )
-TEMPLATE_DIRS = (BASE_DIR + '/socialbattle/apps/site/html', )
+#TEMPLATE_DIRS = (BASE_DIR + '/socialbattle/apps/site/html', )
 
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
@@ -107,33 +112,20 @@ REST_FRAMEWORK = {
         #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
 
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        #'rest_framework.authentication.OAuth2Authentication',
+    ), 
+
     #'PAGINATE_BY': 10
 }
 
-ANNOUNCE_CLIENT_ADDR = 'localhost:5500'
-ANNOUNCE_API_ADDR = 'localhost:6600'
-ANNOUNCE_HTTPS = False
+AUTH_USER_MODEL = 'api.User'
 
-FACEBOOK_APP_ID = '1441968896050367'
-FACEBOOK_APP_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
+CORS_ORIGIN_ALLOW_ALL = True
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.tz',
-    'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
-    'django_facebook.context_processors.facebook',
-)
+#ANNOUNCE_CLIENT_ADDR = 'localhost:5500'
+#ANNOUNCE_API_ADDR = 'localhost:6600'
+#ANNOUNCE_HTTPS = False
 
-AUTHENTICATION_BACKENDS = (
-    'django_facebook.auth_backends.FacebookBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
-
-AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, '/socialbattle/media')
+#FACEBOOK_APP_ID = '1441968896050367'
+#FACEBOOK_APP_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'

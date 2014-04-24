@@ -41,8 +41,8 @@ doc/*
 !doc/*.tex
 
 # Angular settings
-socialbattle/apps/site/bower_components/*
-socialbattle/apps/site/node_modules/*
+site/bower_components/*
+site/node_modules/*
 
 # Media
 socialbattle/media/*

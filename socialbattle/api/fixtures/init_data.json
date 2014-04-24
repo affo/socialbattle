@@ -1,0 +1,83 @@
+[
+	{
+		"model": "api.user",
+		"pk": 1,
+		"fields": {
+			"username": "billi",
+			"first_name": "stefano",
+			"last_name": "bielli",
+			"email": "stefano.bielli@sb.com",
+			"password": "socialbattle",
+			"follows": [2, 3]
+		}
+	},
+	{
+		"model": "api.user",
+		"pk": 2,
+		"fields": {
+			"username": "arci",
+			"first_name": "fabio",
+			"last_name": "arcidiacono",
+			"email": "fabio.arcidiacono@sb.com",
+			"password": "socialbattle"
+		}
+	},
+	{
+		"model": "api.user",
+		"pk": 3,
+		"fields": {
+			"username": "tomma",
+			"first_name": "riccardo",
+			"last_name": "tommasini",
+			"email": "riccardo.tommasini@sb.com",
+			"password": "socialbattle",
+			"follows": [1, 2, 4]
+		}
+	},
+	{
+		"model": "api.user",
+		"pk": 4,
+		"fields": {
+			"username": "cazza",
+			"first_name": "gianpiero",
+			"last_name": "cazzaniga",
+			"email": "gianpiero.cazzaniga@sb.com",
+			"password": "socialbattle"
+		}
+	},
+
+
+
+	{
+		"model": "api.character",
+		"pk": 1,
+		"fields": {
+			"name": "tidus",
+			"owner": 1
+		}
+	},
+	{
+		"model": "api.character",
+		"pk": 2,
+		"fields": {
+			"name": "yuna",
+			"owner": 2
+		}
+	},
+	{
+		"model": "api.character",
+		"pk": 3,
+		"fields": {
+			"name": "auron",
+			"owner": 3
+		}
+	},
+	{
+		"model": "api.character",
+		"pk": 4,
+		"fields": {
+			"name": "rikku",
+			"owner": 4
+		}
+	}
+]

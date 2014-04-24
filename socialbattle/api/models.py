@@ -1,17 +1,33 @@
 from django.db import models
 from os.path import join
-from socialbattle.settings import MEDIA_ROOT
+from django.contrib.auth.models import AbstractUser
+#from django_facebook.models import FacebookModel
+#from django.dispatch.dispatcher import receiver
+#from django.db.models.signals import post_save
+#from django_facebook.utils import get_user_model, get_profile_model
 
-class User(models.Model):
+#class User(FacebookModel):
+class User(AbstractUser):
 	'''
-		This user will include Twitter's one and Facebook's one.
+		This user will include Twitter's (maybe) one and Facebook's one.
+		Up to now we use the standard django user.
 		In addition we have:
 	'''
-	username = models.CharField(max_length=200)
-	email = models.EmailField()
-	avatar = models.ImageField(upload_to=join(MEDIA_ROOT, 'avatars'))
+	#facebook_user = models.OneToOneField(settings.AUTH_USER_MODEL)
+	avatar = models.ImageField(upload_to='avatars', blank=True)
 	#relations
-	follows = models.ManyToManyField('self', symmetrical=False) #maybe smarter than 'followed_by'
+	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False) #maybe smarter than 'followed_by'
+
+	# @receiver(post_save)
+	# def create_profile(sender, instance, created, **kwargs):
+	# 	'''
+	# 		Create a matching profile whenever a user object is created.
+	# 	'''
+	# 	if sender == get_user_model():
+	# 		facebook_user = instance
+	# 		profile_model = get_profile_model()
+	# 		if profile_model == User and created:
+	# 			profile, new = User.objects.get_or_create(user=instance)
 
 class Character(models.Model):
 	'''
@@ -27,7 +43,7 @@ class Character(models.Model):
 	mpower = models.IntegerField(default=10)
 	speed = models.IntegerField(default=10)
 	#relations
-	user = models.ForeignKey(User)
+	owner = models.ForeignKey(User)
 	abilities = models.ManyToManyField('Ability')
 	items = models.ManyToManyField('Item')
 
@@ -64,10 +80,10 @@ class Item(models.Model):
 
 class Post(models.Model):
 	content = models.CharField(max_length=1024)
-	owner = models.ForeignKey(Character)
+	author = models.ForeignKey(Character)
 
 
 class Comment(models.Model):
 	content = models.CharField(max_length=1024)
-	owner = models.ForeignKey(Character)
+	author = models.ForeignKey(Character)
 	post = models.ForeignKey(Post)

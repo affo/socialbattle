@@ -2,12 +2,12 @@
 
 /* Controllers */
 
-var ctrls = angular.module('wordsControllers', ['restangular']);
+var ctrls = angular.module('controllers', ['restangular']);
 
 ctrls.controller('UserList',
   function($scope, Restangular) {
     console.log("List controller called");
-    $scope.users = Restangular.all('api/users').getList().$object;
+    $scope.users = Restangular.all('users').getList().$object;
 
     // $scope.submit = function(){
     // 	//post
@@ -29,5 +29,6 @@ ctrls.controller('UserList',
 ctrls.controller('UserDetail',
   function($scope, $stateParams, Restangular) {
     console.log("Detail controller called");
-    $scope.user = Restangular.one('api/users', $stateParams.user_id).get().$object;
+    $scope.user = Restangular.one('users', $stateParams.username).get().$object;
   });
+
