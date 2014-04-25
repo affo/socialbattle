@@ -122,6 +122,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'api.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
+#CORS_URLS_REGEX = r'^api/.*$'
 
 #ANNOUNCE_CLIENT_ADDR = 'localhost:5500'
 #ANNOUNCE_API_ADDR = 'localhost:6600'

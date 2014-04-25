@@ -6,7 +6,6 @@ var ctrls = angular.module('controllers', ['restangular']);
 
 ctrls.controller('UserList',
   function($scope, Restangular) {
-    console.log("List controller called");
     $scope.users = Restangular.all('users').getList().$object;
 
     // $scope.submit = function(){
@@ -28,7 +27,21 @@ ctrls.controller('UserList',
 
 ctrls.controller('UserDetail',
   function($scope, $stateParams, Restangular) {
-    console.log("Detail controller called");
     $scope.user = Restangular.one('users', $stateParams.username).get().$object;
+  });
+
+ctrls.controller('UserFollows',
+  function($http, $scope) {
+    $scope.bella = 'LOL';
+    var urls = $scope.user.follows;
+    console.log(urls);
+    var follows = new Array();
+    for(var i = 0; i < urls.length; i++){
+        $http.get(urls[i]).then(
+                function(result){
+                    follows.push(result.data);
+                });
+    }
+    $scope.follows = follows;
   });
 

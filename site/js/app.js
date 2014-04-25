@@ -11,11 +11,7 @@ var app = angular.module('socialBattle', [
 app.config(
   function(RestangularProvider){
     RestangularProvider.setBaseUrl('http://localhost:8000/api/');
-    RestangularProvider.setDefaultHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'X-Requested-With',
-      'withCredentials': 'true'
-    });
+    RestangularProvider.setRequestSuffix('/');
   });
 
 app.config(
@@ -38,5 +34,11 @@ app.config(
       state('home', {
         url: '/',
         templateUrl: 'html/partials/home.html'
+      }).
+
+      state('user-detail.follows', {
+        url: '/follows',
+        templateUrl: 'html/partials/user-detail.follows.html',
+        controller: 'UserFollows'
       })
   });

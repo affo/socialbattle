@@ -3,13 +3,13 @@ from rest_framework.urlpatterns import format_suffix_patterns
 import views
 
 user_urls = patterns('',
-	url(r'^(?P<username>[0-9a-zA-Z_-]+)/characters$', views.UserCharacterList.as_view(), name='usercharacter-list'),
-	url(r'^(?P<username>[0-9a-zA-Z_-]+)$', views.UserDetail.as_view(), name='user-detail'),
+	url(r'^(?P<username>[0-9a-zA-Z_-]+)/characters/$', views.UserCharacterList.as_view(), name='usercharacter-list'),
+	url(r'^(?P<username>[0-9a-zA-Z_-]+)/$', views.UserDetail.as_view(), name='user-detail'),
 	url(r'^$', views.UserList.as_view(), name='user-list')
 )
 
 character_urls = patterns('',
-	url(r'^(?P<pk>\d+)$', views.CharacterDetail.as_view(), name='character-detail'),
+	url(r'^(?P<pk>\d+)/$', views.CharacterDetail.as_view(), name='character-detail'),
 	url(r'^$', views.CharacterList.as_view(), name='character-list')
 )
 

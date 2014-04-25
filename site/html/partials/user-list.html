@@ -9,7 +9,7 @@
 	<p>{$ fill $}</p> -->
 	<ul>
 		<li ng-repeat="user in users | filter:query">
-			<a ui-sref="user-detail({ user_id: user.id})">{$ user.username $}</a>
+			<a ui-sref="user-detail({ username: user.username})">{{ user.username }}</a>
 		</li>
 	</ul>
 </div>
