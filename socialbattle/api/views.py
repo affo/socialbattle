@@ -29,7 +29,7 @@ class UserList(generics.ListCreateAPIView):
 	serializer_class = serializers.UserSerializer
 	permission_classes = [permissions.AllowAny]
 
-class UserDetail(generics.RetrieveAPIView):
+class UserDetail(generics.RetrieveUpdateAPIView):
 	model = models.User
 	serializer_class = serializers.UserSerializer
 	lookup_field = 'username'
@@ -41,7 +41,7 @@ class CharacterList(generics.ListCreateAPIView):
 	permission_classes = [permissions.AllowAny]
 
 
-class CharacterDetail(generics.RetrieveUpdateDestroyAPIView):
+class CharacterDetail(generics.RetrieveDestroyAPIView):
 	model = models.Character
 	serializer_class = serializers.CharacterSerializer
 	permission_classes = [permissions.AllowAny]
@@ -54,3 +54,35 @@ class UserCharacterList(generics.ListAPIView):
 	def get_queryset(self):
 		queryset = super(UserCharacterList, self).get_queryset()
 		return queryset.filter(owner__username=self.kwargs.get('username'))
+
+class RelaxRoomList(generics.ListAPIView):
+	model = models.RelaxRoom
+	serializer_class = serializers.RelaxRoomSerializer
+
+class RelaxRoomDetail(generics.RetrieveAPIView):
+	model = models.RelaxRoom
+	serializer_class = serializers.RelaxRoomSerializer
+
+class PVERoomList(generics.ListAPIView):
+	model = models.PVERoom
+	serializer_class = serializers.PVERoomSerializer
+
+class PVERoomDetail(generics.RetrieveAPIView):
+	model = models.PVERoom
+	serializer_class = serializers.PVERoomSerializer
+
+class RelaxRoomItemList(generics.ListAPIView):
+	model = models.Item
+	serializer_class = serializers.ItemSerializer
+
+class PVERoomMobList(generics.ListAPIView):
+	model = models.Mob
+	serializer_class = serializers.MobSerializer
+
+class MobDetail(generics.RetrieveAPIView):
+	model = models.Mob
+	serializer_class = serializers.MobSerializer
+
+class ItemDetail(generics.RetrieveAPIView):
+	model = models.Item
+	serializer_class = serializers.ItemSerializer

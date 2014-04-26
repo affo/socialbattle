@@ -54,11 +54,10 @@ class Ability(models.Model):
 class Mob(models.Model):
 	name = models.CharField(max_length=200)
 	#stats
-	hp = models.IntegerField()
-	power = models.IntegerField()
-	mpower = models.IntegerField()
-	guils = models.IntegerField()
-	exp = models.IntegerField()
+	hp = models.IntegerField(default=250)
+	power = models.IntegerField(default=10)
+	guils = models.IntegerField(default=0)
+	exp = models.IntegerField(default=0)
 	#relations
 	drops = models.ManyToManyField('Item')
 

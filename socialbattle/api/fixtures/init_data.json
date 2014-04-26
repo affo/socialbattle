@@ -47,7 +47,6 @@
 	},
 
 
-
 	{
 		"model": "api.character",
 		"pk": 1,
@@ -78,6 +77,85 @@
 		"fields": {
 			"name": "rikku",
 			"owner": 4
+		}
+	},
+
+
+	{
+		"model": "api.item",
+		"pk": 1,
+		"fields": {
+			"name": "potion"
+		}
+	},
+
+
+
+
+	{
+		"model": "api.mob",
+		"pk": 1,
+		"fields": {
+			"name": "slime",
+			"drops": [1]
+		}
+	},
+	{
+		"model": "api.mob",
+		"pk": 2,
+		"fields": {
+			"name": "grenade",
+			"drops": [1]
+		}
+	},
+	{
+		"model": "api.mob",
+		"pk": 3,
+		"fields": {
+			"name": "malboro",
+			"drops": [1]
+		}
+	},
+	{
+		"model": "api.mob",
+		"pk": 4,
+		"fields": {
+			"name": "hellhound",
+			"drops": [1]
+		}
+	},
+	{
+		"model": "api.mob",
+		"pk": 5,
+		"fields": {
+			"name": "gargoyle",
+			"drops": [1]
+		}
+	},
+
+
+	{
+		"model": "api.relaxroom",
+		"pk": 1,
+		"fields": {
+			"name": "moguri shop",
+			"sells": [1]
+		}
+	},
+	{
+		"model": "api.pveroom",
+		"pk": 1,
+		"fields": {
+			"name": "zertinan caves",
+			"mobs": [1, 2]
+		}
+	},
+	{
+		"model": "api.pveroom",
+		"pk": 2,
+		"fields": {
+			"name": "golmore jungle",
+			"mobs": [3, 4, 5]
 		}
 	}
 ]
