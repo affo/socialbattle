@@ -52,7 +52,7 @@ class Ability(models.Model):
 
 
 class Mob(models.Model):
-	name = models.CharField(max_length=200)
+	name = models.CharField(max_length=200, primary_key=True)
 	#stats
 	hp = models.IntegerField(default=250)
 	power = models.IntegerField(default=10)
@@ -62,7 +62,7 @@ class Mob(models.Model):
 	drops = models.ManyToManyField('Item')
 
 class Room(models.Model):
-	name = models.CharField(max_length=200)
+	name = models.CharField(max_length=200, primary_key=True)
 
 	class Meta:
 		abstract = True

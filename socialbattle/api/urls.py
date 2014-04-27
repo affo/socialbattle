@@ -9,7 +9,7 @@ user_urls = patterns('',
 )
 
 character_urls = patterns('',
-	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/$', views.CharacterDetail.as_view(), name='character-detail'),
+	url(r'^(?P<name>[0-9a-zA-Z_-]+)/$', views.CharacterDetail.as_view(), name='character-detail'),
 	url(r'^$', views.CharacterList.as_view(), name='character-list'),
 )
 
@@ -18,6 +18,7 @@ room_urls = patterns('',
 	url(r'^pve/$', views.PVERoomList.as_view(), name='pveroom-list'),
 	url(r'^relax/(?P<name>[0-9a-zA-Z_-]+)/$', views.RelaxRoomDetail.as_view(), name='relaxroom-detail'),
 	url(r'^pve/(?P<name>[0-9a-zA-Z_-]+)/$', views.PVERoomDetail.as_view(), name='pveroom-detail'),
+	url(r'^$', views.RoomList.as_view(), name='room-list'),
 )
 
 mob_urls = patterns('',
@@ -25,7 +26,7 @@ mob_urls = patterns('',
 )
 
 item_urls = patterns('',
-	url(r'^(?P<name>[0-9a-zA-Z_-]+)/$', views.ItemDetail.as_view(), name='item-detail'),
+	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/$', views.ItemDetail.as_view(), name='item-detail'),
 )
 
 urlpatterns = patterns('',

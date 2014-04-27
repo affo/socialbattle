@@ -1,53 +1,4 @@
-[
-	{
-		"model": "api.user",
-		"pk": 1,
-		"fields": {
-			"username": "billi",
-			"first_name": "stefano",
-			"last_name": "bielli",
-			"email": "stefano.bielli@sb.com",
-			"password": "socialbattle",
-			"follows": [2, 3]
-		}
-	},
-	{
-		"model": "api.user",
-		"pk": 2,
-		"fields": {
-			"username": "arci",
-			"first_name": "fabio",
-			"last_name": "arcidiacono",
-			"email": "fabio.arcidiacono@sb.com",
-			"password": "socialbattle"
-		}
-	},
-	{
-		"model": "api.user",
-		"pk": 3,
-		"fields": {
-			"username": "tomma",
-			"first_name": "riccardo",
-			"last_name": "tommasini",
-			"email": "riccardo.tommasini@sb.com",
-			"password": "socialbattle",
-			"follows": [1, 2, 4]
-		}
-	},
-	{
-		"model": "api.user",
-		"pk": 4,
-		"fields": {
-			"username": "cazza",
-			"first_name": "gianpiero",
-			"last_name": "cazzaniga",
-			"email": "gianpiero.cazzaniga@sb.com",
-			"password": "socialbattle"
-		}
-	},
-
-
-	{
+{
 		"model": "api.character",
 		"pk": 1,
 		"fields": {
@@ -138,7 +89,7 @@
 		"model": "api.relaxroom",
 		"pk": 1,
 		"fields": {
-			"name": "moguri_shop",
+			"name": "moguri shop",
 			"sells": [1]
 		}
 	},
@@ -146,16 +97,15 @@
 		"model": "api.pveroom",
 		"pk": 1,
 		"fields": {
-			"name": "zertinan_caves",
-			"mobs": ["slime", "grenade"]
+			"name": "zertinan caves",
+			"mobs": [1, 2]
 		}
 	},
 	{
 		"model": "api.pveroom",
 		"pk": 2,
 		"fields": {
-			"name": "golmore_jungle",
-			"mobs": ["malboro", "hellhound", "gargoyle"]
+			"name": "golmore jungle",
+			"mobs": [3, 4, 5]
 		}
 	}
-]

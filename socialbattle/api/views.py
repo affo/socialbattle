@@ -86,3 +86,15 @@ class MobDetail(generics.RetrieveAPIView):
 class ItemDetail(generics.RetrieveAPIView):
 	model = models.Item
 	serializer_class = serializers.ItemSerializer
+
+from rest_framework.response import Response
+class RoomList(generics.ListAPIView):
+
+	def get(self, request, format=None):
+		relax = models.RelaxRoom.objects.all()
+		pve = models.PVERoom.objects.all()
+
+		relax = serializers.RelaxRoomSerializer(relax, context=self.get_serializer_context()).data
+		pve = serializers.PVERoomSerializer(pve, context=self.get_serializer_context()).data
+
+		return Response(relax + pve)
