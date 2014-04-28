@@ -1,12 +1,11 @@
 from django.db import models
 from os.path import join
 from django.contrib.auth.models import AbstractUser
-#from django_facebook.models import FacebookModel
-#from django.dispatch.dispatcher import receiver
-#from django.db.models.signals import post_save
-#from django_facebook.utils import get_user_model, get_profile_model
+from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
-#class User(FacebookModel):
 class User(AbstractUser):
 	'''
 		This user will include Twitter's (maybe) one and Facebook's one.
@@ -17,7 +16,6 @@ class User(AbstractUser):
 	avatar = models.ImageField(upload_to='avatars', blank=True)
 	#relations
 	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False)
-	
 
 	# @receiver(post_save)
 	# def create_profile(sender, instance, created, **kwargs):
@@ -29,6 +27,11 @@ class User(AbstractUser):
 	# 		profile_model = get_profile_model()
 	# 		if profile_model == User and created:
 	# 			profile, new = User.objects.get_or_create(user=instance)
+
+@receiver(post_save, sender=User)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+	if created:
+		Token.objects.create(user=instance)
 
 class Character(models.Model):
 	'''

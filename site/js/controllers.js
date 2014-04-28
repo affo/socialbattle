@@ -32,7 +32,6 @@ ctrls.controller('UserDetail',
 
 ctrls.controller('UserFollows',
   function($http, $scope) {
-    $scope.bella = 'LOL';
     var urls = $scope.user.follows;
     console.log(urls);
     var follows = new Array();
@@ -45,3 +44,61 @@ ctrls.controller('UserFollows',
     $scope.follows = follows;
   });
 
+ctrls.controller('Home',
+  function($scope, Restangular) {
+    $scope.logged = false;
+    $scope.signinForm = {};
+    $scope.signupForm = {};
+    $scope.user = {};
+
+    $scope.signin = function(){
+        var data = {
+            username: $scope.signinForm.username,
+            password: $scope.signinForm.password,
+        };
+
+        console.log(data);
+
+        Restangular.all('sign/in').post(data).then(
+            function(response){
+                console.log(response);
+                Restangular.setDefaultHeaders(
+                    {'Authorization': 'Token ' + response.token}
+                )
+                $scope.logged = true;
+            },
+            function(response){
+                console.log(response);
+            });
+    };
+
+    $scope.signup = function(){
+        var data = {
+            username: $scope.signup_username,
+            email: $scope.signup_email,
+            password: $scope.signup_password,
+        };
+
+        Restangular.all('sign/up').post(data).then(
+            function(response){
+                console.log(response);
+            },
+            function(response){
+                console.log(response);
+            });
+    };
+
+    $scope.signout = function(){
+        Restangular.all('sign/out').post().then(
+            function(response){
+                console.log(response);
+                Restangular.setDefaultHeaders(
+                    {'Authorization': ''}
+                )
+                $scope.logged = false;
+            },
+            function(response){
+                console.log(response);
+            });
+    };
+  });

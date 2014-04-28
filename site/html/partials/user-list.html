@@ -1,12 +1,5 @@
 <div>
 	Search: <input ng-model="query"/>
-
-	<!-- <form ng-submit="submit()">
-		Enter a new word:
-		<input type="text" ng-model="text" name="text"/>
-		<input type="submit" value="POST"/>
-	</form>
-	<p>{$ fill $}</p> -->
 	<ul>
 		<li ng-repeat="user in users | filter:query">
 			<a ui-sref="user-detail({ username: user.username})">{{ user.username }}</a>

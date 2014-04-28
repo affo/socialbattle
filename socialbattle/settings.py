@@ -38,16 +38,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'socialbattle.api',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
-    'provider',
-    'provider.oauth2',
     #'djangular',
     #'announce',
     #'django_facebook',
 )
 
 MIDDLEWARE_CLASSES = (
-    #'announce.middleware.AnnounceCookieMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,10 +93,6 @@ USE_TZ = True
 
 MEDIA_ROOT = '/media/'
 STATIC_URL = '/static/'
-#STATICFILES_DIRS = (os.path.join(BASE_DIR, '/socialbattle/apps/site/'),)
-#STATICFILES_DIRS = (BASE_DIR + '/socialbattle/apps/site/',)
-#TEMPLATE_DIRS = (os.path.join(BASE_DIR, '/socialbattle/apps/site/html'), )
-#TEMPLATE_DIRS = (BASE_DIR + '/socialbattle/apps/site/html', )
 
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
@@ -109,11 +103,11 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.AllowAny'
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework.authentication.OAuth2Authentication',
+        'rest_framework.authentication.TokenAuthentication',
     ), 
 
     #'PAGINATE_BY': 10

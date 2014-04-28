@@ -2,8 +2,10 @@ from django.conf.urls import patterns, include, url
 from rest_framework.urlpatterns import format_suffix_patterns
 import views
 
-signup_urls = patterns('',
-	url(r'^$', views.signup, name='signup'),
+signx_urls = patterns('',
+	url(r'^up/$', views.signup, name='signup'),
+	url(r'^in/$', 'rest_framework.authtoken.views.obtain_auth_token', name='signin'),
+	url(r'^out/$', views.signout, name='signout'),
 )
 
 user_urls = patterns('',
@@ -39,7 +41,7 @@ urlpatterns = patterns('',
 	url(r'^rooms/', include(room_urls)),
 	url(r'^mobs/', include(mob_urls)),
 	url(r'^items/', include(item_urls)),
-	url(r'^signup/', include(signup_urls)),
+	url(r'^sign/', include(signx_urls)),
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)

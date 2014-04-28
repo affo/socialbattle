@@ -16,10 +16,16 @@ app.config(
 
 app.config(
   function($stateProvider, $urlRouterProvider) {
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/index');
 
     $stateProvider.
-      state('user-list', {
+      state('home', {
+        url: '/index',
+        templateUrl: 'html/partials/home.html',
+        controller: 'Home'
+      }).
+
+      state('home.user-list', {
         url: '/users',
         templateUrl: 'html/partials/user-list.html',
         controller: 'UserList'
@@ -29,11 +35,6 @@ app.config(
         url: '/users/:username',
         templateUrl: 'html/partials/user-detail.html',
         controller: 'UserDetail'
-      }).
-
-      state('home', {
-        url: '/',
-        templateUrl: 'html/partials/home.html'
       }).
 
       state('user-detail.follows', {
