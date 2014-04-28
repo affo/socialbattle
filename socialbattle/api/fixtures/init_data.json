@@ -7,7 +7,7 @@
 			"first_name": "stefano",
 			"last_name": "bielli",
 			"email": "stefano.bielli@sb.com",
-			"password": "socialbattle",
+			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA=",
 			"follows": [2, 3]
 		}
 	},
@@ -19,7 +19,7 @@
 			"first_name": "fabio",
 			"last_name": "arcidiacono",
 			"email": "fabio.arcidiacono@sb.com",
-			"password": "socialbattle"
+			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA="
 		}
 	},
 	{
@@ -30,7 +30,7 @@
 			"first_name": "riccardo",
 			"last_name": "tommasini",
 			"email": "riccardo.tommasini@sb.com",
-			"password": "socialbattle",
+			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA=",
 			"follows": [1, 2, 4]
 		}
 	},
@@ -42,7 +42,7 @@
 			"first_name": "gianpiero",
 			"last_name": "cazzaniga",
 			"email": "gianpiero.cazzaniga@sb.com",
-			"password": "socialbattle"
+			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA="
 		}
 	},
 
@@ -147,7 +147,7 @@
 		"pk": 1,
 		"fields": {
 			"name": "zertinan_caves",
-			"mobs": ["slime", "grenade"]
+			"mobs": [1, 2]
 		}
 	},
 	{
@@ -155,7 +155,7 @@
 		"pk": 2,
 		"fields": {
 			"name": "golmore_jungle",
-			"mobs": ["malboro", "hellhound", "gargoyle"]
+			"mobs": [3, 4, 5]
 		}
 	}
 ]

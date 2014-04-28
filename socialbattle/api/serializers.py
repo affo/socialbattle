@@ -23,10 +23,21 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name', 'level', 'owner', )
 
 class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+			view_name='pveroom-detail',
+			lookup_field='name',
+		)
+
+	mobs = serializers.HyperlinkedRelatedField(
+			view_name='mob-detail',
+			lookup_field='name',
+			many=True,
+		)
+
 	class Meta:
 		model = models.PVERoom
 		fields = ('url', 'name', 'mobs', )
-		lookup_field = 'name'
+
 
 class RelaxRoomSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -43,7 +54,6 @@ class RelaxRoomSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.RelaxRoom
 		fields = ('url', 'name', 'sells', )
-		lookup_field = 'name'
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
@@ -51,6 +61,17 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name', )
 
 class MobSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+			view_name='mob-detail',
+			lookup_field='name',
+		)
+
+	drops = serializers.HyperlinkedRelatedField(
+			view_name='item-detail',
+			lookup_field='pk',
+			many=True,
+		) 
+
 	class Meta:
 		model = models.Mob
-		fields = ('url', 'name', )
+		fields = ('url', 'name', 'drops', )

@@ -39,11 +39,11 @@ INSTALLED_APPS = (
     'socialbattle.api',
     'rest_framework',
     'corsheaders',
+    'provider',
+    'provider.oauth2',
     #'djangular',
     #'announce',
     #'django_facebook',
-    #'provider',
-    #'provider.oauth2'
 )
 
 MIDDLEWARE_CLASSES = (

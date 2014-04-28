@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework import permissions
+from rest_framework.decorators import api_view, renderer_classes
 import models
 import serializers
 
@@ -23,11 +24,41 @@ import serializers
 #remember:
 # Custom actions which use the @link decorator will respond to GET requests.
 # We could have instead used the @action decorator if we wanted an action that responded to POST requests.
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
+@api_view(['POST'])
+@renderer_classes((JSONRenderer, ))
+def signup(request, format=None):
+	#if request.method == 'POST':
+		username = request.DATA['username']
+		password = request.DATA['password']
+		email = request.DATA['email']
 
-class UserList(generics.ListCreateAPIView):
+		user = models.User.objects.create_user(username, email, password)
+		user = serializers.UserSerializer(user).data
+		return Response(user)
+	# elif request.method == 'GET':
+	# 	from django import forms
+	# 	class SignUpForm(forms.ModelForm):
+	# 		class Meta:
+	# 			model = models.User
+	# 			fields = ('username', 'email', 'password')
+	# 			widgets = {
+	# 				'password': forms.PasswordInput(),
+	# 			}
+
+	# 	context = self.get_renderer_context()
+	# 	context['display_edit_forms'] = True
+	# 	context['post_form'] = SignUpForm()
+
+	# 	return Response(data=context)
+
+
+
+class UserList(generics.ListAPIView):
 	model = models.User
 	serializer_class = serializers.UserSerializer
 	permission_classes = [permissions.AllowAny]
+
 
 class UserDetail(generics.RetrieveUpdateAPIView):
 	model = models.User
@@ -62,6 +93,7 @@ class RelaxRoomList(generics.ListAPIView):
 class RelaxRoomDetail(generics.RetrieveAPIView):
 	model = models.RelaxRoom
 	serializer_class = serializers.RelaxRoomSerializer
+	lookup_field = 'name'
 
 class PVERoomList(generics.ListAPIView):
 	model = models.PVERoom
@@ -70,6 +102,7 @@ class PVERoomList(generics.ListAPIView):
 class PVERoomDetail(generics.RetrieveAPIView):
 	model = models.PVERoom
 	serializer_class = serializers.PVERoomSerializer
+	lookup_field = 'name'
 
 class RelaxRoomItemList(generics.ListAPIView):
 	model = models.Item
@@ -82,6 +115,7 @@ class PVERoomMobList(generics.ListAPIView):
 class MobDetail(generics.RetrieveAPIView):
 	model = models.Mob
 	serializer_class = serializers.MobSerializer
+	lookup_field = 'name'
 
 class ItemDetail(generics.RetrieveAPIView):
 	model = models.Item

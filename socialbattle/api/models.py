@@ -16,7 +16,8 @@ class User(AbstractUser):
 	#facebook_user = models.OneToOneField(settings.AUTH_USER_MODEL)
 	avatar = models.ImageField(upload_to='avatars', blank=True)
 	#relations
-	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False) #maybe smarter than 'followed_by'
+	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False)
+	
 
 	# @receiver(post_save)
 	# def create_profile(sender, instance, created, **kwargs):
@@ -33,7 +34,7 @@ class Character(models.Model):
 	'''
 		The character the user will use to fight
 	'''
-	name = models.CharField(max_length=200, primary_key=True) #the character has to have a unique name
+	name = models.CharField(max_length=200, unique=True) #the character has to have a unique name
 	level = models.IntegerField(default=1)
 	exp = models.IntegerField(default=0)
 	#stats
@@ -52,7 +53,7 @@ class Ability(models.Model):
 
 
 class Mob(models.Model):
-	name = models.CharField(max_length=200, primary_key=True)
+	name = models.CharField(max_length=200, unique=True)
 	#stats
 	hp = models.IntegerField(default=250)
 	power = models.IntegerField(default=10)
@@ -62,7 +63,7 @@ class Mob(models.Model):
 	drops = models.ManyToManyField('Item')
 
 class Room(models.Model):
-	name = models.CharField(max_length=200, primary_key=True)
+	name = models.CharField(max_length=200, unique=True)
 
 	class Meta:
 		abstract = True
