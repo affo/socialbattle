@@ -74,10 +74,12 @@ ctrls.controller('Home',
 
     $scope.signup = function(){
         var data = {
-            username: $scope.signup_username,
-            email: $scope.signup_email,
-            password: $scope.signup_password,
+            username: $scope.signupForm.username,
+            email: $scope.signupForm.email,
+            password: $scope.signupForm.password,
         };
+
+        console.log(data);
 
         Restangular.all('sign/up').post(data).then(
             function(response){
