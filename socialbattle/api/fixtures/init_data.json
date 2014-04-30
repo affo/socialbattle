@@ -7,8 +7,7 @@
 			"first_name": "stefano",
 			"last_name": "bielli",
 			"email": "stefano.bielli@sb.com",
-			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA=",
-			"follows": [2, 3]
+			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA="
 		}
 	},
 	{
@@ -30,8 +29,7 @@
 			"first_name": "riccardo",
 			"last_name": "tommasini",
 			"email": "riccardo.tommasini@sb.com",
-			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA=",
-			"follows": [1, 2, 4]
+			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA="
 		}
 	},
 	{
@@ -45,6 +43,49 @@
 			"password": "pbkdf2_sha256$12000$ZHcEJBzQ0NH1$SFeXzDYr+qMWhWEgn97INYKmP7s/K2ghxhIt4RsF9TA="
 		}
 	},
+
+
+	{
+		"model": "api.fellowship",
+		"pk": 1,
+		"fields": {
+			"from_user": 1,
+			"to_user": 2
+		}
+	},
+	{
+		"model": "api.fellowship",
+		"pk": 2,
+		"fields": {
+			"from_user": 1,
+			"to_user": 3
+		}
+	},
+	{
+		"model": "api.fellowship",
+		"pk": 3,
+		"fields": {
+			"from_user": 3,
+			"to_user": 1
+		}
+	},
+	{
+		"model": "api.fellowship",
+		"pk": 4,
+		"fields": {
+			"from_user": 3,
+			"to_user": 2
+		}
+	},
+	{
+		"model": "api.fellowship",
+		"pk": 5,
+		"fields": {
+			"from_user": 3,
+			"to_user": 4
+		}
+	},
+
 
 
 	{

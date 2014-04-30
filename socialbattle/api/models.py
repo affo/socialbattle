@@ -15,7 +15,7 @@ class User(AbstractUser):
 	#facebook_user = models.OneToOneField(settings.AUTH_USER_MODEL)
 	avatar = models.ImageField(upload_to='avatars', blank=True)
 	#relations
-	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False)
+	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False, through='Fellowship')
 
 	# @receiver(post_save)
 	# def create_profile(sender, instance, created, **kwargs):
@@ -32,6 +32,10 @@ class User(AbstractUser):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
 	if created:
 		Token.objects.create(user=instance)
+
+class Fellowship(models.Model):
+	from_user = models.ForeignKey(User, related_name='from')
+	to_user = models.ForeignKey(User, related_name='to')
 
 class Character(models.Model):
 	'''

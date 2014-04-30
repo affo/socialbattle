@@ -1,24 +1,22 @@
 from rest_framework import generics
 from rest_framework import permissions
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, permission_classes, action
+from rest_framework.reverse import reverse
+from rest_framework import viewsets
 import models
 import serializers
 
 #from announce import AnnounceClient
 #announce_client = AnnounceClient()
 
-# @api_view(['GET'])
-# @renderer_classes((TemplateHTMLRenderer,))
-# def root(request, format=None):
-# 	return Response(template_name='base.html')
-
-# @api_view(['GET'])
-# def api_root(request, format=None):
-# 	return Response({
-# 		'players': reverse('player-list', request=request, format=format),
-# 		'pve-rooms': reverse('pveroom-list', request=request, format=format),
-# 		'relax-rooms': reverse('relaxroom-list', request=request, format=format),
-# 		})
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny, ])
+def api_root(request, format=None):
+	return Response({
+		'users': reverse('user-list', request=request, format=format),
+		'rooms': reverse('room-list', request=request, format=format),
+		'characters': reverse('character-list', request=request, format=format),
+		})
 
 
 #remember:
@@ -41,6 +39,7 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework import status
 @api_view(['POST', ])
 @renderer_classes((JSONRenderer, ))
+@permission_classes([permissions.IsAuthenticated, ])
 def signout(request, format=None):
 	logout(request)
 	return Response(
@@ -48,11 +47,83 @@ def signout(request, format=None):
 			status=status.HTTP_200_OK
 			)
 
+@api_view(['GET', ])
+@renderer_classes((JSONRenderer, ))
+@permission_classes([permissions.IsAuthenticated, ])
+def search_user(request, format=None):
+		query = request.DATA['query']
+
+		from django.db.models import Q
+		users = models.User.objects.filter(
+				Q(username__icontains=query) |
+				Q(first_name__icontains=query) |
+				Q(last_name__icontains=query)
+			)
+
+		return Response(serializers.UserSerializer(users).data)
+
+@api_view(['GET', ])
+@renderer_classes((JSONRenderer, ))
+@permission_classes([permissions.IsAuthenticated, ])
+def search_character(request, format=None):
+		query = request.DATA['query']
+		characters = models.Character.objects.filter(name__icontains=query)
+		return Response(serializers.CharacterSerializer(characters).data)
+
+#modify the model accordingly
+@api_view(['GET', ])
+@renderer_classes((JSONRenderer, ))
+@permission_classes([permissions.IsAuthenticated, ])
+def search_room(request, format=None):
+		query = request.DATA['query']
+		rooms = models.Room.objects.filter(name__icontains=query)
+		return Response(serializers.RoomSerializer(rooms).data)
+
+
+### SOCIAL PART ###
+@api_view(['GET', ])
+@renderer_classes((JSONRenderer, ))
+#@permission_classes([permissions.IsAuthenticated, ])
+def followx(request, username, direction, format=None):
+	if direction == 'ing':
+		follows = models.User.objects.get(username=username).follows.all()
+		data = {'users': serializers.UserSerializer(follows).data}
+	elif direction == 'ers':
+		from django.db.models import F
+		#followed = models.User.objects.filter(username=username, pk__in=F('follows'))
+		#data = {'users': serializers.UserSerializer(followed).data}
+	else:
+		message = "A user is followING or has followERS, a user cannot be/have follow%s" % direction
+		return Response(data={'message': message}, status=status.HTTP_400_BAD_REQUEST)
+
+	return Response(data)
+
+class FollowView(viewsets.GenericViewSet):
+	queryset = models.Fellowship.objects.all()
+	serializer_class = serializers.FellowshipSerializer
+	permission_classes = [permissions.AllowAny, ]
+
+	@action(methods=['GET', ])
+	def followx(self, request, username, direction, format=None):
+		if direction == 'ing':
+			follows = self.get_queryset().filter(from_user__username=username).all().prefetch_related('to_user')
+			follows = [f.to_user for f in follows]
+			follows = serializers.UserSerializer(follows, context=self.get_serializer_context()).data
+			data = {'users': follows}
+		elif direction == 'ers':
+			followed = self.get_queryset().filter(to_user__username=username).all().prefetch_related('from_user')
+			followed = [f.from_user for f in followed]
+			followed = serializers.UserSerializer(followed, context=self.get_serializer_context()).data
+			data = {'users': followed}
+		else:
+			message = "A user is followING or has followERS, a user cannot be/have follow%s" % direction
+			return Response(data={'message': message}, status=status.HTTP_400_BAD_REQUEST)
+		return Response(data)
+
 class UserList(generics.ListAPIView):
 	model = models.User
 	serializer_class = serializers.UserSerializer
-	permission_classes = [permissions.IsAuthenticated]
-
+	#permission_classes = [permissions.IsAdminUser, ]
 
 class UserDetail(generics.RetrieveUpdateAPIView):
 	model = models.User
@@ -70,6 +141,7 @@ class CharacterDetail(generics.RetrieveDestroyAPIView):
 	model = models.Character
 	serializer_class = serializers.CharacterSerializer
 	permission_classes = [permissions.AllowAny]
+	lookup_field = 'name'
 
 
 class UserCharacterList(generics.ListAPIView):
@@ -79,10 +151,6 @@ class UserCharacterList(generics.ListAPIView):
 	def get_queryset(self):
 		queryset = super(UserCharacterList, self).get_queryset()
 		return queryset.filter(owner__username=self.kwargs.get('username'))
-
-class RelaxRoomList(generics.ListAPIView):
-	model = models.RelaxRoom
-	serializer_class = serializers.RelaxRoomSerializer
 
 class RelaxRoomDetail(generics.RetrieveAPIView):
 	model = models.RelaxRoom
