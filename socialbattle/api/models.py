@@ -37,6 +37,9 @@ class Fellowship(models.Model):
 	from_user = models.ForeignKey(User, related_name='from')
 	to_user = models.ForeignKey(User, related_name='to')
 
+	class Meta:
+		unique_together = ('from_user', 'to_user', )
+
 class Character(models.Model):
 	'''
 		The character the user will use to fight

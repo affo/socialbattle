@@ -1,8 +1,6 @@
-from rest_framework import generics
-from rest_framework import permissions
+from rest_framework import generics, permissions, viewsets, mixins
 from rest_framework.decorators import api_view, renderer_classes, permission_classes, action
 from rest_framework.reverse import reverse
-from rest_framework import viewsets
 import models
 import serializers
 
@@ -81,44 +79,44 @@ def search_room(request, format=None):
 
 
 ### SOCIAL PART ###
-@api_view(['GET', ])
-@renderer_classes((JSONRenderer, ))
-#@permission_classes([permissions.IsAuthenticated, ])
-def followx(request, username, direction, format=None):
-	if direction == 'ing':
-		follows = models.User.objects.get(username=username).follows.all()
-		data = {'users': serializers.UserSerializer(follows).data}
-	elif direction == 'ers':
-		from django.db.models import F
-		#followed = models.User.objects.filter(username=username, pk__in=F('follows'))
-		#data = {'users': serializers.UserSerializer(followed).data}
-	else:
-		message = "A user is followING or has followERS, a user cannot be/have follow%s" % direction
-		return Response(data={'message': message}, status=status.HTTP_400_BAD_REQUEST)
 
-	return Response(data)
-
-class FollowView(viewsets.GenericViewSet):
+class FollowListViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	queryset = models.Fellowship.objects.all()
 	serializer_class = serializers.FellowshipSerializer
 	permission_classes = [permissions.AllowAny, ]
 
-	@action(methods=['GET', ])
+	@action(methods=['GET', ], permission_classes=[permissions.AllowAny, ])
 	def followx(self, request, username, direction, format=None):
+		## REMEMBER THIS
+		# if direction == 'ing':
+		# 	follows = self.get_queryset().filter(from_user__username=username).all().prefetch_related('to_user')
+		# 	follows = [f.to_user for f in follows]
+		# 	follows = serializers.UserSerializer(follows, context=self.get_serializer_context()).data
+		# 	data = follows
+		# elif direction == 'ers':
+		# 	followed = self.get_queryset().filter(to_user__username=username).all().prefetch_related('from_user')
+		# 	followed = [f.from_user for f in followed]
+		# 	followed = serializers.UserSerializer(followed, context=self.get_serializer_context()).data
+		# 	data = followed
+		print request.DATA
+		print request.QUERY_PARAMS
 		if direction == 'ing':
-			follows = self.get_queryset().filter(from_user__username=username).all().prefetch_related('to_user')
-			follows = [f.to_user for f in follows]
-			follows = serializers.UserSerializer(follows, context=self.get_serializer_context()).data
-			data = {'users': follows}
+			follows = self.get_queryset().filter(from_user__username=username).all()
+			follows = serializers.FellowshipSerializer(follows, context=self.get_serializer_context(), many=True).data
+			data = follows
 		elif direction == 'ers':
-			followed = self.get_queryset().filter(to_user__username=username).all().prefetch_related('from_user')
-			followed = [f.from_user for f in followed]
-			followed = serializers.UserSerializer(followed, context=self.get_serializer_context()).data
-			data = {'users': followed}
+			followed = self.get_queryset().filter(to_user__username=username).all()
+			followed = serializers.FellowshipSerializer(followed, context=self.get_serializer_context(), many=True).data
+			data = followed
 		else:
 			message = "A user is followING or has followERS, a user cannot be/have follow%s" % direction
 			return Response(data={'message': message}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(data)
+
+class FollowDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin, mixins.RetrieveModelMixin):
+	queryset = models.Fellowship.objects.all()
+	serializer_class = serializers.FellowshipSerializer
+	permission_classes = [permissions.AllowAny, ]
 
 class UserList(generics.ListAPIView):
 	model = models.User

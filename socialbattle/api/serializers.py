@@ -8,19 +8,26 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 		lookup_field = 'username'
 
 class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
-	from_user_id = serializers.HyperlinkedRelatedField(
-			view_name='user-detail',
-			lookup_field='username'
+	url = serializers.HyperlinkedIdentityField(
+			view_name='fellowship-detail',
+			lookup_field='pk',
 		)
 
-	to_user_id = serializers.HyperlinkedRelatedField(
+	from_user = serializers.HyperlinkedRelatedField(
 			view_name='user-detail',
-			lookup_field='username'
+			lookup_field='username',
+			many=False,
+		)
+
+	to_user = serializers.HyperlinkedRelatedField(
+			view_name='user-detail',
+			lookup_field='username',
+			many=False,
 		)
 
 	class Meta:
 		model = models.Fellowship
-		fields = ('url', 'from_user_id', 'to_user_id')
+		fields = ('url', 'from_user', 'to_user')
 
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

@@ -8,15 +8,26 @@ signx_urls = patterns('',
 	url(r'^out/$', views.signout, name='signout'),
 )
 
-follow_view = views.FollowView.as_view({
+follow_list_view = views.FollowListViewSet.as_view({
 	'get': 'followx',
+	'post': 'create',
 })
+
+follow_detail_view = views.FollowDetailViewSet.as_view({
+	'delete': 'destroy',
+	'get': 'retrieve',
+})
+
+follow_urls = patterns('',
+	url(r'^follow(?P<direction>[(ers)|(ing)]+)/$', follow_list_view, name='fellowship-list'),
+	#url(r'^following/(?P<pk>\d+)/$', follow_detail_view, name='fellowship-detail'),
+)
+
 user_urls = patterns('',
 	url(r'^(?P<username>[0-9a-zA-Z_-]+)/characters/$', views.UserCharacterList.as_view(), name='usercharacter-list'),
 	url(r'^(?P<username>[0-9a-zA-Z_-]+)/$', views.UserDetail.as_view(), name='user-detail'),
 	url(r'^$', views.UserList.as_view(), name='user-list'),
-
-	url(r'^(?P<username>[0-9a-zA-Z_-]+)/follow(?P<direction>[0-9a-zA-Z_-]+)/$', follow_view, name='followx-list'),
+	url(r'^(?P<username>[0-9a-zA-Z_-]+)/', include(follow_urls)),
 )
 
 search_urls = patterns('',
@@ -55,6 +66,8 @@ urlpatterns = patterns('',
 	url(r'^items/', include(item_urls)),
 	url(r'^sign/', include(signx_urls)),
 	url(r'^search/', include(search_urls)),
+
+	url(r'^fellowship/(?P<pk>\d+)/$', follow_detail_view, name='fellowship-detail'),
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)
