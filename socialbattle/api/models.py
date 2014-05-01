@@ -89,11 +89,11 @@ class Item(models.Model):
 	name = models.CharField(max_length=200)
 
 class Post(models.Model):
-	content = models.CharField(max_length=1024)
-	author = models.ForeignKey(Character)
+	content = models.TextField(max_length=1024)
+	author = models.ForeignKey(User)
 
 
 class Comment(models.Model):
-	content = models.CharField(max_length=1024)
-	author = models.ForeignKey(Character)
+	content = models.TextField(max_length=1024)
+	author = models.ForeignKey(User)
 	post = models.ForeignKey(Post)

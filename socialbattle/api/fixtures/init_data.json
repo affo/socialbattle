@@ -87,6 +87,56 @@
 	},
 
 
+	{
+		"model": "api.post",
+		"pk": 1,
+		"fields": {
+			"content": "Praesent nec velit consectetur, tincidunt sapien sed, tristique dui.",
+			"author": 1
+		}
+	},
+	{
+		"model": "api.post",
+		"pk": 2,
+		"fields": {
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+			"author": 1
+		}
+	},
+	{
+		"model": "api.post",
+		"pk": 3,
+		"fields": {
+			"content": "Maecenas cursus nisi sit amet est aliquam, at laoreet tortor cursus.",
+			"author": 1
+		}
+	},
+	{
+		"model": "api.post",
+		"pk": 4,
+		"fields": {
+			"content": "Ut a elit egestas odio hendrerit mollis quis et lacus.",
+			"author": 2
+		}
+	},
+	{
+		"model": "api.post",
+		"pk": 5,
+		"fields": {
+			"content": "Vestibulum venenatis justo sit amet lectus tincidunt, et sagittis massa venenatis.",
+			"author": 3
+		}
+	},
+	{
+		"model": "api.post",
+		"pk": 6,
+		"fields": {
+			"content": "Proin eleifend lorem in massa gravida feugiat.",
+			"author": 3
+		}
+	},
+
+
 
 	{
 		"model": "api.character",

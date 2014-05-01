@@ -17,15 +17,38 @@ follow_detail_view = social.FollowDetailViewSet.as_view({
 	'delete': 'destroy',
 })
 
+post_list_view = social.UserPostListViewSet.as_view({
+	'get': 'list',
+	'post': 'create',
+})
+
+post_detail_view = social.PostDetailViewSet.as_view({
+	'get': 'retrieve',
+	'delete': 'destroy',
+})
+
 follow_urls = patterns('',
 	url(r'^(?P<pk>\d+)/$', follow_detail_view, name='fellowship-detail'),
+)
+
+user_follow_urls = patterns('',
+	url(r'^follow(?P<direction>[(ers)|(ing)]+)/$', follow_list_view, name='fellowship-list'),
+)
+
+user_post_urls = patterns('',
+	url(r'^posts/$', post_list_view, name='post-list'),
+)
+
+post_urls = patterns('',
+	url(r'^(?P<pk>\d+)/$', post_detail_view, name='post-detail'),
 )
 
 user_urls = patterns('',
 	url(r'^(?P<username>[0-9a-zA-Z_-]+)/characters/$', battle.UserCharacterList.as_view(), name='usercharacter-list'),
 	url(r'^(?P<username>[0-9a-zA-Z_-]+)/$', social.UserDetail.as_view(), name='user-detail'),
 	url(r'^$', social.UserList.as_view(), name='user-list'),
-	url(r'^(?P<username>[0-9a-zA-Z_-]+)/follow(?P<direction>[(ers)|(ing)]+)/$', follow_list_view, name='fellowship-list'),
+	url(r'^(?P<username>[0-9a-zA-Z_-]+)/', include(user_follow_urls)),
+	url(r'^(?P<username>[0-9a-zA-Z_-]+)/', include(user_post_urls)),
 )
 
 search_urls = patterns('',
@@ -65,6 +88,8 @@ urlpatterns = patterns('',
 	url(r'^sign/', include(signx_urls)),
 	url(r'^search/', include(search_urls)),
 	url(r'^fellowships/', include(follow_urls)),
+	url(r'^posts/', include(post_urls)),
+
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -7,6 +7,18 @@ from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsFromUser
 
+class UserList(generics.ListAPIView):
+	model = models.User
+	serializer_class = serializers.UserSerializer
+	#permission_classes = [permissions.IsAdminUser, ]
+
+
+class UserDetail(generics.RetrieveUpdateAPIView):
+	model = models.User
+	serializer_class = serializers.UserSerializer
+	lookup_field = 'username'
+
+
 class FollowListViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	queryset = models.Fellowship.objects.all()
 	serializer_class = serializers.FellowshipSerializer
@@ -55,12 +67,14 @@ class FollowDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin):
 	serializer_class = serializers.FellowshipSerializer
 	permission_classes = [permissions.IsAuthenticated, IsFromUser, ]
 
-class UserList(generics.ListAPIView):
-	model = models.User
-	serializer_class = serializers.UserSerializer
-	#permission_classes = [permissions.IsAdminUser, ]
+class UserPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+	queryset = models.Post.objects
+	serializer_class = serializers.PostSerializer
 
-class UserDetail(generics.RetrieveUpdateAPIView):
-	model = models.User
-	serializer_class = serializers.UserSerializer
-	lookup_field = 'username'
+	def get_queryset(self):
+		return self.queryset.filter(author__username=self.kwargs.get('username')).all()
+
+
+class PostDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin, mixins.RetrieveModelMixin):
+	queryset = models.Post.objects.all()
+	serializer_class = serializers.PostSerializer
