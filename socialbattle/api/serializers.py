@@ -1,5 +1,6 @@
 from rest_framework import serializers
 import models
+import fields
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
@@ -97,3 +98,6 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Mob
 		fields = ('url', 'name', 'drops', )
+
+
+#from socialbattle.api.serializers import FellowshipSerializer; from socialbattle.api.models import Fellowship; f = Fellowship.objects.get(pk=2); serializer = FellowshipSerializer(f)
