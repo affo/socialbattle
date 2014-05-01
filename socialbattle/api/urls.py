@@ -10,7 +10,8 @@ signx_urls = patterns('',
 
 follow_list_view = social.FollowListViewSet.as_view({
 	'get': 'followx',
-	'post': 'auth_create',
+	#'post': 'auth_create',
+	'post': 'create',
 })
 
 follow_detail_view = social.FollowDetailViewSet.as_view({

@@ -254,5 +254,13 @@
 			"name": "golmore_jungle",
 			"mobs": [3, 4, 5]
 		}
+	},
+	{
+		"model": "api.relaxroom",
+		"pk": 2,
+		"fields": {
+			"name": "chocobo_emporium",
+			"sells": [1]
+		}
 	}
 ]

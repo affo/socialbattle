@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from socialbattle.api import models
 from socialbattle.api import serializers
-from socialbattle.api.permissions import IsFromUser
+from socialbattle.api.permissions import IsFromUser, IsAuthor
+from socialbattle.api.mixins import CreateWithPermissionModelMixin
 
 class UserList(generics.ListAPIView):
 	model = models.User
@@ -18,13 +19,15 @@ class UserDetail(generics.RetrieveUpdateAPIView):
 	serializer_class = serializers.UserSerializer
 	lookup_field = 'username'
 
-
-class FollowListViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+####################
+#### FOLLOWING #####
+####################
+class FollowListViewSet(viewsets.GenericViewSet, CreateWithPermissionModelMixin):
 	queryset = models.Fellowship.objects.all()
 	serializer_class = serializers.FellowshipSerializer
-	permission_classes = [permissions.IsAuthenticated, IsFromUser, ]
+	permission_classes = (permissions.IsAuthenticated, IsFromUser, )
 
-	@action(methods=['GET', ], permission_classes=[permissions.IsAuthenticated, ])
+	@action(methods=['GET', ])
 	def followx(self, request, username, direction, format=None):
 		if direction == 'ing':
 			follows = self.get_queryset().filter(from_user__username=username).all()
@@ -39,23 +42,16 @@ class FollowListViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 			return Response(data={'message': message}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(data)
 
-	@action(methods=['POST', ], permission_classes=[permissions.IsAuthenticated, IsFromUser, ])
-	def auth_create(self, request, *args, **kwargs):
-		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
-		if serializer.is_valid():
-			obj = serializer.object
-			self.check_object_permissions(request, obj)
-		else:
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-		return self.create(request, *args, **kwargs)
-
 
 class FollowDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin):
 	queryset = models.Fellowship.objects.all()
 	serializer_class = serializers.FellowshipSerializer
 	permission_classes = [permissions.IsAuthenticated, IsFromUser, ]
 
+
+####################
+###### POSTS #######
+####################
 class UserPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	queryset = models.Post.objects
 	serializer_class = serializers.PostSerializer
@@ -67,9 +63,10 @@ class UserPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 			return self.queryset.filter(author__username=username).all()
 		return None
 
-class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, CreateWithPermissionModelMixin):
 	queryset = models.Post.objects
 	serializer_class = serializers.PostSerializer
+	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
 
 	def get_queryset(self):
 		room_name = self.kwargs.get('name')
@@ -78,7 +75,20 @@ class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, m
 			return self.queryset.filter(room__name=room_name).all()
 		return None
 
+	def create(self, request, *args, **kwargs):
+		room_name = self.kwargs.get('name')
+		if not room_name:
+			raise ValueError('Need a room name to create post')
+		room = models.RelaxRoom.objects.get(name=room_name)
+		room = serializers.RelaxRoomSerializer(room, context=self.get_serializer_context())
+		request.DATA['room'] = room.data['url']
+		return super(RelaxRoomPostListViewSet, self).create(request, *args, **kwargs)
 
-class PostDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin, mixins.RetrieveModelMixin):
+class PostDetailViewSet(
+		viewsets.GenericViewSet,
+		mixins.DestroyModelMixin,
+		mixins.RetrieveModelMixin,
+		mixins.UpdateModelMixin):
 	queryset = models.Post.objects.all()
 	serializer_class = serializers.PostSerializer
+	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
