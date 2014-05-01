@@ -42,14 +42,20 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 			many=False,
 		)
 
+	room = serializers.HyperlinkedRelatedField(
+			view_name='relaxroom-detail',
+			lookup_field='name',
+			many=False,
+		)
+
 	class Meta:
 		model = models.Post
-		fields = ('url', 'content', 'author')
+		fields = ('url', 'content', 'author', 'room')
 
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='character-detail',
-			lookup_field='name'
+			lookup_field='character_name'
 		)
 
 	owner = serializers.HyperlinkedRelatedField(

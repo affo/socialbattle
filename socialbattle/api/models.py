@@ -91,6 +91,7 @@ class Item(models.Model):
 class Post(models.Model):
 	content = models.TextField(max_length=1024)
 	author = models.ForeignKey(User)
+	room = models.ForeignKey(RelaxRoom)
 
 
 class Comment(models.Model):

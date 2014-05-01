@@ -26,17 +26,6 @@ class FollowListViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 
 	@action(methods=['GET', ], permission_classes=[permissions.IsAuthenticated, ])
 	def followx(self, request, username, direction, format=None):
-		## REMEMBER THIS
-		# if direction == 'ing':
-		# 	follows = self.get_queryset().filter(from_user__username=username).all().prefetch_related('to_user')
-		# 	follows = [f.to_user for f in follows]
-		# 	follows = serializers.UserSerializer(follows, context=self.get_serializer_context()).data
-		# 	data = follows
-		# elif direction == 'ers':
-		# 	followed = self.get_queryset().filter(to_user__username=username).all().prefetch_related('from_user')
-		# 	followed = [f.from_user for f in followed]
-		# 	followed = serializers.UserSerializer(followed, context=self.get_serializer_context()).data
-		# 	data = followed
 		if direction == 'ing':
 			follows = self.get_queryset().filter(from_user__username=username).all()
 			follows = serializers.FellowshipSerializer(follows, context=self.get_serializer_context(), many=True).data
@@ -67,12 +56,27 @@ class FollowDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin):
 	serializer_class = serializers.FellowshipSerializer
 	permission_classes = [permissions.IsAuthenticated, IsFromUser, ]
 
-class UserPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+class UserPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	queryset = models.Post.objects
 	serializer_class = serializers.PostSerializer
 
 	def get_queryset(self):
-		return self.queryset.filter(author__username=self.kwargs.get('username')).all()
+		username = self.kwargs.get('username')
+
+		if username:
+			return self.queryset.filter(author__username=username).all()
+		return None
+
+class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+	queryset = models.Post.objects
+	serializer_class = serializers.PostSerializer
+
+	def get_queryset(self):
+		room_name = self.kwargs.get('name')
+
+		if room_name:
+			return self.queryset.filter(room__name=room_name).all()
+		return None
 
 
 class PostDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin, mixins.RetrieveModelMixin):

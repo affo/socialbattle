@@ -17,7 +17,11 @@ follow_detail_view = social.FollowDetailViewSet.as_view({
 	'delete': 'destroy',
 })
 
-post_list_view = social.UserPostListViewSet.as_view({
+user_post_list_view = social.UserPostListViewSet.as_view({
+	'get': 'list',
+})
+
+room_post_list_view = social.RelaxRoomPostListViewSet.as_view({
 	'get': 'list',
 	'post': 'create',
 })
@@ -36,7 +40,11 @@ user_follow_urls = patterns('',
 )
 
 user_post_urls = patterns('',
-	url(r'^posts/$', post_list_view, name='post-list'),
+	url(r'^posts/$', user_post_list_view, name='user_post-list'),
+)
+
+room_post_urls = patterns('',
+	url(r'^posts/$', room_post_list_view, name='room_post-list'),
 )
 
 post_urls = patterns('',
@@ -47,6 +55,7 @@ user_urls = patterns('',
 	url(r'^(?P<username>[0-9a-zA-Z_-]+)/characters/$', battle.UserCharacterList.as_view(), name='usercharacter-list'),
 	url(r'^(?P<username>[0-9a-zA-Z_-]+)/$', social.UserDetail.as_view(), name='user-detail'),
 	url(r'^$', social.UserList.as_view(), name='user-list'),
+
 	url(r'^(?P<username>[0-9a-zA-Z_-]+)/', include(user_follow_urls)),
 	url(r'^(?P<username>[0-9a-zA-Z_-]+)/', include(user_post_urls)),
 )
@@ -68,6 +77,8 @@ room_urls = patterns('',
 	url(r'^relax/(?P<name>[0-9a-zA-Z_-]+)/$', battle.RelaxRoomDetail.as_view(), name='relaxroom-detail'),
 	url(r'^pve/(?P<name>[0-9a-zA-Z_-]+)/$', battle.PVERoomDetail.as_view(), name='pveroom-detail'),
 	url(r'^$', battle.RoomList.as_view(), name='room-list'),
+
+	url(r'^relax/(?P<name>[0-9a-zA-Z_-]+)/', include(room_post_urls)),
 )
 
 mob_urls = patterns('',
