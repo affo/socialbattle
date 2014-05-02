@@ -8,9 +8,6 @@ signx_urls = patterns('',
 	url(r'^out/$', access.signout, name='signout'),
 )
 
-follow_list_view_get = social.FollowListViewSet.as_view({'get': 'followx'})
-follow_list_view_post = social.FollowListViewSet.as_view({'post': 'create'})
-
 follow_detail_view = social.FollowDetailViewSet.as_view({
 	'delete': 'destroy',
 })
@@ -19,23 +16,19 @@ user_post_list_view = social.UserPostListViewSet.as_view({
 	'get': 'list',
 })
 
-room_post_list_view = social.RelaxRoomPostListViewSet.as_view({
-	'get': 'list',
-	'post': 'create',
-})
-
 post_detail_view = social.PostDetailViewSet.as_view({
 	'get': 'retrieve',
 	'delete': 'destroy',
+	'put': 'update',
 })
 
 follow_urls = patterns('',
 	url(r'^(?P<pk>\d+)/$', follow_detail_view, name='fellowship-detail'),
-	url(r'^$', follow_list_view_post, name='fellowship-create')
+	url(r'^$', social.FollowListViewSet.as_view({'post': 'create'}), name='fellowship-create')
 )
 
 user_follow_urls = patterns('',
-	url(r'^follow(?P<direction>[(ers)|(ing)]+)/$', follow_list_view_get, name='fellowship-list'),
+	url(r'^follow(?P<direction>[(ers)|(ing)]+)/$', social.FollowListViewSet.as_view({'get': 'followx'}), name='fellowship-list'),
 )
 
 user_post_urls = patterns('',
@@ -43,11 +36,12 @@ user_post_urls = patterns('',
 )
 
 room_post_urls = patterns('',
-	url(r'^posts/$', room_post_list_view, name='room_post-list'),
+	url(r'^posts/$', social.RelaxRoomPostListViewSet.as_view({'get': 'list'}), name='room_post-list'),
 )
 
 post_urls = patterns('',
 	url(r'^(?P<pk>\d+)/$', post_detail_view, name='post-detail'),
+	url(r'^$', social.RelaxRoomPostListViewSet.as_view({'post': 'create'}), name='post-create'),
 )
 
 user_urls = patterns('',
@@ -99,7 +93,6 @@ urlpatterns = patterns('',
 	url(r'^search/', include(search_urls)),
 	url(r'^fellowships/', include(follow_urls)),
 	url(r'^posts/', include(post_urls)),
-
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)
