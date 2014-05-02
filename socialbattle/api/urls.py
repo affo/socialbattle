@@ -8,11 +8,8 @@ signx_urls = patterns('',
 	url(r'^out/$', access.signout, name='signout'),
 )
 
-follow_list_view = social.FollowListViewSet.as_view({
-	'get': 'followx',
-	#'post': 'auth_create',
-	'post': 'create',
-})
+follow_list_view_get = social.FollowListViewSet.as_view({'get': 'followx'})
+follow_list_view_post = social.FollowListViewSet.as_view({'post': 'create'})
 
 follow_detail_view = social.FollowDetailViewSet.as_view({
 	'delete': 'destroy',
@@ -34,10 +31,11 @@ post_detail_view = social.PostDetailViewSet.as_view({
 
 follow_urls = patterns('',
 	url(r'^(?P<pk>\d+)/$', follow_detail_view, name='fellowship-detail'),
+	url(r'^$', follow_list_view_post, name='fellowship-create')
 )
 
 user_follow_urls = patterns('',
-	url(r'^follow(?P<direction>[(ers)|(ing)]+)/$', follow_list_view, name='fellowship-list'),
+	url(r'^follow(?P<direction>[(ers)|(ing)]+)/$', follow_list_view_get, name='fellowship-list'),
 )
 
 user_post_urls = patterns('',

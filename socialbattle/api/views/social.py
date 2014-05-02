@@ -22,10 +22,9 @@ class UserDetail(generics.RetrieveUpdateAPIView):
 ####################
 #### FOLLOWING #####
 ####################
-class FollowListViewSet(viewsets.GenericViewSet, CreateWithPermissionModelMixin):
+class FollowListViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	queryset = models.Fellowship.objects.all()
 	serializer_class = serializers.FellowshipSerializer
-	permission_classes = (permissions.IsAuthenticated, IsFromUser, )
 
 	@action(methods=['GET', ])
 	def followx(self, request, username, direction, format=None):
@@ -41,6 +40,9 @@ class FollowListViewSet(viewsets.GenericViewSet, CreateWithPermissionModelMixin)
 			message = "A user is followING or has followERS, a user cannot be/have follow%s" % direction
 			return Response(data={'message': message}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(data)
+
+	def pre_save(self, obj):
+		obj.from_user = self.request.user
 
 
 class FollowDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin):
@@ -63,10 +65,9 @@ class UserPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 			return self.queryset.filter(author__username=username).all()
 		return None
 
-class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, CreateWithPermissionModelMixin):
+class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
 	queryset = models.Post.objects
 	serializer_class = serializers.PostSerializer
-	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
 
 	def get_queryset(self):
 		room_name = self.kwargs.get('name')
@@ -75,14 +76,14 @@ class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, C
 			return self.queryset.filter(room__name=room_name).all()
 		return None
 
-	def create(self, request, *args, **kwargs):
+	def pre_save(self, obj):
 		room_name = self.kwargs.get('name')
 		if not room_name:
 			raise ValueError('Need a room name to create post')
 		room = models.RelaxRoom.objects.get(name=room_name)
 		room = serializers.RelaxRoomSerializer(room, context=self.get_serializer_context())
-		request.DATA['room'] = room.data['url']
-		return super(RelaxRoomPostListViewSet, self).create(request, *args, **kwargs)
+		obj.room = room.object
+		obj.author = self.request.user
 
 class PostDetailViewSet(
 		viewsets.GenericViewSet,

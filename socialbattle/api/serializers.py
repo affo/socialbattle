@@ -14,17 +14,8 @@ class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 			lookup_field='pk',
 		)
 
-	from_user = serializers.HyperlinkedRelatedField(
-			view_name='user-detail',
-			lookup_field='username',
-			many=False,
-		)
-
-	to_user = serializers.HyperlinkedRelatedField(
-			view_name='user-detail',
-			lookup_field='username',
-			many=False,
-		)
+	from_user = serializers.Field(source='from_user.username')
+	to_user = serializers.PrimaryKeyRelatedField(source='to_user')
 
 	class Meta:
 		model = models.Fellowship
@@ -36,17 +27,8 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 			lookup_field='pk',
 		)
 
-	author = serializers.HyperlinkedRelatedField(
-			view_name='user-detail',
-			lookup_field='username',
-			many=False,
-		)
-
-	room = serializers.HyperlinkedRelatedField(
-			view_name='relaxroom-detail',
-			lookup_field='name',
-			many=False,
-		)
+	author = serializers.Field(source='author.username')
+	room = serializers.Field(source='room.name')
 
 	class Meta:
 		model = models.Post
