@@ -93,3 +93,34 @@ class PostDetailViewSet(
 	queryset = models.Post.objects.all()
 	serializer_class = serializers.PostSerializer
 	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
+
+####################
+###### POSTS #######
+####################
+class PostCommentListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+	queryset = models.Comment.objects
+	serializer_class = serializers.CommentSerializer
+
+	def get_queryset(self):
+		post_pk = self.kwargs.get('pk')
+		if post_pk:
+			return self.queryset.filter(post__pk=post_pk).all()
+		return None
+
+	def pre_save(self, obj):
+		post_pk = self.kwargs.get('pk')
+		if not post_pk:
+			raise ValueError('Need a post key to create a comment')
+		post = models.Post.objects.get(pk=post_pk)
+		post = serializers.PostSerializer(post, context=self.get_serializer_context())
+		obj.post = post.object
+		obj.author = self.request.user
+
+class CommentDetailViewSet(
+		viewsets.GenericViewSet,
+		mixins.DestroyModelMixin,
+		mixins.RetrieveModelMixin,
+		mixins.UpdateModelMixin):
+	queryset = models.Comment.objects.all()
+	serializer_class = serializers.CommentSerializer
+	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]

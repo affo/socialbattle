@@ -5,7 +5,7 @@ import fields
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.User
-		fields = ('url', 'username', 'first_name', 'last_name', 'email', 'follows', )
+		fields = ('url', 'id', 'username', 'first_name', 'last_name', 'email', 'follows', )
 		lookup_field = 'username'
 
 class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
@@ -14,7 +14,12 @@ class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 			lookup_field='pk',
 		)
 
-	from_user = serializers.Field(source='from_user.username')
+	from_user = serializers.HyperlinkedRelatedField(
+			view_name='user-detail',
+			lookup_field='username',
+			read_only=True,
+		)
+	
 	to_user = serializers.PrimaryKeyRelatedField(source='to_user')
 
 	class Meta:
@@ -27,12 +32,42 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 			lookup_field='pk',
 		)
 
-	author = serializers.Field(source='author.username')
-	room = serializers.Field(source='room.name')
+	author = serializers.HyperlinkedRelatedField(
+			view_name='user-detail',
+			lookup_field='username',
+			read_only=True,
+		)
+	room = serializers.HyperlinkedRelatedField(
+			view_name='relaxroom-detail',
+			lookup_field='name',
+			read_only=True,
+		)
 
 	class Meta:
 		model = models.Post
 		fields = ('url', 'content', 'author', 'room')
+
+class CommentSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+			view_name='comment-detail',
+			lookup_field = 'pk',
+		)
+
+	post = serializers.HyperlinkedRelatedField(
+			view_name='post-detail',
+			lookup_field='pk',
+			read_only=True,
+		)
+
+	author = serializers.HyperlinkedRelatedField(
+			view_name='user-detail',
+			lookup_field='username',
+			read_only=True,
+		)
+
+	class Meta:
+		model = models.Comment
+		fields = ('url', 'content', 'author', 'post', )
 
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

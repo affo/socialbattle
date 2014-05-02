@@ -21,6 +21,11 @@ post_detail_view = social.PostDetailViewSet.as_view({
 	'delete': 'destroy',
 	'put': 'update',
 })
+comment_detail_view = social.CommentDetailViewSet.as_view({
+	'get': 'retrieve',
+	'delete': 'destroy',
+	'put': 'update',
+})
 
 follow_urls = patterns('',
 	url(r'^(?P<pk>\d+)/$', follow_detail_view, name='fellowship-detail'),
@@ -36,12 +41,16 @@ user_post_urls = patterns('',
 )
 
 room_post_urls = patterns('',
-	url(r'^posts/$', social.RelaxRoomPostListViewSet.as_view({'get': 'list'}), name='room_post-list'),
+	url(r'^posts/$', social.RelaxRoomPostListViewSet.as_view({'get': 'list', 'post': 'create'}), name='room_post-list'),
 )
 
 post_urls = patterns('',
 	url(r'^(?P<pk>\d+)/$', post_detail_view, name='post-detail'),
-	url(r'^$', social.RelaxRoomPostListViewSet.as_view({'post': 'create'}), name='post-create'),
+	url(r'^(?P<pk>\d+)/comments/$', social.PostCommentListViewSet.as_view({'get': 'list', 'post': 'create'}), name='post_comment-list'),
+)
+
+comment_urls = patterns('',
+	url(r'^(?P<pk>\d+)/$', comment_detail_view, name='comment-detail'),
 )
 
 user_urls = patterns('',
@@ -93,6 +102,7 @@ urlpatterns = patterns('',
 	url(r'^search/', include(search_urls)),
 	url(r'^fellowships/', include(follow_urls)),
 	url(r'^posts/', include(post_urls)),
+	url(r'^comments/', include(comment_urls)),
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)
