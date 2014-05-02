@@ -6,7 +6,6 @@ from rest_framework import status
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsFromUser, IsAuthor
-from socialbattle.api.mixins import CreateWithPermissionModelMixin
 
 class UserList(generics.ListAPIView):
 	model = models.User

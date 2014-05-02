@@ -62,8 +62,14 @@ search_urls = patterns('',
 	url(r'^rooms/$', access.search_room, name='room-search'),
 )
 
+character_nested_urls = patterns('',
+	url(r'^abilities/$', battle.CharacterAbilityList.as_view(get_list), name='character_ability-list'),
+	url(r'^items/$', battle.CharacterItemList.as_view(get_list), name='character_item-list')
+)
+
 character_urls = patterns('',
 	url(r'^(?P<name>[0-9a-zA-Z_-]+)/$', battle.CharacterDetail.as_view(detail), name='character-detail'),
+	url(r'^(?P<name>[0-9a-zA-Z_-]+)/', include(character_nested_urls)),
 )
 
 room_urls = patterns('',

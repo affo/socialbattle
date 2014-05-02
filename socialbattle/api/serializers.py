@@ -125,6 +125,11 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.Item
 		fields = ('url', 'name', )
 
+class AbilitySerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = models.Ability
+		fields = ('url', 'name', )
+
 class MobSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='mob-detail',

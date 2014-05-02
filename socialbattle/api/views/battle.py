@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions, viewsets, mixins
-from rest_framework.decorators import api_view, renderer_classes, permission_classes, action
 from rest_framework.reverse import reverse
+from rest_framework.response import Response
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsOwner
@@ -41,6 +41,20 @@ class CharacterDetail(viewsets.GenericViewSet,
 	permission_classes = [permissions.IsAuthenticated, IsOwner]
 	lookup_field = 'name'
 
+class CharacterAbilityList(viewsets.GenericViewSet, mixins.ListModelMixin):
+	queryset = models.Ability.objects
+	serializer_class = serializers.AbilitySerializer
+
+	def get_queryset(self):
+		return self.queryset.filter(character__name=self.kwargs.get('name'))
+
+class CharacterItemList(viewsets.GenericViewSet, mixins.ListModelMixin):
+	queryset = models.Item.objects
+	serializer_class = serializers.ItemSerializer
+
+	def get_queryset(self):
+		return self.queryset.filter(character__name=self.kwargs.get('name'))
+
 class RelaxRoomDetail(generics.RetrieveAPIView):
 	model = models.RelaxRoom
 	serializer_class = serializers.RelaxRoomSerializer
@@ -63,7 +77,6 @@ class ItemDetail(generics.RetrieveAPIView):
 	model = models.Item
 	serializer_class = serializers.ItemSerializer
 
-from rest_framework.response import Response
 class RoomList(generics.ListAPIView):
 
 	def get(self, request, format=None):
