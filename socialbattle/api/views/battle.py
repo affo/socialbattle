@@ -3,27 +3,43 @@ from rest_framework.decorators import api_view, renderer_classes, permission_cla
 from rest_framework.reverse import reverse
 from socialbattle.api import models
 from socialbattle.api import serializers
+from socialbattle.api.permissions import IsOwner
 
-class CharacterList(generics.ListCreateAPIView):
-	model = models.Character
-	serializer_class = serializers.CharacterSerializer
-	permission_classes = [permissions.AllowAny]
+class PVERoomMobList(viewsets.GenericViewSet, mixins.ListModelMixin):
+	queryset = models.Mob.objects
+	serializer_class = serializers.MobSerializer
 
+	def get_queryset(self):
+		room_name = self.kwargs.get('name')
 
-class CharacterDetail(generics.RetrieveDestroyAPIView):
-	model = models.Character
-	serializer_class = serializers.CharacterSerializer
-	permission_classes = [permissions.AllowAny]
+		if room_name:
+			return self.queryset.filter(pveroom__name=room_name).all()
+		return None
+
+class MobDetail(generics.RetrieveAPIView):
+	model = models.Mob
+	serializer_class = serializers.MobSerializer
 	lookup_field = 'name'
 
-
-class UserCharacterList(generics.ListAPIView):
-	model = models.Character
+class UserCharacterList(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+	queryset = models.Character.objects
 	serializer_class = serializers.CharacterSerializer
 
 	def get_queryset(self):
-		queryset = super(UserCharacterList, self).get_queryset()
-		return queryset.filter(owner__username=self.kwargs.get('username'))
+		return self.queryset.filter(owner__username=self.kwargs.get('username'))
+
+	def pre_save(self, obj):
+		obj.owner = self.request.user
+
+
+class CharacterDetail(viewsets.GenericViewSet,
+						mixins.DestroyModelMixin,
+						mixins.RetrieveModelMixin,
+						mixins.UpdateModelMixin):
+	queryset = models.Character.objects.all()
+	serializer_class = serializers.CharacterSerializer
+	permission_classes = [permissions.IsAuthenticated, IsOwner]
+	lookup_field = 'name'
 
 class RelaxRoomDetail(generics.RetrieveAPIView):
 	model = models.RelaxRoom
@@ -42,15 +58,6 @@ class PVERoomDetail(generics.RetrieveAPIView):
 class RelaxRoomItemList(generics.ListAPIView):
 	model = models.Item
 	serializer_class = serializers.ItemSerializer
-
-class PVERoomMobList(generics.ListAPIView):
-	model = models.Mob
-	serializer_class = serializers.MobSerializer
-
-class MobDetail(generics.RetrieveAPIView):
-	model = models.Mob
-	serializer_class = serializers.MobSerializer
-	lookup_field = 'name'
 
 class ItemDetail(generics.RetrieveAPIView):
 	model = models.Item

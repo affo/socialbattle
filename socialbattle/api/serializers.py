@@ -19,7 +19,7 @@ class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 			lookup_field='username',
 			read_only=True,
 		)
-	
+
 	to_user = serializers.PrimaryKeyRelatedField(source='to_user')
 
 	class Meta:
@@ -45,7 +45,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.Post
-		fields = ('url', 'content', 'author', 'room')
+		fields = ('url', 'content', 'author', 'room', )
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -72,13 +72,16 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='character-detail',
-			lookup_field='character_name'
+			lookup_field='name'
 		)
 
 	owner = serializers.HyperlinkedRelatedField(
 			view_name='user-detail',
-			lookup_field='username'
+			lookup_field='username',
+			read_only=True,
 		)
+
+	level = serializers.Field(source='level')
 
 	class Meta:
 		model = models.Character
@@ -137,6 +140,3 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Mob
 		fields = ('url', 'name', 'drops', )
-
-
-#from socialbattle.api.serializers import FellowshipSerializer; from socialbattle.api.models import Fellowship; f = Fellowship.objects.get(pk=2); serializer = FellowshipSerializer(f)

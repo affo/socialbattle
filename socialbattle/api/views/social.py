@@ -22,7 +22,7 @@ class UserDetail(generics.RetrieveUpdateAPIView):
 ####################
 #### FOLLOWING #####
 ####################
-class FollowListViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+class FollowList(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	queryset = models.Fellowship.objects.all()
 	serializer_class = serializers.FellowshipSerializer
 
@@ -45,7 +45,7 @@ class FollowListViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 		obj.from_user = self.request.user
 
 
-class FollowDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin):
+class FollowDetail(viewsets.GenericViewSet, mixins.DestroyModelMixin):
 	queryset = models.Fellowship.objects.all()
 	serializer_class = serializers.FellowshipSerializer
 	permission_classes = [permissions.IsAuthenticated, IsFromUser, ]
@@ -54,7 +54,7 @@ class FollowDetailViewSet(viewsets.GenericViewSet, mixins.DestroyModelMixin):
 ####################
 ###### POSTS #######
 ####################
-class UserPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class UserPostList(viewsets.GenericViewSet, mixins.ListModelMixin):
 	queryset = models.Post.objects
 	serializer_class = serializers.PostSerializer
 
@@ -65,7 +65,7 @@ class UserPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 			return self.queryset.filter(author__username=username).all()
 		return None
 
-class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+class RelaxRoomPostList(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
 	queryset = models.Post.objects
 	serializer_class = serializers.PostSerializer
 
@@ -85,7 +85,7 @@ class RelaxRoomPostListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, m
 		obj.room = room.object
 		obj.author = self.request.user
 
-class PostDetailViewSet(
+class PostDetail(
 		viewsets.GenericViewSet,
 		mixins.DestroyModelMixin,
 		mixins.RetrieveModelMixin,
@@ -95,9 +95,9 @@ class PostDetailViewSet(
 	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
 
 ####################
-###### POSTS #######
+##### COMMENTS #####
 ####################
-class PostCommentListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+class PostCommentList(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
 	queryset = models.Comment.objects
 	serializer_class = serializers.CommentSerializer
 
@@ -116,7 +116,7 @@ class PostCommentListViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mix
 		obj.post = post.object
 		obj.author = self.request.user
 
-class CommentDetailViewSet(
+class CommentDetail(
 		viewsets.GenericViewSet,
 		mixins.DestroyModelMixin,
 		mixins.RetrieveModelMixin,
