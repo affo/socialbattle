@@ -64,7 +64,8 @@ search_urls = patterns('',
 
 character_nested_urls = patterns('',
 	url(r'^abilities/$', battle.CharacterAbilityList.as_view(get_list), name='character_ability-list'),
-	url(r'^items/$', battle.CharacterItemList.as_view(get_list), name='character_item-list')
+	url(r'^items/$', battle.CharacterItemList.as_view(get_list), name='character_item-list'),
+	url(r'^select/$', battle.UserCharacterList.as_view({'get': 'select'}), name='character-select'),
 )
 
 character_urls = patterns('',

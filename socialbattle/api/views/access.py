@@ -15,7 +15,6 @@ def api_root(request, format=None):
 	return Response({
 		'users': reverse('user-list', request=request, format=format),
 		'rooms': reverse('room-list', request=request, format=format),
-		'characters': reverse('character-list', request=request, format=format),
 		})
 
 
@@ -26,6 +25,7 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 
 @api_view(['POST', ])
 @renderer_classes((JSONRenderer, ))
+@permission_classes([permissions.AllowAny, ])
 def signup(request, format=None):
 		username = request.DATA['username']
 		password = request.DATA['password']
@@ -48,10 +48,10 @@ def signout(request, format=None):
 			)
 
 @api_view(['GET', ])
-@renderer_classes((JSONRenderer, ))
+@renderer_classes((JSONRenderer, BrowsableAPIRenderer))
 @permission_classes([permissions.IsAuthenticated, ])
 def search_user(request, format=None):
-		query = request.DATA['query']
+		query = request.QUERY_PARAMS['query']
 
 		from django.db.models import Q
 		users = models.User.objects.filter(
@@ -60,21 +60,21 @@ def search_user(request, format=None):
 				Q(last_name__icontains=query)
 			)
 
-		return Response(serializers.UserSerializer(users).data)
+		return Response(serializers.UserSerializer(users, context={'request': request}, many=True).data)
 
 @api_view(['GET', ])
-@renderer_classes((JSONRenderer, ))
+@renderer_classes((JSONRenderer, BrowsableAPIRenderer))
 @permission_classes([permissions.IsAuthenticated, ])
 def search_character(request, format=None):
-		query = request.DATA['query']
+		query = request.QUERY_PARAMS['query']
 		characters = models.Character.objects.filter(name__icontains=query)
-		return Response(serializers.CharacterSerializer(characters).data)
+		return Response(serializers.CharacterSerializer(characters, context={'request': request}, many=True).data)
 
 #modify the model accordingly
 @api_view(['GET', ])
-@renderer_classes((JSONRenderer, ))
+@renderer_classes((JSONRenderer, BrowsableAPIRenderer))
 @permission_classes([permissions.IsAuthenticated, ])
 def search_room(request, format=None):
-		query = request.DATA['query']
+		query = request.QUERY_PARAMS['query']
 		rooms = models.Room.objects.filter(name__icontains=query)
-		return Response(serializers.RoomSerializer(rooms).data)
+		return Response(serializers.RoomSerializer(rooms, context={'request': request}, many=True).data)

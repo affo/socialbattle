@@ -1,6 +1,8 @@
 from rest_framework import generics, permissions, viewsets, mixins
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework import status
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsOwner
@@ -30,6 +32,21 @@ class UserCharacterList(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.C
 
 	def pre_save(self, obj):
 		obj.owner = self.request.user
+
+	@action(methods=['GET'])
+	def select(self, request, name, format=None):
+		character = models.Character.objects.get(name=name)
+		if character.owner != request.user:
+			self.permission_denied(request)
+		
+		character = serializers.CharacterSerializer(character, context=self.get_serializer_context()).data
+		request.session['character'] = character
+		data = {
+			'character': character,
+			'msg': 'Character %s selected by user %s' % (character['name'], request.user.username, )
+		}
+		return Response(data)
+
 
 
 class CharacterDetail(viewsets.GenericViewSet,
