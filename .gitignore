@@ -1,3 +1,5 @@
+venv
+
 ignore/*
 *.py[cod]
 *.log
