@@ -1,6 +1,5 @@
 from rest_framework import serializers
-import models
-import fields
+from socialbattle.api import models
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
