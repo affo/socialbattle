@@ -149,7 +149,10 @@
 		"pk": 1,
 		"fields": {
 			"name": "tidus",
-			"owner": 1
+			"owner": 1,
+			"physical_abilities": [1],
+			"white_magic_abilities":[1],
+			"black_magic_abilities":[1, 4]
 		}
 	},
 	{
@@ -157,7 +160,10 @@
 		"pk": 2,
 		"fields": {
 			"name": "yuna",
-			"owner": 2
+			"owner": 2,
+			"physical_abilities": [1],
+			"white_magic_abilities":[1],
+			"black_magic_abilities":[1, 4]
 		}
 	},
 	{
@@ -165,7 +171,10 @@
 		"pk": 3,
 		"fields": {
 			"name": "auron",
-			"owner": 3
+			"owner": 3,
+			"physical_abilities": [1],
+			"white_magic_abilities":[1],
+			"black_magic_abilities":[1, 4]
 		}
 	},
 	{
@@ -173,7 +182,47 @@
 		"pk": 4,
 		"fields": {
 			"name": "rikku",
-			"owner": 4
+			"owner": 4,
+			"physical_abilities": [1],
+			"white_magic_abilities":[1],
+			"black_magic_abilities":[1, 4]
+		}
+	},
+
+	{
+		"model": "api.inventoryrecord",
+		"pk": 1,
+		"fields": {
+			"owner": 1,
+			"item": 1,
+			"quantity": 3
+		}
+	},
+	{
+		"model": "api.inventoryrecord",
+		"pk": 2,
+		"fields": {
+			"owner": 2,
+			"item": 1,
+			"quantity": 3
+		}
+	},
+	{
+		"model": "api.inventoryrecord",
+		"pk": 3,
+		"fields": {
+			"owner": 3,
+			"item": 1,
+			"quantity": 3
+		}
+	},
+	{
+		"model": "api.inventoryrecord",
+		"pk": 4,
+		"fields": {
+			"owner": 4,
+			"item": 1,
+			"quantity": 3
 		}
 	},
 
@@ -182,7 +231,48 @@
 		"model": "api.item",
 		"pk": 1,
 		"fields": {
-			"name": "potion"
+			"name": "potion",
+			"item_type": "R"
+		}
+	},
+	{
+		"model": "api.item",
+		"pk": 2,
+		"fields": {
+			"name": "leather clothing",
+			"item_type": "A"
+		}
+	},
+	{
+		"model": "api.item",
+		"pk": 3,
+		"fields": {
+			"name": "maximilian",
+			"item_type": "A"
+		}
+	},
+	{
+		"model": "api.item",
+		"pk": 4,
+		"fields": {
+			"name": "mythril sword",
+			"item_type": "W"
+		}
+	},
+	{
+		"model": "api.item",
+		"pk": 5,
+		"fields": {
+			"name": "sunflower",
+			"item_type": "W"
+		}
+	},
+	{
+		"model": "api.item",
+		"pk": 6,
+		"fields": {
+			"name": "hi potion",
+			"item_type": "R"
 		}
 	},
 
@@ -261,6 +351,150 @@
 		"fields": {
 			"name": "chocobo_emporium",
 			"sells": [1]
+		}
+	},
+
+	{
+		"model": "api.physicalability",
+		"pk": 1,
+		"fields": {
+			"name": "attack"
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 1,
+		"fields": {
+			"name": "fire",
+			"element": "F" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 2,
+		"fields": {
+			"name": "fira",
+			"requires": [1],
+			"element": "F" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 3,
+		"fields": {
+			"name": "firaga",
+			"requires": [2],
+			"element": "F" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 4,
+		"fields": {
+			"name": "thunder",
+			"element": "T" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 5,
+		"fields": {
+			"name": "thundara",
+			"requires": [4],
+			"element": "T" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 6,
+		"fields": {
+			"name": "thundaga",
+			"requires": [5],
+			"element": "T" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 7,
+		"fields": {
+			"name": "blizzard",
+			"element": "B" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 8,
+		"fields": {
+			"name": "blizzara",
+			"requires": [7],
+			"element": "B" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 9,
+		"fields": {
+			"name": "blizzaga",
+			"requires": [8],
+			"element": "B" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 10,
+		"fields": {
+			"name": "idro",
+			"element": "W" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 11,
+		"fields": {
+			"name": "idrora",
+			"requires": [10],
+			"element": "W" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 12,
+		"fields": {
+			"name": "idroga",
+			"requires": [11],
+			"element": "W" 
+		}
+	},
+	{
+		"model": "api.blackmagicability",
+		"pk": 13,
+		"fields": {
+			"name": "flare",
+			"requires": [3, 6, 8, 12]
+		}
+	},
+
+	{
+		"model": "api.whitemagicability",
+		"pk": 1,
+		"fields": {
+			"name": "cure"
+		}
+	},
+	{
+		"model": "api.whitemagicability",
+		"pk": 2,
+		"fields": {
+			"name": "cura",
+			"requires": [1]
+		}
+	},
+	{
+		"model": "api.whitemagicability",
+		"pk": 3,
+		"fields": {
+			"name": "curaga",
+			"requires": [2]
 		}
 	}
 ]
