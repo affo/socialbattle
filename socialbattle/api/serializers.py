@@ -147,7 +147,7 @@ class RelaxRoomSerializer(serializers.HyperlinkedModelSerializer):
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Item
-		fields = ('url', 'name', )
+		fields = ('url', 'name', 'cost', 'item_type')
 
 class PhysicalAbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:

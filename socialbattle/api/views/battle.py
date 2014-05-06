@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import generics, permissions, viewsets, mixins
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
@@ -80,7 +81,6 @@ class CharacterAbilityList(viewsets.GenericViewSet, mixins.ListModelMixin):
 class CharacterNextAbilityList(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		This view returns the next abilities which the current character can learn.
-		The character is supposed to be into the query params.
 	'''
 	def list(self, request, *args, **kwargs):
 		name = self.kwargs.get('name')
@@ -141,9 +141,55 @@ class PVERoomDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	serializer_class = serializers.PVERoomSerializer
 	lookup_field = 'name'
 
-class ItemDetail(generics.RetrieveAPIView):
+class ItemDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+	'''
+		From this view it is possible for a character to buy (`/buy`) or sell (`/sell`) items.  
+		The character has to be specified into query parameters: 
+			e.g. `/buy/?char=<character_name>`
+	'''
 	model = models.Item
 	serializer_class = serializers.ItemSerializer
+
+	@action(methods=['GET'])
+	def buy(self, request, *args, **kwargs):
+		try:
+			name = request.QUERY_PARAMS['char']
+		except:
+			return Response(
+					data={'msg': 'Please pass a character name into query params'},
+					status=status.HTTP_400_BAD_REQUEST
+				)
+
+		character = models.Character.objects.get(name=name)
+		item = models.Item.objects.get(pk=self.kwargs.get('pk'))
+
+		if item.cost > character.guils:
+			return Response(
+						data={'msg': 'Not enough money to buy this item'},
+					)
+
+		try:
+			record = models.InventoryRecord.objects.get(owner=character, item=item)
+			record.quantity += 1
+			record.save()
+		except ObjectDoesNotExist:
+			record = models.InventoryRecord.objects.create(owner=character, item=item)
+
+		character.guils -= item.cost
+		character.save()
+		record = serializers.InventoryRecordSerializer(record, context=self.get_serializer_context()).data
+		data = {
+			'msg': 'Item %s added to inventory' % item.name,
+			'inventory_record': record,
+			'guils left': character.guils,
+		}
+
+		return Response(data=data)
+		
+
+	@action(methods=['GET'])
+	def sell(self, request, *args, **kwargs):
+		pass
 
 class RoomList(generics.ListAPIView):
 	def get(self, request, format=None):

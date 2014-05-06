@@ -146,6 +146,7 @@ class Item(models.Model):
 	description = models.TextField(blank=True)
 	item_type = models.CharField(max_length=1, choices=ITEM_TYPE, blank=False)
 	power = models.IntegerField(default=0)
+	cost = models.IntegerField(default=50)
 
 class Post(models.Model):
 	content = models.TextField(max_length=1024)

@@ -275,6 +275,15 @@
 			"item_type": "R"
 		}
 	},
+	{
+		"model": "api.item",
+		"pk": 7,
+		"fields": {
+			"name": "swarovski armor",
+			"item_type": "A",
+			"cost": 5000
+		}
+	},
 
 
 

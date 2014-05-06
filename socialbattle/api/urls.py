@@ -90,7 +90,9 @@ mob_urls = patterns('',
 )
 
 item_urls = patterns('',
-	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/$', battle.ItemDetail.as_view(), name='item-detail'),
+	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/$', battle.ItemDetail.as_view({'get': 'retrieve'}), name='item-detail'),
+	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/buy/$', battle.ItemDetail.as_view({'get': 'buy'}), name='item-buy'),
+	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/sell/$', battle.ItemDetail.as_view({'get': 'sell'}), name='item-sell'),
 )
 
 inventory_urls = patterns('',
