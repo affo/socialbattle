@@ -144,8 +144,10 @@ class PVERoomDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 class ItemDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	'''
 		From this view it is possible for a character to buy (`/buy`) or sell (`/sell`) items.  
-		The character has to be specified into query parameters: 
-			e.g. `/buy/?char=<character_name>`
+		Query parameters:  
+		
+			* to buy: `/buy/?char=<character_name>&room=<room_name>`  
+			* to sell: `/sell/?char=<character_name>`
 	'''
 	model = models.Item
 	serializer_class = serializers.ItemSerializer
@@ -154,14 +156,24 @@ class ItemDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	def buy(self, request, *args, **kwargs):
 		try:
 			name = request.QUERY_PARAMS['char']
+			room = request.QUERY_PARAMS['room']
 		except:
 			return Response(
-					data={'msg': 'Please pass a character name into query params'},
+					data={'msg': 'Missing query params(): ?char=<character_name>&room=<room_name>'},
 					status=status.HTTP_400_BAD_REQUEST
 				)
 
 		character = models.Character.objects.get(name=name)
+		if character.owner != request.user:
+			self.permission_denied(request)
+		room = models.RelaxRoom.objects.get(name=room)
 		item = models.Item.objects.get(pk=self.kwargs.get('pk'))
+
+		if item not in room.sells:
+			return Response(
+					data={'msg': 'The specified room does not sell the specified item'},
+					status=status.HTTP_400_BAD_REQUEST
+				)
 
 		if item.cost > character.guils:
 			return Response(
@@ -189,7 +201,39 @@ class ItemDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 
 	@action(methods=['GET'])
 	def sell(self, request, *args, **kwargs):
-		pass
+		try:
+			name = request.QUERY_PARAMS['char']
+		except:
+			return Response(
+					data={'msg': 'Missing query params(): ?char=<character_name>'},
+					status=status.HTTP_400_BAD_REQUEST
+				)
+
+		character = models.Character.objects.get(name=name)
+		if character.owner != request.user:
+			self.permission_denied(request)
+		item = models.Item.objects.get(pk=self.kwargs.get('pk'))
+
+		try:
+			record = models.InventoryRecord.objects.get(owner=character, item=item)
+			record.quantity -= 1
+			record.save()
+		except ObjectDoesNotExist:
+			return Response(
+					data={'msg': 'The specified character does not own the specified item'},
+					status=status.HTTP_400_BAD_REQUEST
+				)
+
+		character.guils += item.cost
+		character.save()
+		record = serializers.InventoryRecordSerializer(record, context=self.get_serializer_context()).data
+		data = {
+			'msg': 'Item %s sold' % item.name,
+			'inventory_record': record,
+			'guils left': character.guils,
+		}
+
+		return Response(data=data)
 
 class RoomList(generics.ListAPIView):
 	def get(self, request, format=None):
