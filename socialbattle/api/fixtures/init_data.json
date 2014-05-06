@@ -335,7 +335,7 @@
 		"pk": 1,
 		"fields": {
 			"name": "moguri_shop",
-			"sells": [1]
+			"sells": [1, 4]
 		}
 	},
 	{

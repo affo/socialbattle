@@ -145,9 +145,9 @@ class ItemDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	'''
 		From this view it is possible for a character to buy (`/buy`) or sell (`/sell`) items.  
 		Query parameters:  
-		
-			* to buy: `/buy/?char=<character_name>&room=<room_name>`  
-			* to sell: `/sell/?char=<character_name>`
+			*	to buy: `/buy/?char=<character_name>&room=<room_name>`  
+			*	to sell: `/sell/?char=<character_name>`  
+			*	to equip: `/equip/?char=<character_name>`
 	'''
 	model = models.Item
 	serializer_class = serializers.ItemSerializer
@@ -169,7 +169,7 @@ class ItemDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 		room = models.RelaxRoom.objects.get(name=room)
 		item = models.Item.objects.get(pk=self.kwargs.get('pk'))
 
-		if item not in room.sells:
+		if item not in room.sells.all():
 			return Response(
 					data={'msg': 'The specified room does not sell the specified item'},
 					status=status.HTTP_400_BAD_REQUEST
@@ -224,13 +224,54 @@ class ItemDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 					status=status.HTTP_400_BAD_REQUEST
 				)
 
-		character.guils += item.cost
+		character.guils += item.cost #maybe item.cost/2
 		character.save()
 		record = serializers.InventoryRecordSerializer(record, context=self.get_serializer_context()).data
 		data = {
 			'msg': 'Item %s sold' % item.name,
 			'inventory_record': record,
 			'guils left': character.guils,
+		}
+
+		return Response(data=data)
+
+	@action(methods=['GET'])
+	def equip(self, request, *args, **kwargs):
+		try:
+			name = request.QUERY_PARAMS['char']
+		except:
+			return Response(
+					data={'msg': 'Missing query params(): ?char=<character_name>'},
+					status=status.HTTP_400_BAD_REQUEST
+				)
+
+		character = models.Character.objects.get(name=name)
+		if character.owner != request.user:
+			self.permission_denied(request)
+		item = models.Item.objects.get(pk=self.kwargs.get('pk'))
+
+		try:
+			record = models.InventoryRecord.objects.get(owner=character, item=item)
+		except ObjectDoesNotExist:
+			return Response(
+					data={'msg': 'The specified character does not own the specified item'},
+					status=status.HTTP_400_BAD_REQUEST
+				)
+
+		if item.item_type == 'W':
+			character.current_weapon = item
+		elif item.item_type == 'A':
+			character.current_armor = item
+		else:
+			return Response(
+					data={'msg': 'Cannot equip a restorative item'},
+					status=status.HTTP_400_BAD_REQUEST
+				)
+		character.save()
+		character = serializers.CharacterSerializer(character, context=self.get_serializer_context()).data
+		data = {
+			'msg': 'Item %s equipped' % item.name,
+			'character': character,
 		}
 
 		return Response(data=data)

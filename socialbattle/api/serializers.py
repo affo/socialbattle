@@ -82,10 +82,22 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 
 	level = serializers.Field(source='level')
 	guils = serializers.Field(source='guils')
+	current_armor = serializers.Field(source='current_armor.name')
+	current_weapon = serializers.Field(source='current_weapon.name')
+	hp = serializers.Field(source='hp')
+	mp = serializers.Field(source='mp')
+	power = serializers.Field(source='power')
+	mpower = serializers.Field(source='mpower')
 
 	class Meta:
 		model = models.Character
-		fields = ('url', 'name', 'level', 'guils', 'owner', )
+		fields = (
+			'url', 'name', 'level', 'guils', 'owner',
+			'current_weapon',
+			'current_armor',
+			'hp', 'mp',
+			'power', 'mpower',
+		)
 
 class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

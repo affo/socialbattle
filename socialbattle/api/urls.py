@@ -89,10 +89,15 @@ mob_urls = patterns('',
 	url(r'^(?P<name>[0-9a-zA-Z_-]+)/$', battle.MobDetail.as_view(), name='mob-detail'),
 )
 
+item_nested_urls = patterns('',
+	url(r'^buy/$', battle.ItemDetail.as_view({'get': 'buy'}), name='item-buy'),
+	url(r'^sell/$', battle.ItemDetail.as_view({'get': 'sell'}), name='item-sell'),
+	url(r'^equip/$', battle.ItemDetail.as_view({'get': 'equip'}), name='item-equip'),
+)
+
 item_urls = patterns('',
-	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/$', battle.ItemDetail.as_view({'get': 'retrieve'}), name='item-detail'),
-	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/buy/$', battle.ItemDetail.as_view({'get': 'buy'}), name='item-buy'),
-	url(r'^(?P<pk>[0-9a-zA-Z_-]+)/sell/$', battle.ItemDetail.as_view({'get': 'sell'}), name='item-sell'),
+	url(r'^(?P<pk>\d+)/$', battle.ItemDetail.as_view({'get': 'retrieve'}), name='item-detail'),
+	url(r'^(?P<pk>\d+)/', include(item_nested_urls)),
 )
 
 inventory_urls = patterns('',
