@@ -58,21 +58,6 @@ class CharacterDetail(viewsets.GenericViewSet,
 	permission_classes = [permissions.IsAuthenticated, IsOwner]
 	lookup_field = 'name'
 
-	@action(methods=['GET'])
-	def select(self, request, name, format=None):
-		character = models.Character.objects.get(name=name)
-		
-		if character.owner != request.user:
-			self.permission_denied(request)
-
-		character = serializers.CharacterSerializer(character, context=self.get_serializer_context()).data
-		request.session['character'] = character
-		data = {
-			'character': character,
-			'msg': 'Character %s selected by user %s' % (character['name'], request.user.username, )
-		}
-		return Response(data)
-
 class CharacterAbilityList(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		List of the learned abilities for the chosen character
@@ -95,12 +80,12 @@ class CharacterAbilityList(viewsets.GenericViewSet, mixins.ListModelMixin):
 class CharacterNextAbilityList(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		This view returns the next abilities which the current character can learn.
-		The character is supposed to be into the session.
+		The character is supposed to be into the query params.
 	'''
 	def list(self, request, *args, **kwargs):
-		name = request.session['character'].get('name')
+		name = self.kwargs.get('name')
 		if not name:
-			raise ValueError("Please select a character")
+			raise ValueError("Please pass a character")
 
 		physical = models.PhysicalAbility.objects.filter(character__name=name).all()
 		white = models.WhiteMagicAbility.objects.filter(character__name=name).all()
@@ -147,17 +132,6 @@ class RelaxRoomDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	serializer_class = serializers.RelaxRoomSerializer
 	lookup_field = 'name'
 
-	@action(methods=['GET', ])
-	def enter(self, request, name, format=None):
-		room = models.RelaxRoom.objects.get(name=name)
-		room = serializers.RelaxRoomSerializer(room, context=self.get_serializer_context()).data
-		request.session['room'] = room
-		data = {
-			'room': room,
-			'msg': 'Room %s entered' % room['name']
-		}
-		return Response(data)
-
 class PVERoomList(generics.ListAPIView):
 	model = models.PVERoom
 	serializer_class = serializers.PVERoomSerializer
@@ -167,22 +141,11 @@ class PVERoomDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	serializer_class = serializers.PVERoomSerializer
 	lookup_field = 'name'
 
-	@action(methods=['GET', ])
-	def enter(self, request, name, format=None):
-		room = models.PVERoom.objects.get(name=name)
-		room = serializers.PVERoomSerializer(room, context=self.get_serializer_context()).data
-		request.session['room'] = room
-		data = {
-			'room': room,
-			'msg': 'Room %s entered' % room['name']
-		}
-
 class ItemDetail(generics.RetrieveAPIView):
 	model = models.Item
 	serializer_class = serializers.ItemSerializer
 
 class RoomList(generics.ListAPIView):
-
 	def get(self, request, format=None):
 		relax = models.RelaxRoom.objects.all()
 		pve = models.PVERoom.objects.all()

@@ -66,7 +66,7 @@ search_urls = patterns('',
 character_nested_urls = patterns('',
 	url(r'^abilities/$', battle.CharacterAbilityList.as_view(get_list), name='character_ability-list'),
 	url(r'^items/$', battle.CharacterItemList.as_view(get_list), name='character_item-list'),
-	url(r'^select/$', battle.CharacterDetail.as_view({'get': 'select'}), name='character-select'),
+	url(r'^next_abilities/$', battle.CharacterNextAbilityList.as_view(get_list), name='nextability-list'),
 )
 
 character_urls = patterns('',
@@ -82,9 +82,7 @@ room_urls = patterns('',
 	url(r'^$', battle.RoomList.as_view(), name='room-list'),
 
 	url(r'^relax/(?P<name>[0-9a-zA-Z_-]+)/', include(room_post_urls)),
-	url(r'^relax/(?P<name>[0-9a-zA-Z_-]+)/enter/$', battle.RelaxRoomDetail.as_view({'get': 'enter'}), name='realxroom-select'),
 	url(r'^pve/(?P<name>[0-9a-zA-Z_-]+)/', include(room_mob_urls)),
-	url(r'^pve/(?P<name>[0-9a-zA-Z_-]+)/enter/$', battle.PVERoomDetail.as_view({'get': 'enter'}), name='pveroom-select'),
 )
 
 mob_urls = patterns('',
@@ -105,10 +103,6 @@ ability_urls = patterns('',
 	url(r'^black/(?P<pk>\d+)/$', battle.BlackMagicAbilityDetail.as_view({'get': 'retrieve'}), name='blackmagicability-detail'),
 )
 
-current_urls = patterns('',
-	url(r'^next_abilities/$', battle.CharacterNextAbilityList.as_view(get_list), name='nextability-list'),
-)
-
 urlpatterns = patterns('',
 	url(r'^$', access.api_root, name='api-root'),
 	url(r'^users/', include(user_urls)),
@@ -122,7 +116,6 @@ urlpatterns = patterns('',
 	url(r'^posts/', include(post_urls)),
 	url(r'^comments/', include(comment_urls)),
 	url(r'^abilities/', include(ability_urls)),
-	url(r'^current/', include(current_urls)),
 	url(r'^inventory/', include(inventory_urls)),
 )
 
