@@ -8,12 +8,47 @@ from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsOwner
 
-class MobViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, generics.RetrieveAPIView):
+### ROOM
+# GET: /rooms/
+# GET: /rooms/pve/
+# GET: /rooms/pve/{room_name}
+# GET: /rooms/relax/
+# GET: /rooms/relax/{room_name}
+class RelaxRoomViewSet(viewsets.GenericViewSet,
+						mixins.ListModelMixin,
+						mixins.RetrieveModelMixin):
+	queryset = models.RelaxRoom.objects.all()
+	serializer_class = serializers.RelaxRoomSerializer
+	lookup_field = 'name'
+
+class PVERoomViewSet(viewsets.GenericViewSet,
+						mixins.ListModelMixin,
+						mixins.RetrieveModelMixin):
+	queryset = models.PVERoom.objects.all()
+	serializer_class = serializers.PVERoomSerializer
+	lookup_field = 'name'
+
+class RoomViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+	'''
+		List of all rooms (pve and relax)
+	'''
+	def list(self, request, *args, **kwargs):
+		relax = models.RelaxRoom.objects.all()
+		pve = models.PVERoom.objects.all()
+
+		relax = serializers.RelaxRoomSerializer(relax, context=self.get_serializer_context(), many=True).data
+		pve = serializers.PVERoomSerializer(pve, context=self.get_serializer_context(), many=True).data
+
+		return Response(relax + pve, status=status.HTTP_200_OK)
+
+### MOB
+# GET: /room/pve/{room_name}/mobs/
+# GET: /mobs/{mob_name}
+class RoomMobViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		List of the available mobs for the chosen PVE room
 	'''
 	serializer_class = serializers.MobSerializer
-	lookup_field = 'name'
 
 	def get_queryset(self):
 		queryset = models.Mob.objects.all()
@@ -22,6 +57,37 @@ class MobViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, generics.Retrie
 			queryset = queryset.filter(pveroom__name=room_name).all()
 		return queryset
 
+class MobViewSet(viewsets.GenericViewSet, generics.RetrieveAPIView):
+	'''
+		List of the available mobs for the chosen PVE room
+	'''
+	queryset = models.Mob.objects.all()
+	serializer_class = serializers.MobSerializer
+	lookup_field = 'name'
+
+### ITEM
+# GET: /room/relax/{room_name}/items/
+# GET: /items/{pk}/
+class ItemViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+	model = models.Item
+	serializer_class = serializers.ItemSerializer
+
+class RoomItemViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+	'''
+		List of the available items for the chosen relax room
+	'''
+	serializer_class = serializers.ItemSerializer
+
+	def get_queryset(self):
+		queryset = models.Item.objects.all()
+		room_name = self.kwargs.get('room_name')
+		if room_name:
+			queryset = queryset.filter(relaxroom__name=room_name).all()
+		return queryset
+
+
+##############################################
+# CHARACTER
 class CharacterViewSet(viewsets.ModelViewSet):
 	'''
 		List of characters for the chosen user
@@ -49,46 +115,46 @@ class CharacterViewSet(viewsets.ModelViewSet):
 			potion = models.Item.objects.get(name='potion')
 			record = models.InventoryRecord.objects.create(owner=obj, item=potion, quantity=3)
 
-	def partial_update(self, request, *args, **kwargs):
-		'''
-			Equip action
-		'''
-		character = self.get_object_or_none()
-		serializer = self.get_serializer(character, data=request.DATA, files=request.FILES, partial=True)
+	# def partial_update(self, request, *args, **kwargs):
+	# 	'''
+	# 		Equip action
+	# 	'''
+	# 	character = self.get_object_or_none()
+	# 	serializer = self.get_serializer(character, data=request.DATA, files=request.FILES, partial=True)
 
-		if not serializer.is_valid():
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	# 	if not serializer.is_valid():
+	# 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-		if character.owner != request.user:
-			self.permission_denied(request)
-		item = models.Item.objects.get(pk=request.DATA.get('item'))
+	# 	if character.owner != request.user:
+	# 		self.permission_denied(request)
+	# 	item = models.Item.objects.get(pk=request.DATA.get('item'))
 
-		try:
-			record = models.InventoryRecord.objects.get(owner=character, item=item)
-		except ObjectDoesNotExist:
-			return Response(
-					data={'msg': 'The specified character does not own the specified item'},
-					status=status.HTTP_400_BAD_REQUEST
-				)
+	# 	try:
+	# 		record = models.InventoryRecord.objects.get(owner=character, item=item)
+	# 	except ObjectDoesNotExist:
+	# 		return Response(
+	# 				data={'msg': 'The specified character does not own the specified item'},
+	# 				status=status.HTTP_400_BAD_REQUEST
+	# 			)
 
-		if item.item_type == 'W':
-			character.current_weapon = item
-		elif item.item_type == 'A':
-			character.current_armor = item
-		else:
-			return Response(
-					data={'msg': 'Cannot equip a restorative item'},
-					status=status.HTTP_400_BAD_REQUEST
-				)
-		character.save()
-		character = serializers.CharacterSerializer(character, context=self.get_serializer_context()).data
-		data = {
-			'msg': 'Item %s equipped' % item.name,
-			'character': character,
-		}
+	# 	if item.item_type == 'W':
+	# 		character.current_weapon = item
+	# 	elif item.item_type == 'A':
+	# 		character.current_armor = item
+	# 	else:
+	# 		return Response(
+	# 				data={'msg': 'Cannot equip a restorative item'},
+	# 				status=status.HTTP_400_BAD_REQUEST
+	# 			)
+	# 	character.save()
+	# 	character = serializers.CharacterSerializer(character, context=self.get_serializer_context()).data
+	# 	data = {
+	# 		'msg': 'Item %s equipped' % item.name,
+	# 		'character': character,
+	# 	}
 
-		return Response(data=data)
+	# 	return Response(data=data)
 
 class CharacterAbilityList(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
@@ -165,7 +231,6 @@ class CharacterInventory(viewsets.GenericViewSet,
 		'''
 			Buy action
 		'''
-		print request.DATA
 		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
 		if not serializer.is_valid:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -231,31 +296,3 @@ class CharacterInventory(viewsets.GenericViewSet,
 		}
 
 		return Response(data=data)
-
-class RelaxRoomDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
-	model = models.RelaxRoom
-	serializer_class = serializers.RelaxRoomSerializer
-	lookup_field = 'name'
-
-class PVERoomList(generics.ListAPIView):
-	model = models.PVERoom
-	serializer_class = serializers.PVERoomSerializer
-
-class PVERoomDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
-	model = models.PVERoom
-	serializer_class = serializers.PVERoomSerializer
-	lookup_field = 'name'
-
-class ItemDetail(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
-	model = models.Item
-	serializer_class = serializers.ItemSerializer
-
-class RoomList(generics.ListAPIView):
-	def get(self, request, format=None):
-		relax = models.RelaxRoom.objects.all()
-		pve = models.PVERoom.objects.all()
-
-		relax = serializers.RelaxRoomSerializer(relax, context=self.get_serializer_context()).data
-		pve = serializers.PVERoomSerializer(pve, context=self.get_serializer_context()).data
-
-		return Response(relax + pve)

@@ -136,9 +136,17 @@ router.register(r'users/(?P<username>[a-zA-Z0-9-_]+)/following', social.UserFoll
 router.register(r'users/(?P<username>[a-zA-Z0-9-_]+)/followers', social.UserFollowersViewSet, base_name='userfollow')
 router.register(r'users/(?P<username>[a-zA-Z0-9-_]+)/posts', social.UserPostViewSet, base_name='userpost')
 router.register(r'fellowship', social.FellowshipViewSet, base_name='fellowship')
-router.register(r'rooms/(?P<room_name>[a-zA-Z0-9-_]+)/posts', social.RoomPostViewSet, base_name='roompost')
+
+router.register(r'rooms', battle.RoomViewSet, base_name='room')
+router.register(r'rooms/relax', battle.RelaxRoomViewSet, base_name='relaxroom')
+router.register(r'rooms/relax/(?P<room_name>[a-zA-Z0-9-_]+)/posts', social.RoomPostViewSet, base_name='roompost')
+router.register(r'rooms/relax/(?P<room_name>[a-zA-Z0-9-_]+)/items', battle.RoomItemViewSet, base_name='roomitem')
+router.register(r'rooms/pve', battle.PVERoomViewSet, base_name='pveroom')
+router.register(r'rooms/pve/(?P<room_name>[a-zA-Z0-9-_]+)/mobs', battle.RoomMobViewSet, base_name='roommob')
 router.register(r'posts', social.PostViewset, base_name='post')
 router.register(r'posts/(?P<pk>\d+)/comments', social.PostCommentViewSet, base_name='postcomment')
 router.register(r'comments', social.CommentViewSet, base_name='comment')
 
+router.register(r'items', battle.ItemViewSet, base_name='item')
+router.register(r'mobs', battle.MobViewSet, base_name='mob')
 urlpatterns = patterns('', url(r'^', include(router.urls)))

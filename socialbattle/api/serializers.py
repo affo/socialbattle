@@ -44,7 +44,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.Post
-		fields = ('url', 'content', 'author',) # 'room', )
+		fields = ('url', 'content', 'author', 'room', )
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
