@@ -44,7 +44,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.Post
-		fields = ('url', 'content', 'author', 'room', )
+		fields = ('url', 'content', 'author',) # 'room', )
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -111,12 +111,7 @@ class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 		read_only=True,
 	)
 
-	item = serializers.HyperlinkedRelatedField(
-		view_name='item-detail',
-		lookup_field='pk',
-		read_only=True,
-	)
-
+	item = serializers.PrimaryKeyRelatedField(source='item')
 	quantity = serializers.Field(source='quantity')
 
 	class Meta:

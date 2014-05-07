@@ -1,5 +1,5 @@
 from rest_framework import generics, permissions, viewsets, mixins
-from rest_framework.decorators import action
+from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,73 +7,73 @@ from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsFromUser, IsAuthor
 
-class UserList(generics.ListAPIView):
-	model = models.User
-	serializer_class = serializers.UserSerializer
-	#permission_classes = [permissions.IsAdminUser, ]
-
-
-class UserDetail(generics.RetrieveUpdateAPIView):
-	model = models.User
+### USER
+# GET, POST: /users/
+# GET, DELETE, PUT: /users/{username}/
+class UserViewSet(viewsets.GenericViewSet,
+					mixins.ListModelMixin,
+					mixins.RetrieveModelMixin,
+					mixins.UpdateModelMixin):
+	queryset = models.User.objects.all()
 	serializer_class = serializers.UserSerializer
 	lookup_field = 'username'
+	#permission_classes = [permissions.IsAdminUser, ]
 
-####################
-#### FOLLOWING #####
-####################
-class FollowList(viewsets.GenericViewSet, mixins.CreateModelMixin):
-	queryset = models.Fellowship.objects.all()
+### FELLOWSHIP
+# GET: /users/{username}/follow[(ing)|(ers)]/
+# POST: /users/{username}/following/
+# GET, DELETE: /fellowship/{pk}/
+class UserFollowingViewSet(viewsets.GenericViewSet, 
+						mixins.CreateModelMixin,
+						mixins.ListModelMixin):
 	serializer_class = serializers.FellowshipSerializer
 
-	@action(methods=['GET', ])
-	def followx(self, request, username, direction, format=None):
-		if direction == 'ing':
-			follows = self.get_queryset().filter(from_user__username=username).all()
-			follows = serializers.FellowshipSerializer(follows, context=self.get_serializer_context(), many=True).data
-			data = follows
-		elif direction == 'ers':
-			followed = self.get_queryset().filter(to_user__username=username).all()
-			followed = serializers.FellowshipSerializer(followed, context=self.get_serializer_context(), many=True).data
-			data = followed
-		else:
-			message = "A user is followING or has followERS, a user cannot be/have follow%s" % direction
-			return Response(data={'message': message}, status=status.HTTP_400_BAD_REQUEST)
-		return Response(data)
+	def get_queryset(self):
+		queryset = models.Fellowship.objects.all()
+		username = self.kwargs.get('username')
+		if username:
+			queryset = queryset.filter(from_user__username=username).all()
+		return queryset
 
 	def pre_save(self, obj):
 		obj.from_user = self.request.user
 
+class UserFollowersViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+	serializer_class = serializers.FellowshipSerializer
 
-class FollowDetail(viewsets.GenericViewSet, mixins.DestroyModelMixin):
+	def get_queryset(self):
+		queryset = models.Fellowship.objects.all()
+		username = self.kwargs.get('username')
+		if username:
+			queryset = queryset.filter(to_user__username=username).all()
+		return queryset
+
+	def pre_save(self, obj):
+		obj.from_user = self.request.user
+
+class FellowshipViewSet(viewsets.GenericViewSet,
+						mixins.DestroyModelMixin,
+						mixins.RetrieveModelMixin):
 	queryset = models.Fellowship.objects.all()
 	serializer_class = serializers.FellowshipSerializer
 	permission_classes = [permissions.IsAuthenticated, IsFromUser, ]
 
-
-####################
-###### POSTS #######
-####################
-class UserPostList(viewsets.GenericViewSet, mixins.ListModelMixin):
+### POST
+# GET, POST: /rooms/relax/{room_name}/posts/
+# GET: /users/{username}/posts/
+# GET, PUT, DELETE: /posts/{pk}/
+class RoomPostViewSet(viewsets.GenericViewSet,
+						mixins.CreateModelMixin,
+						mixins.ListModelMixin):
 	queryset = models.Post.objects
 	serializer_class = serializers.PostSerializer
 
 	def get_queryset(self):
-		username = self.kwargs.get('username')
-
-		if username:
-			return self.queryset.filter(author__username=username).all()
-		return None
-
-class RelaxRoomPostList(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
-	queryset = models.Post.objects
-	serializer_class = serializers.PostSerializer
-
-	def get_queryset(self):
-		room_name = self.kwargs.get('name')
-
+		queryset = models.Post.objects.all()
+		room_name = self.kwargs.get('room_name', None)
 		if room_name:
-			return self.queryset.filter(room__name=room_name).all()
-		return None
+			queryset = queryset.filter(room__name=room_name).all()
+		return queryset
 
 	def pre_save(self, obj):
 		room_name = self.kwargs.get('name')
@@ -84,27 +84,38 @@ class RelaxRoomPostList(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.C
 		obj.room = room.object
 		obj.author = self.request.user
 
-class PostDetail(
-		viewsets.GenericViewSet,
-		mixins.DestroyModelMixin,
-		mixins.RetrieveModelMixin,
-		mixins.UpdateModelMixin):
+class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+	serializer_class = serializers.PostSerializer
+
+	def get_queryset(self):
+		queryset = models.Post.objects.all()
+		username = self.kwargs.get('username', None)
+		if username:
+			queryset = queryset.filter(author__username=username).all()
+		return queryset	
+
+class PostViewset(viewsets.GenericViewSet,
+					mixins.RetrieveModelMixin,
+					mixins.DestroyModelMixin,
+					mixins.UpdateModelMixin):
 	queryset = models.Post.objects.all()
 	serializer_class = serializers.PostSerializer
 	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
 
-####################
-##### COMMENTS #####
-####################
-class PostCommentList(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
-	queryset = models.Comment.objects
+### COMMENT
+# GET, POST: /posts/{pk}/comments/
+# GET, PUT, DELETE: /comments/{pk}/
+class PostCommentViewSet(viewsets.GenericViewSet,
+							mixins.ListModelMixin,
+							mixins.CreateModelMixin):
 	serializer_class = serializers.CommentSerializer
 
 	def get_queryset(self):
+		queryset = models.Comment.objects.all()
 		post_pk = self.kwargs.get('pk')
 		if post_pk:
-			return self.queryset.filter(post__pk=post_pk).all()
-		return None
+			queryset = queryset.filter(post__pk=post_pk).all()
+		return queryset
 
 	def pre_save(self, obj):
 		post_pk = self.kwargs.get('pk')
@@ -115,11 +126,11 @@ class PostCommentList(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Cre
 		obj.post = post.object
 		obj.author = self.request.user
 
-class CommentDetail(
-		viewsets.GenericViewSet,
-		mixins.DestroyModelMixin,
-		mixins.RetrieveModelMixin,
-		mixins.UpdateModelMixin):
+
+class CommentViewSet(viewsets.GenericViewSet,
+					mixins.RetrieveModelMixin,
+					mixins.DestroyModelMixin,
+					mixins.UpdateModelMixin):
 	queryset = models.Comment.objects.all()
 	serializer_class = serializers.CommentSerializer
 	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
