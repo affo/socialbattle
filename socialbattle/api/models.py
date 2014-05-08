@@ -41,11 +41,22 @@ class Fellowship(models.Model):
 		unique_together = ('from_user', 'to_user')
 
 class Ability(models.Model):
+	ELEMENTS = (
+		('N', 'none'),
+		('T', 'thunder'),
+		('W', 'water'),
+		('F', 'fire'),
+		('B', 'blizzard'),
+		('W', 'white magic'),
+	)
+
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
 	power = models.IntegerField(default=0)
 	ap_required = models.IntegerField(default=1)
 	requires = models.ManyToManyField('self', symmetrical=False)
+	mp_required = models.IntegerField(default=0)
+	element = models.CharField(max_length=1, choices=ELEMENTS, default=ELEMENTS[0][0])
 
 	slug = models.CharField(max_length=200, unique=True)
 	def __unicode__(self):
@@ -55,30 +66,6 @@ class Ability(models.Model):
 		if not self.id:
 			self.slug = slugify(self.name, instance=self)
 			super(Ability, self).save(*args, **kwargs)
-
-	class Meta:
-		abstract = True
-
-class PhysicalAbility(Ability):
-	pass
-
-class MagicAbility(Ability):
-	mp_required = models.IntegerField(default=1)
-
-	class Meta:
-		abstract = True
-
-class WhiteMagicAbility(MagicAbility):
-	pass
-
-class BlackMagicAbility(MagicAbility):
-	ELEMENTS = (
-		('T', 'thunder'),
-		('W', 'water'),
-		('F', 'fire'),
-		('B', 'blizzard'),
-	)
-	element = models.CharField(max_length=1, choices=ELEMENTS, blank=True)
 
 class Character(models.Model):
 	'''
@@ -96,33 +83,45 @@ class Character(models.Model):
 	mpower = models.IntegerField(default=10)
 	#relations
 	owner = models.ForeignKey(User)
-	#abilities
-	physical_abilities = models.ManyToManyField(PhysicalAbility)
-	white_magic_abilities = models.ManyToManyField(WhiteMagicAbility)
-	black_magic_abilities = models.ManyToManyField(BlackMagicAbility)
+	abilities = models.ManyToManyField(Ability, through='LearntAbility')
 	items = models.ManyToManyField('Item', through='InventoryRecord')
 	#equip
-	current_weapon = models.ForeignKey('Item', related_name='weapon', null=True)
-	current_armor = models.ForeignKey('Item', related_name='armor', null=True)
 
-	def get_next_physical_abilities(self):
-		return PhysicalAbility.objects.filter(requires__in=self.physical_abilities.all()).all()
+	def get_next_abilities(self):
+		return Ability.objects.filter(requires__in=self.abilities.all()).all()
 
-	def get_next_black_abilities(self):
-		return BlackMagicAbility.objects.filter(requires__in=self.black_magic_abilities.all()).all()
+class LearntAbility(models.Model):
+	character = models.ForeignKey(Character)
+	ability = models.ForeignKey(Ability)
 
-	def get_next_white_abilities(self):
-		return WhiteMagicAbility.objects.filter(requires__in=self.white_magic_abilities.all()).all()
-
-	def clean(self):
-		if self.current_armor and self.current_weapon:
-			if self.current_weapon.item_type != 'W' or self.current_armor.item_type != 'A':
-				raise ValidationError('The equipment is not coherent!')
+	class Meta:
+		unique_together = ('character', 'ability')
 
 class InventoryRecord(models.Model):
 	owner = models.ForeignKey(Character)
 	item = models.ForeignKey('Item')
 	quantity = models.IntegerField(default=1)
+	equipped = models.BooleanField(default=False)
+
+	def clean(self):
+		RESTORATIVE = Item.ITEM_TYPE[0][0]
+		ARMOR = Item.ITEM_TYPE[2][0]
+		WEAPON = Item.ITEM_TYPE[1][0]
+
+		n_rest = len(InventoryRecord.objects.filter(item__item_type=RESTORATIVE).filter(equipped=True))
+		if n_rest > 0:
+			raise ValidationError('Cannot equip a restorative time')
+
+		from django.db.models import Count
+		armor_records = InventoryRecord.objects.filter(item__item_type=ARMOR).filter(equipped=True).annotate(num=Count('owner'))
+		for record in armor_records:
+			if record.num > 1:
+				raise ValidationError('Cannot equip two armors at the same time')
+
+		weapon_records = InventoryRecord.objects.filter(item__item_type=WEAPON).filter(equipped=True).annotate(num=Count('owner'))
+		for record in weapon_records:
+			if record.num > 1:
+				raise ValidationError('Cannot equip two weapons at the same time')
 
 	class Meta:
 		unique_together = ('owner', 'item')
@@ -130,7 +129,7 @@ class InventoryRecord(models.Model):
 class Mob(models.Model):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
-	weakness = models.CharField(max_length=1, choices=BlackMagicAbility.ELEMENTS, blank=True)
+	weakness = models.CharField(max_length=1, choices=Ability.ELEMENTS, default=Ability.ELEMENTS[0][0])
 	#stats
 	hp = models.IntegerField(default=250)
 	power = models.IntegerField(default=10)

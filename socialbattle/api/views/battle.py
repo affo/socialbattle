@@ -1,4 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework import generics, permissions, viewsets, mixins
 from rest_framework.reverse import reverse
@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework import status
 from socialbattle.api import models
 from socialbattle.api import serializers
-from socialbattle.api.permissions import IsOwner
+from socialbattle.api.permissions import IsOwner, IsOwnerCharacter
 
 ### ROOM
 # GET: /rooms/
@@ -95,7 +95,7 @@ class RoomItemViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 ### CHARACTER
 # GET, POST: /users/{username}/characters/
-# GET, PUT, DELETE: /characters/{character_name}/
+# GET, PUT, PATCH, DELETE: /characters/{character_name}/
 class UserCharacterViewSet(viewsets.GenericViewSet,
 							mixins.ListModelMixin,
 							mixins.CreateModelMixin):
@@ -126,7 +126,6 @@ class UserCharacterViewSet(viewsets.GenericViewSet,
 class CharacterViewSet(viewsets.GenericViewSet,
 						mixins.RetrieveModelMixin,
 						mixins.DestroyModelMixin,
-						mixins.UpdateModelMixin,
 						mixins.ListModelMixin):
 	queryset = models.Character.objects.all()
 	serializer_class = serializers.CharacterSerializer
@@ -146,13 +145,8 @@ class CharacterViewSet(viewsets.GenericViewSet,
 
 ### ABILITY
 # GET: /characters/{character_name}/abilities/	
-# GET: /characters/{character_name}/abilities/next/
-# GET, POST: /characters/{character_name}/abilities/next/phys/
-# GET, POST: /characters/{character_name}/abilities/next/black/
-# GET, POST: /characters/{character_name}/abilities/next/white/
-# GET: /abilities/phys/{ability_name}
-# GET: /abilities/black/{ability_name}
-# GET: /abilities/white/{ability_name}
+# GET, POST: /characters/{character_name}/abilities/next/
+# GET: /abilities/{ability_name}
 class CharacterAbilityViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		List of the learned abilities for the chosen character
@@ -160,84 +154,61 @@ class CharacterAbilityViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	def list(self, request, *args, **kwargs):
 		name = self.kwargs.get('character_name')
 		character = get_object_or_404(models.Character.objects.all(), name=name)
-		physical = character.physical_abilities.all()
-		white = character.white_magic_abilities.all()
-		black = character.black_magic_abilities.all()
+		abilities = character.abilities.all()
+		abilities = serializers.AbilitySerializer(abilities, context=self.get_serializer_context(), many=True).data
+		return Response(data=abilities, status=status.HTTP_200_OK)
 
-		physical = serializers.PhysicalAbilitySerializer(physical, context=self.get_serializer_context(), many=True).data
-		white = serializers.WhiteMagicAbilitySerializer(white, context=self.get_serializer_context(), many=True).data
-		black = serializers.BlackMagicAbilitySerializer(black, context=self.get_serializer_context(), many=True).data
-		return Response(data={
-					'physical': physical,
-					'white_magic': white,
-					'black_magic': black,
-				}, status=status.HTTP_200_OK)
-
-class CharacterNextAbilityViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class CharacterNextAbilityViewSet(viewsets.GenericViewSet,
+									mixins.ListModelMixin,
+									mixins.CreateModelMixin):
 	'''
 		List of the available abilities that a character can learn
 	'''
+	serializer_class = serializers.LearntAbilitySerializer
+
 	def list(self, request, *args, **kwargs):
 		name = self.kwargs.get('character_name')
 		character = get_object_or_404(models.Character.objects.all(), name=name)
 
-		next_physical = character.get_next_physical_abilities()
-		next_black = character.get_next_black_abilities()
-		next_white = character.get_next_white_abilities()
+		next = character.get_next_abilities()
+		next = serializers.AbilitySerializer(next, context=self.get_serializer_context(), many=True).data
+		return Response(data=next, status=status.HTTP_200_OK)
 
-		next_physical = serializers.PhysicalAbilitySerializer(next_physical, context=self.get_serializer_context(), many=True).data
-		next_white = serializers.WhiteMagicAbilitySerializer(next_white, context=self.get_serializer_context(), many=True).data
-		next_black = serializers.BlackMagicAbilitySerializer(next_black, context=self.get_serializer_context(), many=True).data
-		return Response(data={
-					'physical': next_physical,
-					'white_magic': next_white,
-					'black_magic': next_black,
-				})
-
-class CharacterNextPhysicalAbilityViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-	serializer_class = serializers.PhysicalAbilitySerializer
-	lookup_field = 'slug'
-
-	def get_queryset(self):
+	def create(self, request, *args, **kwargs):
 		name = self.kwargs.get('character_name')
 		character = get_object_or_404(models.Character.objects.all(), name=name)
-		return character.get_next_physical_abilities()
 
-class CharacterNextWhiteAbilityViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-	serializer_class = serializers.WhiteMagicAbilitySerializer
-	lookup_field = 'slug'
+		if character.owner != request.user:
+			self.permission_denied(request)
 
-	def get_queryset(self):
-		name = self.kwargs.get('character_name')
-		character = get_object_or_404(models.Character.objects.all(), name=name)
-		return character.get_next_white_abilities()
+		serializer = serializers.LearntAbilitySerializer(data=request.DATA, files=request.FILES)
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CharacterNextBlackAbilityViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-	serializer_class = serializers.BlackMagicAbilitySerializer
-	lookup_field = 'slug'
+		to_learn = serializer.object
+		ability = to_learn.ability
+		if ability not in character.get_next_abilities():
+			return Response({'msg': 'The ability specified cannot be learnt'},
+							status=status.HTTP_400_BAD_REQUEST)
 
-	def get_queryset(self):
-		name = self.kwargs.get('character_name')
-		character = get_object_or_404(models.Character.objects.all(), name=name)
-		return character.get_next_black_abilities()
+		if ability.ap_required > character.ap:
+			return Response({'msg': 'Too much APs'},
+							status=status.HTTP_400_BAD_REQUEST)
 
-class PhysicalAbilityViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
-	queryset = models.PhysicalAbility.objects.all()
-	serializer_class = serializers.PhysicalAbilitySerializer
-	lookup_field='slug'
+		character.ap -= ability.ap_required
+		character.save()
+		to_learn.character = character
+		self.object = serializer.save(force_insert=True)
+		headers = self.get_success_headers(serializer.data)
+		return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-class WhiteMagicAbilityViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
-	queryset = models.WhiteMagicAbility.objects.all()
-	serializer_class = serializers.WhiteMagicAbilitySerializer
-	lookup_field='slug'
-
-class BlackMagicAbilityViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
-	queryset = models.BlackMagicAbility.objects.all()
-	serializer_class = serializers.BlackMagicAbilitySerializer
+class AbilityViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+	queryset = models.Ability.objects.all()
+	serializer_class = serializers.AbilitySerializer
 	lookup_field='slug'
 
 ### INVENTORY
-# GET, DELETE: /inventory/{pk}/
+# GET, DELETE, PUT: /inventory/{pk}/
 # GET, POST: /characters/{character_name}/inventory/
 class CharacterInventoryViewSet(viewsets.GenericViewSet,
 							mixins.ListModelMixin, 
@@ -246,7 +217,7 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet,
 		The inventory of the selected character.  
 		From this view it is possible for a character to buy (`POST`) items.
 	'''
-	serializer_class = serializers.InventoryRecordSerializer
+	serializer_class = serializers.InventoryRecordCreateSerializer
 
 	def get_queryset(self):
 		queryset = models.InventoryRecord.objects.all()
@@ -285,7 +256,7 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet,
 
 		character.guils -= (req_record.item.cost * req_record.quantity)
 		character.save()
-		record = serializers.InventoryRecordSerializer(record, context=self.get_serializer_context()).data
+		record = self.get_serializer(record).data
 		data = {
 			'msg': 'Item added to inventory',
 			'inventory_record': record,
@@ -296,13 +267,16 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet,
 
 class InventoryRecordViewSet(viewsets.GenericViewSet,
 							mixins.RetrieveModelMixin,
-							mixins.DestroyModelMixin):
+							mixins.DestroyModelMixin,
+							mixins.UpdateModelMixin):
 	'''
 		Detailed view of an inventory record:
-		It is possible to sell (`DELETE`) items.
+		It is possible to sell (`DELETE`) items.  
+		It is possible to equip (`PUT`) items.
 	'''
 	queryset = models.InventoryRecord.objects.all()
-	serializer_class = serializers.InventoryRecordSerializer
+	serializer_class = serializers.InventoryRecordUpdateSerializer
+	permission_classes = [permissions.IsAuthenticated, IsOwnerCharacter]
 
 	def destroy(self, request, *args, **kwargs):
 		'''
@@ -317,6 +291,11 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 		try:
 			record.quantity -= 1
 			if record.quantity == 0:
+				if record.equipped == True:
+					if item == character.current_weapon:
+						character.current_weapon = None
+					else:
+						character.current_armor = None
 				record.delete()
 			else:
 				record.save()

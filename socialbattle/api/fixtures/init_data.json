@@ -149,45 +149,172 @@
 		"pk": 1,
 		"fields": {
 			"name": "tidus",
-			"owner": 1,
-			"physical_abilities": [1],
-			"white_magic_abilities":[1],
-			"black_magic_abilities":[1, 4]
+			"owner": 1
 		}
 	},
+	{
+		"model": "api.learntability",
+		"pk": 1,
+		"fields": {
+			"character": 1,
+			"ability": 1
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 2,
+		"fields": {
+			"character": 1,
+			"ability": 3
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 3,
+		"fields": {
+			"character": 1,
+			"ability": 6
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 4,
+		"fields": {
+			"character": 1,
+			"ability": 16
+		}
+	},
+
+
 	{
 		"model": "api.character",
 		"pk": 2,
 		"fields": {
 			"name": "yuna",
-			"owner": 2,
-			"physical_abilities": [1],
-			"white_magic_abilities":[1],
-			"black_magic_abilities":[1, 4]
+			"owner": 2
 		}
 	},
+	{
+		"model": "api.learntability",
+		"pk": 5,
+		"fields": {
+			"character": 2,
+			"ability": 1
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 6,
+		"fields": {
+			"character": 2,
+			"ability": 3
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 7,
+		"fields": {
+			"character": 2,
+			"ability": 6
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 8,
+		"fields": {
+			"character": 2,
+			"ability": 16
+		}
+	},
+
+
+
 	{
 		"model": "api.character",
 		"pk": 3,
 		"fields": {
 			"name": "auron",
-			"owner": 3,
-			"physical_abilities": [1],
-			"white_magic_abilities":[1],
-			"black_magic_abilities":[1, 4]
+			"owner": 3
 		}
 	},
+	{
+		"model": "api.learntability",
+		"pk": 9,
+		"fields": {
+			"character": 3,
+			"ability": 1
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 10,
+		"fields": {
+			"character": 3,
+			"ability": 3
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 11,
+		"fields": {
+			"character": 3,
+			"ability": 6
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 12,
+		"fields": {
+			"character": 3,
+			"ability": 16
+		}
+	},
+
+
+
 	{
 		"model": "api.character",
 		"pk": 4,
 		"fields": {
 			"name": "rikku",
-			"owner": 4,
-			"physical_abilities": [1],
-			"white_magic_abilities":[1],
-			"black_magic_abilities":[1, 4]
+			"owner": 4
 		}
 	},
+	{
+		"model": "api.learntability",
+		"pk": 13,
+		"fields": {
+			"character": 4,
+			"ability": 1
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 14,
+		"fields": {
+			"character": 4,
+			"ability": 3
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 15,
+		"fields": {
+			"character": 4,
+			"ability": 6
+		}
+	},
+	{
+		"model": "api.learntability",
+		"pk": 16,
+		"fields": {
+			"character": 4,
+			"ability": 16
+		}
+	},
+
+
+
 
 	{
 		"model": "api.inventoryrecord",
@@ -379,8 +506,10 @@
 		}
 	},
 
+
+
 	{
-		"model": "api.physicalability",
+		"model": "api.ability",
 		"pk": 1,
 		"fields": {
 			"name": "attack",
@@ -388,7 +517,7 @@
 		}
 	},
 	{
-		"model": "api.physicalability",
+		"model": "api.ability",
 		"pk": 2,
 		"fields": {
 			"name": "tokkata",
@@ -397,8 +526,8 @@
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 1,
+		"model": "api.ability",
+		"pk": 3,
 		"fields": {
 			"name": "fire",
 			"slug": "fire",
@@ -406,28 +535,28 @@
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 2,
+		"model": "api.ability",
+		"pk": 4,
 		"fields": {
 			"name": "fira",
 			"slug": "fira",
-			"requires": [1],
+			"requires": [3],
 			"element": "F" 
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 3,
+		"model": "api.ability",
+		"pk": 5,
 		"fields": {
 			"name": "firaga",
 			"slug": "firaga",
-			"requires": [2],
+			"requires": [4],
 			"element": "F" 
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 4,
+		"model": "api.ability",
+		"pk": 6,
 		"fields": {
 			"name": "thunder",
 			"slug": "thunder",
@@ -435,28 +564,28 @@
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 5,
+		"model": "api.ability",
+		"pk": 7,
 		"fields": {
 			"name": "thundara",
 			"slug": "thundara",
-			"requires": [4],
+			"requires": [6],
 			"element": "T" 
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 6,
+		"model": "api.ability",
+		"pk": 8,
 		"fields": {
 			"name": "thundaga",
 			"slug": "thundaga",
-			"requires": [5],
+			"requires": [7],
 			"element": "T" 
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 7,
+		"model": "api.ability",
+		"pk": 9,
 		"fields": {
 			"name": "blizzard",
 			"slug": "blizzard",
@@ -464,28 +593,28 @@
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 8,
+		"model": "api.ability",
+		"pk": 10,
 		"fields": {
 			"name": "blizzara",
 			"slug": "blizzara",
-			"requires": [7],
+			"requires": [9],
 			"element": "B" 
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 9,
+		"model": "api.ability",
+		"pk": 11,
 		"fields": {
 			"name": "blizzaga",
 			"slug": "blizzaga",
-			"requires": [8],
+			"requires": [10],
 			"element": "B" 
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 10,
+		"model": "api.ability",
+		"pk": 12,
 		"fields": {
 			"name": "idro",
 			"slug": "idro",
@@ -493,59 +622,72 @@
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 11,
+		"model": "api.ability",
+		"pk": 13,
 		"fields": {
 			"name": "idrora",
 			"slug": "idrora",
-			"requires": [10],
+			"requires": [12],
 			"element": "W" 
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 12,
+		"model": "api.ability",
+		"pk": 14,
 		"fields": {
 			"name": "idroga",
 			"slug": "idroga",
-			"requires": [11],
+			"requires": [13],
 			"element": "W" 
 		}
 	},
 	{
-		"model": "api.blackmagicability",
-		"pk": 13,
+		"model": "api.ability",
+		"pk": 15,
 		"fields": {
 			"name": "flare",
 			"slug": "flare",
-			"requires": [3, 6, 8, 12]
+			"requires": [5, 8, 11, 14]
 		}
 	},
 
 	{
-		"model": "api.whitemagicability",
-		"pk": 1,
+		"model": "api.ability",
+		"pk": 16,
 		"fields": {
 			"name": "cure",
-			"slug": "cure"
+			"slug": "cure",
+			"element": "W"
 		}
 	},
 	{
-		"model": "api.whitemagicability",
-		"pk": 2,
+		"model": "api.ability",
+		"pk": 17,
 		"fields": {
 			"name": "cura",
 			"slug": "cura",
-			"requires": [1]
+			"element": "W",
+			"requires": [16]
 		}
 	},
 	{
-		"model": "api.whitemagicability",
-		"pk": 3,
+		"model": "api.ability",
+		"pk": 18,
 		"fields": {
 			"name": "curaga",
 			"slug": "curaga",
-			"requires": [2]
+			"element": "W",
+			"requires": [17]
+		}
+	},
+	{
+		"model": "api.ability",
+		"pk": 18,
+		"fields": {
+			"name": "crioshock",
+			"slug": "crioshock",
+			"element": "B",
+			"requires": [1, 9]
 		}
 	}
 ]

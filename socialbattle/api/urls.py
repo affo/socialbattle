@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from rest_framework.urlpatterns import format_suffix_patterns
-from views import access, social, battle
+from views import social, battle
 from rest_framework.routers import SimpleRouter
 router = SimpleRouter()
 
@@ -36,28 +36,10 @@ router.register(
 	base_name='characternextability'
 )
 router.register(
-	r'characters/(?P<character_name>[a-zA-Z0-9-_]+)/abilities/next/phys',
-	battle.CharacterNextPhysicalAbilityViewSet,
-	base_name='characternextphysicalability'
-)
-router.register(
-	r'characters/(?P<character_name>[a-zA-Z0-9-_]+)/abilities/next/black',
-	battle.CharacterNextBlackAbilityViewSet,
-	base_name='characternextblackability'
-)
-router.register(
-	r'characters/(?P<character_name>[a-zA-Z0-9-_]+)/abilities/next/white',
-	battle.CharacterNextWhiteAbilityViewSet,
-	base_name='characternextwhiteability'
-)
-router.register(
 	r'characters/(?P<character_name>[a-zA-Z0-9-_]+)/inventory',
 	battle.CharacterInventoryViewSet, base_name='characterinventory')
 
-router.register(r'abilities/phys', battle.PhysicalAbilityViewSet)
-router.register(r'abilities/black', battle.BlackMagicAbilityViewSet)
-router.register(r'abilities/white', battle.WhiteMagicAbilityViewSet)
-
+router.register(r'abilities', battle.AbilityViewSet)
 router.register(r'inventory', battle.InventoryRecordViewSet)
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),

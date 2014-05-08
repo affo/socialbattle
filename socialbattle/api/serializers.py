@@ -88,52 +88,24 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			read_only=True,
 		)
 
-	current_weapon = serializers.HyperlinkedRelatedField(
-			view_name='item-detail',
-			lookup_field='slug',
-		)
-	current_armor = serializers.HyperlinkedRelatedField(
-			view_name='item-detail',
-			lookup_field='slug',
-		)
-
-	physical_abilities = serializers.HyperlinkedRelatedField(
-			view_name='physicalability-detail',
+	abilities = serializers.HyperlinkedRelatedField(
+			view_name='ability-detail',
 			lookup_field='slug',
 			many=True,
 		)
-
-	black_magic_abilities = serializers.HyperlinkedRelatedField(
-			view_name='blackmagicability-detail',
-			lookup_field='slug',
-			many=True,
-		)
-
-	white_magic_abilities = serializers.HyperlinkedRelatedField(
-			view_name='whitemagicability-detail',
-			lookup_field='slug',
-			many=True,
-		)
-
-	level = serializers.Field(source='level')
-	guils = serializers.Field(source='guils')
-	hp = serializers.Field(source='hp')
-	mp = serializers.Field(source='mp')
-	power = serializers.Field(source='power')
-	mpower = serializers.Field(source='mpower')
 
 	class Meta:
 		model = models.Character
 		fields = (
 			'url', 'name', 'level', 'guils', 'owner',
-			'current_weapon',
-			'current_armor',
-			'hp', 'mp',
+			'ap', 'hp', 'mp',
 			'power', 'mpower',
-			'physical_abilities', 'black_magic_abilities', 'white_magic_abilities',
+			'abilities',
 		)
 
-class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
+		read_only_fields = ('name', 'level', 'ap', 'guils', 'hp', 'mp', 'power', 'mpower', )
+
+class InventoryRecordCreateSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 		view_name='inventoryrecord-detail',
 		lookup_field='pk',
@@ -151,10 +123,36 @@ class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 	)
 
 	quantity = serializers.WritableField(source='quantity')
+	equipped = serializers.Field(source='equipped')
 
 	class Meta:
 		model = models.InventoryRecord
-		fields = ('url', 'owner', 'item', 'quantity', )
+		fields = ('url', 'owner', 'item', 'quantity', 'equipped', )
+
+class InventoryRecordUpdateSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+		view_name='inventoryrecord-detail',
+		lookup_field='pk',
+	)
+
+	owner = serializers.HyperlinkedRelatedField(
+		view_name='character-detail',
+		lookup_field='name',
+		read_only=True,
+	)
+
+	item = serializers.HyperlinkedRelatedField(
+		view_name='item-detail',
+		lookup_field='slug',
+		read_only = True
+	)
+
+	quantity = serializers.Field(source='quantity')
+	equipped = serializers.WritableField(source='equipped')
+
+	class Meta:
+		model = models.InventoryRecord
+		fields = ('url', 'owner', 'item', 'quantity', 'equipped', )
 
 class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -189,24 +187,27 @@ class RelaxRoomSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.RelaxRoom
 		fields = ('url', 'name', 'sells', )
 
-class PhysicalAbilitySerializer(serializers.HyperlinkedModelSerializer):
+class AbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
-		model = models.PhysicalAbility
-		fields = ('url', 'name', 'description', 'power', 'requires')
-		lookup_field = 'slug'
-		read_only_fields = ('name', 'description', 'power', 'requires')
-
-class WhiteMagicAbilitySerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = models.WhiteMagicAbility
-		fields = ('url', 'name', 'description', 'power', 'requires')
-		lookup_field = 'slug'
-
-class BlackMagicAbilitySerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = models.BlackMagicAbility
+		model = models.Ability
 		fields = ('url', 'name', 'description', 'power', 'requires', 'element')
 		lookup_field = 'slug'
+		read_only_fields = ('name', 'description', 'power', 'requires', 'element')
+
+class LearntAbilitySerializer(serializers.HyperlinkedModelSerializer):
+	character = serializers.HyperlinkedRelatedField(
+			view_name='character-detail',
+			lookup_field='name',
+			read_only=True,
+		)
+
+	ability = serializers.HyperlinkedRelatedField(
+			view_name='ability-detail',
+			lookup_field='slug',
+		)
+	class Meta:
+		model = models.LearntAbility
+		fields = ('id', 'character', 'ability')
 
 class MobSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
