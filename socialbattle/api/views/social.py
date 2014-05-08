@@ -1,6 +1,6 @@
 from rest_framework.generics import get_object_or_404
 from rest_framework import generics, permissions, viewsets, mixins
-from rest_framework.decorators import action, link
+from rest_framework.decorators import action, link, permission_classes
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,14 +11,41 @@ from socialbattle.api.permissions import IsFromUser, IsAuthor
 ### USER
 # GET, POST: /users/
 # GET, DELETE, PUT: /users/{username}/
-class UserViewSet(viewsets.GenericViewSet,
-					mixins.ListModelMixin,
-					mixins.RetrieveModelMixin,
-					mixins.UpdateModelMixin):
+class UserViewSet(viewsets.ModelViewSet):
 	queryset = models.User.objects.all()
 	serializer_class = serializers.UserSerializer
 	lookup_field = 'username'
-	#permission_classes = [permissions.IsAdminUser, ]
+
+	def list(self, request, *args, **kwargs):
+		try:
+			query = request.QUERY_PARAMS['query']
+		except:
+			return Response(data={'msg': 'Query param needed (?query=<query_string>)'},
+							status=status.HTTP_400_BAD_REQUEST)
+
+		from django.db.models import Q
+		users = models.User.objects.filter(
+				Q(username__icontains=query) |
+				Q(first_name__icontains=query) |
+				Q(last_name__icontains=query)
+			)
+
+		return Response(data=serializers.UserSerializer(users, context=self.get_serializer_context(), many=True).data,
+						status=status.HTTP_200_OK)
+
+	def create(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+		if serializer.is_valid():
+			user = serializer.object
+			username = user.username
+			email = user.email
+			password = user.password
+			user = models.User.objects.create_user(username, email, password)
+			user = serializers.UserSerializer(user).data
+			return Response(user, status=status.HTTP_201_CREATED,
+							headers=self.get_success_headers(user))
+		
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ### FELLOWSHIP
 # GET: /users/{username}/follow[(ing)|(ers)]/

@@ -59,4 +59,7 @@ router.register(r'abilities/black', battle.BlackMagicAbilityViewSet)
 router.register(r'abilities/white', battle.WhiteMagicAbilityViewSet)
 
 router.register(r'inventory', battle.InventoryRecordViewSet)
-urlpatterns = patterns('', url(r'^', include(router.urls)))
+urlpatterns = patterns('',
+	url(r'^', include(router.urls)),
+	url(r'^auth/', 'rest_framework.authtoken.views.obtain_auth_token')
+)

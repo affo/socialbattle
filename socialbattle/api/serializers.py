@@ -2,9 +2,11 @@ from rest_framework import serializers
 from socialbattle.api import models
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+	password = serializers
 	class Meta:
 		model = models.User
-		fields = ('url', 'id', 'username', 'first_name', 'last_name', 'email', 'follows', )
+		fields = ('url', 'id', 'username', 'first_name', 'last_name', 'password','email', 'follows')
+		write_only_fields = ('password', )
 		lookup_field = 'username'
 
 class FellowshipSerializer(serializers.HyperlinkedModelSerializer):

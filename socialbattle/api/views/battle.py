@@ -35,8 +35,13 @@ class RoomViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 
 	def list(self, request, *args, **kwargs):
-		relax = models.RelaxRoom.objects.all()
-		pve = models.PVERoom.objects.all()
+		try:
+			query = request.QUERY_PARAMS['query']
+			relax = models.RelaxRoom.objects.filter(name__icontains=query)
+			pve = models.PVERoom.objects.filter(name__icontains=query)
+		except:
+			relax = models.RelaxRoom.objects.all()
+			pve = models.PVERoom.objects.all()
 
 		relax = serializers.RelaxRoomSerializer(relax, context=self.get_serializer_context(), many=True).data
 		pve = serializers.PVERoomSerializer(pve, context=self.get_serializer_context(), many=True).data
@@ -121,11 +126,23 @@ class UserCharacterViewSet(viewsets.GenericViewSet,
 class CharacterViewSet(viewsets.GenericViewSet,
 						mixins.RetrieveModelMixin,
 						mixins.DestroyModelMixin,
-						mixins.UpdateModelMixin):
+						mixins.UpdateModelMixin,
+						mixins.ListModelMixin):
 	queryset = models.Character.objects.all()
 	serializer_class = serializers.CharacterSerializer
 	permission_classes = [permissions.IsAuthenticated, IsOwner]
 	lookup_field = 'name'
+
+	def list(self, request, *args, **kwargs):
+		try:
+			query = request.QUERY_PARAMS['query']
+		except:
+			return Response(data={'msg': 'Query param needed (?query=<query_string>)'},
+							status=status.HTTP_400_BAD_REQUEST)
+
+		characters = models.Character.objects.filter(name__icontains=query)
+		return Response(serializers.CharacterSerializer(characters, context=self.get_serializer_context(), many=True).data,
+						status=status.HTTP_200_OK)
 
 ### ABILITY
 # GET: /characters/{character_name}/abilities/	
