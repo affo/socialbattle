@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from uuslug import uuslug as slugify
 from rest_framework.authtoken.models import Token
 
 class User(AbstractUser):
@@ -39,51 +40,21 @@ class Fellowship(models.Model):
 	class Meta:
 		unique_together = ('from_user', 'to_user')
 
-class Character(models.Model):
-	'''
-		The character the user will use to fight
-	'''
-	name = models.CharField(max_length=200, unique=True) #the character has to have a unique name
-	level = models.IntegerField(default=1)
-	exp = models.IntegerField(default=0)
-	ap = models.IntegerField(default=0)
-	guils = models.IntegerField(default=1000)
-	#stats
-	hp = models.IntegerField(default=250)
-	mp = models.IntegerField(default=50)
-	power = models.IntegerField(default=10)
-	mpower = models.IntegerField(default=10)
-	#relations
-	owner = models.ForeignKey(User)
-	#abilities
-	physical_abilities = models.ManyToManyField('PhysicalAbility')
-	white_magic_abilities = models.ManyToManyField('WhiteMagicAbility')
-	black_magic_abilities = models.ManyToManyField('BlackMagicAbility')
-	items = models.ManyToManyField('Item', through='InventoryRecord')
-	#equip
-	current_weapon = models.ForeignKey('Item', related_name='weapon', null=True)
-	current_armor = models.ForeignKey('Item', related_name='armor', null=True)
-
-	def clean(self):
-		if self.current_armor and self.current_weapon:
-			if self.current_weapon.item_type != 'W' or self.current_armor.item_type != 'A':
-				raise ValidationError('The equipment is not coherent!')
-
-class InventoryRecord(models.Model):
-	owner = models.ForeignKey(Character)
-	item = models.ForeignKey('Item')
-	quantity = models.IntegerField(default=1)
-
-	class Meta:
-		unique_together = ('owner', 'item')
-
-
 class Ability(models.Model):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
 	power = models.IntegerField(default=0)
 	ap_required = models.IntegerField(default=1)
 	requires = models.ManyToManyField('self', symmetrical=False)
+
+	slug = models.CharField(max_length=200, unique=True)
+	def __unicode__(self):
+		return self.name
+
+	def save(self, *args, **kwargs):
+		if not self.id:
+			self.slug = slugify(self.name, instance=self)
+			super(Ability, self).save(*args, **kwargs)
 
 	class Meta:
 		abstract = True
@@ -109,6 +80,53 @@ class BlackMagicAbility(MagicAbility):
 	)
 	element = models.CharField(max_length=1, choices=ELEMENTS, blank=True)
 
+class Character(models.Model):
+	'''
+		The character the user will use to fight
+	'''
+	name = models.CharField(max_length=200, unique=True) #the character has to have a unique name
+	level = models.IntegerField(default=1)
+	exp = models.IntegerField(default=0)
+	ap = models.IntegerField(default=0)
+	guils = models.IntegerField(default=1000)
+	#stats
+	hp = models.IntegerField(default=250)
+	mp = models.IntegerField(default=50)
+	power = models.IntegerField(default=10)
+	mpower = models.IntegerField(default=10)
+	#relations
+	owner = models.ForeignKey(User)
+	#abilities
+	physical_abilities = models.ManyToManyField(PhysicalAbility)
+	white_magic_abilities = models.ManyToManyField(WhiteMagicAbility)
+	black_magic_abilities = models.ManyToManyField(BlackMagicAbility)
+	items = models.ManyToManyField('Item', through='InventoryRecord')
+	#equip
+	current_weapon = models.ForeignKey('Item', related_name='weapon', null=True)
+	current_armor = models.ForeignKey('Item', related_name='armor', null=True)
+
+	def get_next_physical_abilities(self):
+		return PhysicalAbility.objects.filter(requires__in=self.physical_abilities.all()).all()
+
+	def get_next_black_abilities(self):
+		return BlackMagicAbility.objects.filter(requires__in=self.black_magic_abilities.all()).all()
+
+	def get_next_white_abilities(self):
+		return WhiteMagicAbility.objects.filter(requires__in=self.white_magic_abilities.all()).all()
+
+	def clean(self):
+		if self.current_armor and self.current_weapon:
+			if self.current_weapon.item_type != 'W' or self.current_armor.item_type != 'A':
+				raise ValidationError('The equipment is not coherent!')
+
+class InventoryRecord(models.Model):
+	owner = models.ForeignKey(Character)
+	item = models.ForeignKey('Item')
+	quantity = models.IntegerField(default=1)
+
+	class Meta:
+		unique_together = ('owner', 'item')
+
 class Mob(models.Model):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
@@ -122,9 +140,27 @@ class Mob(models.Model):
 	#relations
 	drops = models.ManyToManyField('Item')
 
+	slug = models.CharField(max_length=200, unique=True)
+	def __unicode__(self):
+		return self.name
+
+	def save(self, *args, **kwargs):
+		if not self.id:
+			self.slug = slugify(self.name, instance=self)
+			super(Mob, self).save(*args, **kwargs)
+
 class Room(models.Model):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
+
+	slug = models.CharField(max_length=200, unique=True)
+	def __unicode__(self):
+		return self.name
+
+	def save(self, *args, **kwargs):
+		if not self.id:
+			self.slug = slugify(self.name, instance=self)
+			super(Room, self).save(*args, **kwargs)
 
 	class Meta:
 		abstract = True
@@ -142,11 +178,20 @@ class Item(models.Model):
 		('W', 'Weapon'),
 		('A', 'Armor'),
 	)
-	name = models.CharField(max_length=200)
+	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
 	item_type = models.CharField(max_length=1, choices=ITEM_TYPE, blank=False)
 	power = models.IntegerField(default=0)
 	cost = models.IntegerField(default=50)
+
+	slug = models.CharField(max_length=200, unique=True)
+	def __unicode__(self):
+		return self.name
+
+	def save(self, *args, **kwargs):
+		if not self.id:
+			self.slug = slugify(self.name, instance=self)
+			super(Item, self).save(*args, **kwargs)
 
 class Post(models.Model):
 	content = models.TextField(max_length=1024)

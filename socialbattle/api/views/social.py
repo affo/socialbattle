@@ -1,3 +1,4 @@
+from rest_framework.generics import get_object_or_404
 from rest_framework import generics, permissions, viewsets, mixins
 from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
@@ -59,7 +60,7 @@ class FellowshipViewSet(viewsets.GenericViewSet,
 	permission_classes = [permissions.IsAuthenticated, IsFromUser, ]
 
 ### POST
-# GET, POST: /rooms/relax/{room_name}/posts/
+# GET, POST: /rooms/relax/{room_slug}/posts/
 # GET: /users/{username}/posts/
 # GET, PUT, DELETE: /posts/{pk}/
 class RoomPostViewSet(viewsets.GenericViewSet,
@@ -70,16 +71,14 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 
 	def get_queryset(self):
 		queryset = models.Post.objects.all()
-		room_name = self.kwargs.get('room_name', None)
-		if room_name:
-			queryset = queryset.filter(room__name=room_name).all()
+		room_slug = self.kwargs.get('room_slug', None)
+		if room_slug:
+			queryset = queryset.filter(room__slug=room_slug).all()
 		return queryset
 
 	def pre_save(self, obj):
-		room_name = self.kwargs.get('name')
-		if not room_name:
-			raise ValueError('Need a room name to create post')
-		room = models.RelaxRoom.objects.get(name=room_name)
+		room_slug = self.kwargs.get('room_slug')
+		room = get_object_or_404(models.RelaxRoom.objects.all(), slug=room_slug)
 		room = serializers.RelaxRoomSerializer(room, context=self.get_serializer_context())
 		obj.room = room.object
 		obj.author = self.request.user
@@ -119,9 +118,7 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 
 	def pre_save(self, obj):
 		post_pk = self.kwargs.get('pk')
-		if not post_pk:
-			raise ValueError('Need a post key to create a comment')
-		post = models.Post.objects.get(pk=post_pk)
+		post = get_object_or_404(models.Post.objects.all(), pk=post_pk)
 		post = serializers.PostSerializer(post, context=self.get_serializer_context())
 		obj.post = post.object
 		obj.author = self.request.user

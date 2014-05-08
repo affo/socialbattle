@@ -232,6 +232,7 @@
 		"pk": 1,
 		"fields": {
 			"name": "potion",
+			"slug": "potion",
 			"item_type": "R"
 		}
 	},
@@ -240,6 +241,7 @@
 		"pk": 2,
 		"fields": {
 			"name": "leather clothing",
+			"slug": "leather-clothing",
 			"item_type": "A"
 		}
 	},
@@ -248,6 +250,7 @@
 		"pk": 3,
 		"fields": {
 			"name": "maximilian",
+			"slug": "maximilian",
 			"item_type": "A"
 		}
 	},
@@ -256,6 +259,7 @@
 		"pk": 4,
 		"fields": {
 			"name": "mythril sword",
+			"slug": "mythril-sword",
 			"item_type": "W"
 		}
 	},
@@ -264,6 +268,7 @@
 		"pk": 5,
 		"fields": {
 			"name": "sunflower",
+			"slug": "sunflower",
 			"item_type": "W"
 		}
 	},
@@ -272,6 +277,7 @@
 		"pk": 6,
 		"fields": {
 			"name": "hi potion",
+			"slug": "hi-potion",
 			"item_type": "R"
 		}
 	},
@@ -280,6 +286,7 @@
 		"pk": 7,
 		"fields": {
 			"name": "swarovski armor",
+			"slug": "swarovski-armor",
 			"item_type": "A",
 			"cost": 5000
 		}
@@ -293,6 +300,7 @@
 		"pk": 1,
 		"fields": {
 			"name": "slime",
+			"slug": "slime",
 			"drops": [1]
 		}
 	},
@@ -301,6 +309,7 @@
 		"pk": 2,
 		"fields": {
 			"name": "grenade",
+			"slug": "grenade",
 			"drops": [1]
 		}
 	},
@@ -309,6 +318,7 @@
 		"pk": 3,
 		"fields": {
 			"name": "malboro",
+			"slug": "malboro",
 			"drops": [1]
 		}
 	},
@@ -317,6 +327,7 @@
 		"pk": 4,
 		"fields": {
 			"name": "hellhound",
+			"slug": "hellhound",
 			"drops": [1]
 		}
 	},
@@ -325,6 +336,7 @@
 		"pk": 5,
 		"fields": {
 			"name": "gargoyle",
+			"slug": "gargoyle",
 			"drops": [1]
 		}
 	},
@@ -334,7 +346,8 @@
 		"model": "api.relaxroom",
 		"pk": 1,
 		"fields": {
-			"name": "moguri_shop",
+			"name": "moguri shop",
+			"slug": "moguri-shop",
 			"sells": [1, 4]
 		}
 	},
@@ -342,7 +355,8 @@
 		"model": "api.pveroom",
 		"pk": 1,
 		"fields": {
-			"name": "zertinan_caves",
+			"name": "zertinan caves",
+			"slug": "zertinan-caves",
 			"mobs": [1, 2]
 		}
 	},
@@ -350,7 +364,8 @@
 		"model": "api.pveroom",
 		"pk": 2,
 		"fields": {
-			"name": "golmore_jungle",
+			"name": "golmore jungle",
+			"slug": "golmore-jungle",
 			"mobs": [3, 4, 5]
 		}
 	},
@@ -358,7 +373,8 @@
 		"model": "api.relaxroom",
 		"pk": 2,
 		"fields": {
-			"name": "chocobo_emporium",
+			"name": "chocobo emporium",
+			"slug": "chocobo-emporium",
 			"sells": [1]
 		}
 	},
@@ -367,7 +383,17 @@
 		"model": "api.physicalability",
 		"pk": 1,
 		"fields": {
-			"name": "attack"
+			"name": "attack",
+			"slug": "attack"
+		}
+	},
+	{
+		"model": "api.physicalability",
+		"pk": 2,
+		"fields": {
+			"name": "tokkata",
+			"slug": "tokkata",
+			"requires": [1]
 		}
 	},
 	{
@@ -375,6 +401,7 @@
 		"pk": 1,
 		"fields": {
 			"name": "fire",
+			"slug": "fire",
 			"element": "F" 
 		}
 	},
@@ -383,6 +410,7 @@
 		"pk": 2,
 		"fields": {
 			"name": "fira",
+			"slug": "fira",
 			"requires": [1],
 			"element": "F" 
 		}
@@ -392,6 +420,7 @@
 		"pk": 3,
 		"fields": {
 			"name": "firaga",
+			"slug": "firaga",
 			"requires": [2],
 			"element": "F" 
 		}
@@ -401,6 +430,7 @@
 		"pk": 4,
 		"fields": {
 			"name": "thunder",
+			"slug": "thunder",
 			"element": "T" 
 		}
 	},
@@ -409,6 +439,7 @@
 		"pk": 5,
 		"fields": {
 			"name": "thundara",
+			"slug": "thundara",
 			"requires": [4],
 			"element": "T" 
 		}
@@ -418,6 +449,7 @@
 		"pk": 6,
 		"fields": {
 			"name": "thundaga",
+			"slug": "thundaga",
 			"requires": [5],
 			"element": "T" 
 		}
@@ -427,6 +459,7 @@
 		"pk": 7,
 		"fields": {
 			"name": "blizzard",
+			"slug": "blizzard",
 			"element": "B" 
 		}
 	},
@@ -435,6 +468,7 @@
 		"pk": 8,
 		"fields": {
 			"name": "blizzara",
+			"slug": "blizzara",
 			"requires": [7],
 			"element": "B" 
 		}
@@ -444,6 +478,7 @@
 		"pk": 9,
 		"fields": {
 			"name": "blizzaga",
+			"slug": "blizzaga",
 			"requires": [8],
 			"element": "B" 
 		}
@@ -453,6 +488,7 @@
 		"pk": 10,
 		"fields": {
 			"name": "idro",
+			"slug": "idro",
 			"element": "W" 
 		}
 	},
@@ -461,6 +497,7 @@
 		"pk": 11,
 		"fields": {
 			"name": "idrora",
+			"slug": "idrora",
 			"requires": [10],
 			"element": "W" 
 		}
@@ -470,6 +507,7 @@
 		"pk": 12,
 		"fields": {
 			"name": "idroga",
+			"slug": "idroga",
 			"requires": [11],
 			"element": "W" 
 		}
@@ -479,6 +517,7 @@
 		"pk": 13,
 		"fields": {
 			"name": "flare",
+			"slug": "flare",
 			"requires": [3, 6, 8, 12]
 		}
 	},
@@ -487,7 +526,8 @@
 		"model": "api.whitemagicability",
 		"pk": 1,
 		"fields": {
-			"name": "cure"
+			"name": "cure",
+			"slug": "cure"
 		}
 	},
 	{
@@ -495,6 +535,7 @@
 		"pk": 2,
 		"fields": {
 			"name": "cura",
+			"slug": "cura",
 			"requires": [1]
 		}
 	},
@@ -503,6 +544,7 @@
 		"pk": 3,
 		"fields": {
 			"name": "curaga",
+			"slug": "curaga",
 			"requires": [2]
 		}
 	}

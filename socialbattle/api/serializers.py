@@ -38,7 +38,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 		)
 	room = serializers.HyperlinkedRelatedField(
 			view_name='relaxroom-detail',
-			lookup_field='name',
+			lookup_field='slug',
 			read_only=True,
 		)
 
@@ -68,6 +68,12 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.Comment
 		fields = ('url', 'content', 'author', 'post', )
 
+class ItemSerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = models.Item
+		fields = ('url', 'name', 'cost', 'item_type')
+		lookup_field = 'slug'
+
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='character-detail',
@@ -80,10 +86,35 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			read_only=True,
 		)
 
+	current_weapon = serializers.HyperlinkedRelatedField(
+			view_name='item-detail',
+			lookup_field='slug',
+		)
+	current_armor = serializers.HyperlinkedRelatedField(
+			view_name='item-detail',
+			lookup_field='slug',
+		)
+
+	physical_abilities = serializers.HyperlinkedRelatedField(
+			view_name='physicalability-detail',
+			lookup_field='slug',
+			many=True,
+		)
+
+	black_magic_abilities = serializers.HyperlinkedRelatedField(
+			view_name='blackmagicability-detail',
+			lookup_field='slug',
+			many=True,
+		)
+
+	white_magic_abilities = serializers.HyperlinkedRelatedField(
+			view_name='whitemagicability-detail',
+			lookup_field='slug',
+			many=True,
+		)
+
 	level = serializers.Field(source='level')
 	guils = serializers.Field(source='guils')
-	current_armor = serializers.Field(source='current_armor.name')
-	current_weapon = serializers.Field(source='current_weapon.name')
 	hp = serializers.Field(source='hp')
 	mp = serializers.Field(source='mp')
 	power = serializers.Field(source='power')
@@ -97,6 +128,7 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			'current_armor',
 			'hp', 'mp',
 			'power', 'mpower',
+			'physical_abilities', 'black_magic_abilities', 'white_magic_abilities',
 		)
 
 class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
@@ -111,8 +143,12 @@ class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 		read_only=True,
 	)
 
-	item = serializers.PrimaryKeyRelatedField(source='item')
-	quantity = serializers.Field(source='quantity')
+	item = serializers.HyperlinkedRelatedField(
+		view_name='item-detail',
+		lookup_field='slug',
+	)
+
+	quantity = serializers.WritableField(source='quantity')
 
 	class Meta:
 		model = models.InventoryRecord
@@ -121,12 +157,12 @@ class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='pveroom-detail',
-			lookup_field='name',
+			lookup_field='slug',
 		)
 
 	mobs = serializers.HyperlinkedRelatedField(
 			view_name='mob-detail',
-			lookup_field='name',
+			lookup_field='slug',
 			many=True,
 		)
 
@@ -138,12 +174,12 @@ class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 class RelaxRoomSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='relaxroom-detail',
-			lookup_field='name',
+			lookup_field='slug',
 		)
 
 	sells = serializers.HyperlinkedRelatedField(
 			view_name='item-detail',
-			lookup_field='pk',
+			lookup_field='slug',
 			many=True,
 		) 
 
@@ -151,35 +187,34 @@ class RelaxRoomSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.RelaxRoom
 		fields = ('url', 'name', 'sells', )
 
-class ItemSerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = models.Item
-		fields = ('url', 'name', 'cost', 'item_type')
-
 class PhysicalAbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.PhysicalAbility
 		fields = ('url', 'name', 'description', 'power', 'requires')
+		lookup_field = 'slug'
+		read_only_fields = ('name', 'description', 'power', 'requires')
 
 class WhiteMagicAbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.WhiteMagicAbility
 		fields = ('url', 'name', 'description', 'power', 'requires')
+		lookup_field = 'slug'
 
 class BlackMagicAbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.BlackMagicAbility
 		fields = ('url', 'name', 'description', 'power', 'requires', 'element')
+		lookup_field = 'slug'
 
 class MobSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='mob-detail',
-			lookup_field='name',
+			lookup_field='slug',
 		)
 
 	drops = serializers.HyperlinkedRelatedField(
 			view_name='item-detail',
-			lookup_field='pk',
+			lookup_field='slug',
 			many=True,
 		) 
 
