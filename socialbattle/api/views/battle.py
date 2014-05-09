@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework import status
 from socialbattle.api import models
 from socialbattle.api import serializers
-from socialbattle.api.permissions import IsOwner, IsOwnerCharacter
+from socialbattle.api.permissions import IsOwner, IsOwnedByCharacter
 
 ### ROOM
 # GET: /rooms/
@@ -276,7 +276,7 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 	'''
 	queryset = models.InventoryRecord.objects.all()
 	serializer_class = serializers.InventoryRecordUpdateSerializer
-	permission_classes = [permissions.IsAuthenticated, IsOwnerCharacter]
+	permission_classes = [permissions.IsAuthenticated, IsOwnedByCharacter]
 
 	def destroy(self, request, *args, **kwargs):
 		'''
@@ -307,7 +307,7 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 
 		character.guils += item.cost #maybe item.cost/2
 		character.save()
-		record = serializers.InventoryRecordSerializer(record, context=self.get_serializer_context()).data
+		record = self.get_serializer(record).data
 		data = {
 			'msg': 'Item %s sold' % item.name,
 			'inventory_record': record,
@@ -315,3 +315,22 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 		}
 
 		return Response(data=data)
+
+	def pre_save(self, obj):
+		print 'PRE SAVEEEEE'
+		RESTORATIVE = models.Item.ITEM_TYPE[0][0]
+		ARMOR = models.Item.ITEM_TYPE[2][0]
+		WEAPON = models.Item.ITEM_TYPE[1][0]
+
+		records = self.get_queryset().filter(owner=obj.owner).all()
+
+		if obj.item.item_type == RESTORATIVE and obj.equipped == True:
+			raise ValidationError({"msg": ["Cannot equip a restorative time"]})
+
+		n_armor = len(records.filter(item__item_type=ARMOR).filter(equipped=True))
+		if n_armor == 1 and obj.item.item_type == ARMOR and obj.equipped == True:
+			raise ValidationError({"msg": ["Cannot equip two armors at the same time"]})
+
+		n_weapon = len(records.filter(item__item_type=WEAPON).filter(equipped=True))
+		if n_weapon == 1 and obj.item.item_type == ARMOR and obj.equipped == True:
+			raise ValidationError({"msg": ["Cannot equip two weapons at the same time"]})

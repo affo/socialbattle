@@ -88,7 +88,16 @@ class Character(models.Model):
 	#equip
 
 	def get_next_abilities(self):
-		return Ability.objects.filter(requires__in=self.abilities.all()).all()
+		abilities = list(Ability.objects.all())
+		learnt_abilities = list(self.abilities.all())
+
+		def filter_function(ability):
+			if set(ability.requires.all()).issubset(learnt_abilities):
+				return True
+			return False
+
+		return list(set(filter(filter_function, abilities)) - set(learnt_abilities))
+
 
 class LearntAbility(models.Model):
 	character = models.ForeignKey(Character)
@@ -102,26 +111,6 @@ class InventoryRecord(models.Model):
 	item = models.ForeignKey('Item')
 	quantity = models.IntegerField(default=1)
 	equipped = models.BooleanField(default=False)
-
-	def clean(self):
-		RESTORATIVE = Item.ITEM_TYPE[0][0]
-		ARMOR = Item.ITEM_TYPE[2][0]
-		WEAPON = Item.ITEM_TYPE[1][0]
-
-		n_rest = len(InventoryRecord.objects.filter(item__item_type=RESTORATIVE).filter(equipped=True))
-		if n_rest > 0:
-			raise ValidationError('Cannot equip a restorative time')
-
-		from django.db.models import Count
-		armor_records = InventoryRecord.objects.filter(item__item_type=ARMOR).filter(equipped=True).annotate(num=Count('owner'))
-		for record in armor_records:
-			if record.num > 1:
-				raise ValidationError('Cannot equip two armors at the same time')
-
-		weapon_records = InventoryRecord.objects.filter(item__item_type=WEAPON).filter(equipped=True).annotate(num=Count('owner'))
-		for record in weapon_records:
-			if record.num > 1:
-				raise ValidationError('Cannot equip two weapons at the same time')
 
 	class Meta:
 		unique_together = ('owner', 'item')
