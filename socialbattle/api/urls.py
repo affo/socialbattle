@@ -37,7 +37,12 @@ router.register(
 )
 router.register(
 	r'characters/(?P<character_name>[a-zA-Z0-9-_]+)/inventory',
-	battle.CharacterInventoryViewSet, base_name='characterinventory')
+	battle.CharacterInventoryViewSet, base_name='characterinventory'
+)
+router.register(
+	r'characters/(?P<character_name>[a-zA-Z0-9-_]+)/transactions',
+	battle.TransactionViewSet, base_name='transaction'
+)
 
 router.register(r'abilities', battle.AbilityViewSet)
 router.register(r'inventory', battle.InventoryRecordViewSet)

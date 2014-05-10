@@ -210,12 +210,9 @@ class AbilityViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 ### INVENTORY
 # GET, DELETE, PUT: /inventory/{pk}/
 # GET, POST: /characters/{character_name}/inventory/
-class CharacterInventoryViewSet(viewsets.GenericViewSet,
-							mixins.ListModelMixin, 
-							mixins.CreateModelMixin):
+class CharacterInventoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		The inventory of the selected character.  
-		From this view it is possible for a character to buy (`POST`) items.
 	'''
 	serializer_class = serializers.InventoryRecordCreateSerializer
 
@@ -225,45 +222,6 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet,
 		if name:
 			queryset = queryset.filter(owner__name=name)
 		return queryset
-
-	def create(self, request, *args, **kwargs):
-		'''
-			Buy action
-		'''
-		name = self.kwargs.get('character_name')
-		character = get_object_or_404(models.Character.objects.all(), name=name)
-
-		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
-		if not serializer.is_valid():
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-		req_record = serializer.object
-		req_record.owner = character
-		if req_record.owner.owner != request.user:
-			self.permission_denied(request)
-
-		if req_record.item.cost * req_record.quantity > character.guils:
-			return Response(
-						data={'msg': 'Not enough money to buy this item'},
-					)
-
-		try:
-			record = models.InventoryRecord.objects.get(owner=req_record.owner, item=req_record.item)
-			record.quantity += req_record.quantity
-			record.save()
-		except ObjectDoesNotExist:
-			record = models.InventoryRecord.objects.create(owner=req_record.owner, item=req_record.item)
-
-		character.guils -= (req_record.item.cost * req_record.quantity)
-		character.save()
-		record = self.get_serializer(record).data
-		data = {
-			'msg': 'Item added to inventory',
-			'inventory_record': record,
-			'guils left': character.guils,
-		}
-
-		return Response(data=data, status=status.HTTP_201_CREATED, headers=self.get_success_headers(data))
 
 class InventoryRecordViewSet(viewsets.GenericViewSet,
 							mixins.RetrieveModelMixin,
@@ -278,46 +236,8 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 	serializer_class = serializers.InventoryRecordUpdateSerializer
 	permission_classes = [permissions.IsAuthenticated, IsOwnedByCharacter]
 
-	def destroy(self, request, *args, **kwargs):
-		'''
-			Sell action
-		'''
-		record = self.get_object()
-		character = record.owner
-		item = record.item
-		if character.owner != request.user:
-			self.permission_denied(request)
-
-		try:
-			record.quantity -= 1
-			if record.quantity == 0:
-				if record.equipped == True:
-					if item == character.current_weapon:
-						character.current_weapon = None
-					else:
-						character.current_armor = None
-				record.delete()
-			else:
-				record.save()
-		except ObjectDoesNotExist:
-			return Response(
-					data={'msg': 'The specified character does not own the specified item'},
-					status=status.HTTP_400_BAD_REQUEST
-				)
-
-		character.guils += item.cost #maybe item.cost/2
-		character.save()
-		record = self.get_serializer(record).data
-		data = {
-			'msg': 'Item %s sold' % item.name,
-			'inventory_record': record,
-			'guils left': character.guils,
-		}
-
-		return Response(data=data)
-
 	def pre_save(self, obj):
-		print 'PRE SAVEEEEE'
+		print obj.equipped
 		RESTORATIVE = models.Item.ITEM_TYPE[0][0]
 		ARMOR = models.Item.ITEM_TYPE[2][0]
 		WEAPON = models.Item.ITEM_TYPE[1][0]
@@ -327,10 +247,90 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 		if obj.item.item_type == RESTORATIVE and obj.equipped == True:
 			raise ValidationError({"msg": ["Cannot equip a restorative time"]})
 
-		n_armor = len(records.filter(item__item_type=ARMOR).filter(equipped=True))
+		n_armor = records.filter(item__item_type=ARMOR).filter(equipped=True).count()
 		if n_armor == 1 and obj.item.item_type == ARMOR and obj.equipped == True:
 			raise ValidationError({"msg": ["Cannot equip two armors at the same time"]})
 
-		n_weapon = len(records.filter(item__item_type=WEAPON).filter(equipped=True))
-		if n_weapon == 1 and obj.item.item_type == ARMOR and obj.equipped == True:
+		n_weapon = records.filter(item__item_type=WEAPON).filter(equipped=True).count()
+		print 'weapon: %s, armor %s' % (n_weapon, n_armor)
+		if n_weapon == 1 and obj.item.item_type == WEAPON and obj.equipped == True:
 			raise ValidationError({"msg": ["Cannot equip two weapons at the same time"]})
+
+### TRANSACTION
+# POST: /characters/{character_name}/transactions/
+from socialbattle.api.helpers import Transaction, TransactionSerializer
+class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+	'''
+		From this view it is possible for a character to buy and sell items.
+	'''
+	serializer_class = TransactionSerializer
+
+	def create(self, request, *args, **kwargs):
+		name = self.kwargs.get('character_name')
+		character = get_object_or_404(models.Character.objects.all(), name=name)
+		if character.owner != request.user:
+			self.permission_denied(request)
+
+		BUY_OP = Transaction.OPERATION_TYPE[0][0]
+		SELL_OP = Transaction.OPERATION_TYPE[1][0]
+
+		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		transaction = serializer.object	
+
+		if transaction.operation == BUY_OP:	
+			if transaction.item.cost * transaction.quantity > character.guils and transaction.operation:
+				return Response(
+							data={'msg': 'Not enough money to buy this item'},
+						)
+
+			try:
+				record = models.InventoryRecord.objects.get(owner=character, item=transaction.item)
+				record.quantity += transaction.quantity
+				record.save()
+			except ObjectDoesNotExist:
+				record = models.InventoryRecord.objects.create(
+							owner=character,
+							item=transaction.item, 
+							quantity=transaction.quantity
+						)
+
+			character.guils -= (transaction.item.cost * transaction.quantity)
+
+		elif transaction.operation == SELL_OP:
+			try:
+				record = models.InventoryRecord.objects.get(owner=character, item=transaction.item)
+				if transaction.quantity > record.quantity:
+					return Response(
+							data={'msg': 'You do not have as much items of that type'},
+							status=status.HTTP_400_BAD_REQUEST
+						)
+
+				record.quantity -= transaction.quantity
+				if record.quantity == 0:
+					if record.equipped == True:
+						if item == character.current_weapon:
+							character.current_weapon = None
+						else:
+							character.current_armor = None
+					record.delete()
+				else:
+					record.save()
+			except ObjectDoesNotExist:
+				return Response(
+						data={'msg': 'The specified character does not own the specified item'},
+						status=status.HTTP_400_BAD_REQUEST
+					)
+
+			character.guils += (transaction.item.cost / 2) * transaction.quantity
+
+		character.save()
+		record = serializers.InventoryRecordUpdateSerializer(record, context=self.get_serializer_context()).data
+		data = {
+			'inventory_record': record,
+			'guils left': character.guils,
+		}
+
+		return Response(data=data, status=status.HTTP_201_CREATED, headers=self.get_success_headers(data))

@@ -148,7 +148,7 @@ class InventoryRecordUpdateSerializer(serializers.HyperlinkedModelSerializer):
 	)
 
 	quantity = serializers.Field(source='quantity')
-	equipped = serializers.WritableField(source='equipped')
+	equipped = serializers.BooleanField(source='equipped')
 
 	class Meta:
 		model = models.InventoryRecord
