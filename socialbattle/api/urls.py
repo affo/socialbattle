@@ -46,6 +46,9 @@ router.register(
 
 router.register(r'abilities', battle.AbilityViewSet)
 router.register(r'inventory', battle.InventoryRecordViewSet)
+router.register(r'battles', battle.BattleViewSet)
+router.register(r'battles/(?P<pk>\d+)/abilities', battle.BattleAbilityViewSet)
+router.register(r'battles/(?P<pk>\d+)/items', battle.BattleItemViewSet)
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
 	url(r'^auth/', 'rest_framework.authtoken.views.obtain_auth_token')

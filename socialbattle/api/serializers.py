@@ -224,3 +224,15 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Mob
 		fields = ('url', 'name', 'drops', )
+
+class BattleSerializer(serializers.HyperlinkedModelSerializer):
+	fields = serializers.HyperlinkedIdentityField(
+		view_name='battle-detail',
+		lookup_field='pk',
+	)
+	
+	class Meta:
+		model = models.Battle
+		fields = ('url', 'character', 'mob', )
+		read_only_fields = ('url', 'character', 'mob', )
+		lookup_field = 'slug'

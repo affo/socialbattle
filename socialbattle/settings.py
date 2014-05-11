@@ -40,12 +40,12 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    #'djangular',
-    #'announce',
+    'announce',
     #'django_facebook',
 )
 
 MIDDLEWARE_CLASSES = (
+    'announce.middleware.AnnounceCookieMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -122,11 +122,6 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'api.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
-#CORS_URLS_REGEX = r'^api/.*$'
-
-#ANNOUNCE_CLIENT_ADDR = 'localhost:5500'
-#ANNOUNCE_API_ADDR = 'localhost:6600'
-#ANNOUNCE_HTTPS = False
 
 #FACEBOOK_APP_ID = '1441968896050367'
 #FACEBOOK_APP_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'

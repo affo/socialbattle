@@ -225,7 +225,6 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 class InventoryRecordViewSet(viewsets.GenericViewSet,
 							mixins.RetrieveModelMixin,
-							mixins.DestroyModelMixin,
 							mixins.UpdateModelMixin):
 	'''
 		Detailed view of an inventory record:
@@ -334,3 +333,32 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 		}
 
 		return Response(data=data, status=status.HTTP_201_CREATED, headers=self.get_success_headers(data))
+
+### BATTLE
+# GET: /battles/{pk}/
+# POST: /battles/{pk}/abilities/
+# POST: /battles/{pk}/items
+class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+	queryset = models.Battle.objects.all()
+	serializer_class = serializers.BattleSerializer
+
+class BattleAbilityViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+	'''
+		Here it is possible to perform an ability against a mob in the current battle.
+	'''
+	serializer_class = serializers.AbilitySerializer
+
+	def create(self, request, *args, **kwargs):
+
+		pass
+	pass
+
+class BattleItemViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+	'''
+		Here it is possible to use an item in the current battle.
+	'''
+	serializer_class = serializers.ItemSerializer
+
+	def create(self, request, *args, **kwargs):
+		pass
+	pass

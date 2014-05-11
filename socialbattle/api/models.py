@@ -71,7 +71,7 @@ class Character(models.Model):
 	'''
 		The character the user will use to fight
 	'''
-	name = models.CharField(max_length=200, unique=True) #the character has to have a unique name
+	name = models.CharField(max_length=200, unique=True)
 	level = models.IntegerField(default=1)
 	exp = models.IntegerField(default=0)
 	ap = models.IntegerField(default=0)
@@ -79,6 +79,8 @@ class Character(models.Model):
 	#stats
 	hp = models.IntegerField(default=250)
 	mp = models.IntegerField(default=50)
+	curr_hp = models.IntegerField(default=250)
+	curr_mp = models.IntegerField(default=50)
 	power = models.IntegerField(default=10)
 	mpower = models.IntegerField(default=10)
 	#relations
@@ -98,6 +100,9 @@ class Character(models.Model):
 
 		return list(set(filter(filter_function, abilities)) - set(learnt_abilities))
 
+	def clean(self):
+		if self.curr_hp > self.hp or self.curr_mp > self.mp:
+			raise ValidationError('It is not possible to overcome maximum hps or mps')
 
 class LearntAbility(models.Model):
 	character = models.ForeignKey(Character)
@@ -190,3 +195,7 @@ class Comment(models.Model):
 	content = models.TextField(max_length=1024)
 	author = models.ForeignKey(User)
 	post = models.ForeignKey(Post)
+
+class Battle(models.Model):
+	character = models.ForeignKey(Character)
+	mob = models.ForeignKey(Mob)
