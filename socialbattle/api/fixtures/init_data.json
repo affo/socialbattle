@@ -387,7 +387,8 @@
 		"fields": {
 			"name": "mythril sword",
 			"slug": "mythril-sword",
-			"item_type": "W"
+			"item_type": "W",
+			"ct": 21
 		}
 	},
 	{
@@ -396,7 +397,8 @@
 		"fields": {
 			"name": "sunflower",
 			"slug": "sunflower",
-			"item_type": "W"
+			"item_type": "W",
+			"ct": 26
 		}
 	},
 	{
@@ -472,6 +474,27 @@
 			"abilities": [1]
 		}
 	},
+	{
+		"model": "api.mob",
+		"pk": 6,
+		"fields": {
+			"name": "wolf",
+			"slug": "wolf",
+			"drops": [1],
+			"abilities": [1, 3, 16],
+			"level": 2,
+			"hp": 94,
+			"stre": 8,
+			"defense": 4,
+			"mdefense": 7,
+			"vit": 12,
+			"spd": 10,
+			"atk": 8,
+			"exp": 9
+		}
+	},
+
+
 
 
 	{
@@ -510,6 +533,15 @@
 			"sells": [1]
 		}
 	},
+	{
+		"model": "api.pveroom",
+		"pk": 3,
+		"fields": {
+			"name": "dalmasca estersand",
+			"slug": "dalmasca-estersand",
+			"mobs": [6]
+		}
+	},
 
 
 
@@ -518,7 +550,8 @@
 		"pk": 1,
 		"fields": {
 			"name": "attack",
-			"slug": "attack"
+			"slug": "attack",
+			"ct": 0
 		}
 	},
 	{
@@ -527,7 +560,8 @@
 		"fields": {
 			"name": "tokkata",
 			"slug": "tokkata",
-			"requires": [1]
+			"requires": [1],
+			"ct": 0
 		}
 	},
 	{
@@ -687,12 +721,13 @@
 	},
 	{
 		"model": "api.ability",
-		"pk": 18,
+		"pk": 19,
 		"fields": {
 			"name": "crioshock",
 			"slug": "crioshock",
 			"element": "B",
-			"requires": [1, 9]
+			"requires": [1, 9],
+			"ct": 15
 		}
 	}
 ]

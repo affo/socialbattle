@@ -57,6 +57,7 @@ class Ability(models.Model):
 	requires = models.ManyToManyField('self', symmetrical=False)
 	mp_required = models.IntegerField(default=0)
 	element = models.CharField(max_length=1, choices=ELEMENTS, default=ELEMENTS[0][0])
+	ct = models.IntegerField(default=30)
 
 	slug = models.CharField(max_length=200, unique=True)
 	def __unicode__(self):
@@ -67,6 +68,7 @@ class Ability(models.Model):
 			self.slug = slugify(self.name, instance=self)
 			super(Ability, self).save(*args, **kwargs)
 
+from socialbattle.api.mechanics import BASE_STATS
 class Character(models.Model):
 	'''
 		The character the user will use to fight
@@ -77,15 +79,14 @@ class Character(models.Model):
 	ap = models.IntegerField(default=0)
 	guils = models.IntegerField(default=1000)
 	#stats
-	hp = models.IntegerField(default=84)
-	mp = models.IntegerField(default=27)
-	curr_hp = models.IntegerField(default=84)
-	curr_mp = models.IntegerField(default=27)
-	power = models.IntegerField(default=23)
-	mpower = models.IntegerField(default=20)
-	speed = models.IntegerField(default=24)
-	defense = models.IntegerField(default=10)
-	mdefense = models.IntegerField(default=10)
+	max_hp = models.IntegerField(default=BASE_STATS['HP'][0])
+	max_mp = models.IntegerField(default=BASE_STATS['MP'][0])
+	curr_hp = models.IntegerField(default=BASE_STATS['HP'][0])
+	curr_mp = models.IntegerField(default=BASE_STATS['MP'][0])
+	stre = models.IntegerField(default=BASE_STATS['STR'][0])
+	mag = models.IntegerField(default=BASE_STATS['MAG'][0])
+	vit = models.IntegerField(default=BASE_STATS['VIT'][0])
+	spd = models.IntegerField(default=BASE_STATS['SPD'][0])
 	#relations
 	owner = models.ForeignKey(User)
 	abilities = models.ManyToManyField(Ability, through='LearntAbility')
@@ -111,7 +112,17 @@ class Character(models.Model):
 		except ObjectDoesNotExist:
 			armor_def = 0
 
-		return self.defense + armor_def
+		return armor_def
+
+	def get_atk(self):
+		try:
+			weapon = self.items.filter(inventoryrecord__equipped=True,
+										inventoryrecord__item__item_type=Item.ITEM_TYPE[1][0]).get()
+			atk = weapon.power
+		except ObjectDoesNotExist:
+			atk = 0
+
+		return atk
 
 	def clean(self):
 		if self.curr_hp > self.hp or self.curr_mp > self.mp:
@@ -140,11 +151,13 @@ class Mob(models.Model):
 	#stats
 	level = models.IntegerField(default=1)
 	hp = models.IntegerField(default=250)
-	power = models.IntegerField(default=10)
-	mpower = models.IntegerField(default=10)
+	stre = models.IntegerField(default=10)
+	mag = models.IntegerField(default=10)
 	defense = models.IntegerField(default=10)
 	mdefense = models.IntegerField(default=10)
-	speed = models.IntegerField(default=10)
+	vit = models.IntegerField(default=10)
+	atk = models.IntegerField(default=10)
+	spd = models.IntegerField(default=10)
 	guils = models.IntegerField(default=0)
 	exp = models.IntegerField(default=0)
 	ap = models.IntegerField(default=1)
@@ -160,6 +173,12 @@ class Mob(models.Model):
 		if not self.id:
 			self.slug = slugify(self.name, instance=self)
 			super(Mob, self).save(*args, **kwargs)
+
+	def get_atk(self):
+		return self.atk
+
+	def get_defense(self):
+		return self.defense
 
 class Room(models.Model):
 	name = models.CharField(max_length=200, unique=True)
@@ -195,6 +214,7 @@ class Item(models.Model):
 	item_type = models.CharField(max_length=1, choices=ITEM_TYPE, blank=False)
 	power = models.IntegerField(default=0)
 	cost = models.IntegerField(default=50)
+	ct = models.IntegerField(default=0)
 
 	slug = models.CharField(max_length=200, unique=True)
 	def __unicode__(self):
@@ -219,60 +239,6 @@ class Battle(models.Model):
 	character = models.ForeignKey(Character)
 	mob = models.ForeignKey(Mob)
 	mob_hp = models.IntegerField(blank=True)
-
-	def calculate_character_damage(self, ability):
-		'''
-			Algorithms taken from http://www.gamefaqs.com/ps2/459841-final-fantasy-xii/faqs/45900
-			if physical:
-				DMG = [ATK x RANDOM(1~1.125) - DEF] x [1 + STR x (Lv+STR)/256]
-			if black:
-				DMG = [POW x RANDOM(1~1.125) - MDEF] x [2 + MAG x (Lv+MAG)/256)]
-			if white:
-				HEAL = POW x RANDOM(1~1.125) x [2 + MAG x (Lv+MAG)/256)]
-		'''
-		import random
-		PHYSICAL = Ability.ELEMENTS[0][0]
-		WHITE = Ability.ELEMENTS[5][0]
-		weapon = self.character.items.filter(inventoryrecord__equipped=True,
-						inventoryrecord__item__item_type=Item.ITEM_TYPE[1][0])
-
-		if ability.element == PHYSICAL:
-			dmg = (weapon.power * random.uniform(1, 1.125) - self.mob.defense) \
-					* (1 + self.character.power * (self.character.level + self.character.power) / 256)
-		elif ability.element == WHITE:
-			dmg = - (ability.power * random.uniform(1, 1.125)) \
-				* (2 + self.character.mpower * (self.character.level + self.character.mpower) / 256)
-		else:
-			dmg = (ability.power * random.uniform(1, 1.125) - self.mob.mdefense) \
-				* (2 + self.character.mpower * (self.character.level + self.character.mpower) / 256)
-
-		return int(round(dmg))
-
-	def calculate_mob_damage(self, ability):
-		'''
-			Algorithms taken from http://www.gamefaqs.com/ps2/459841-final-fantasy-xii/faqs/45900
-			if physical:
-				DMG = [ATK x RANDOM(1~1.125) - DEF] x [1 + STR x (Lv+STR)/256]
-			if black:
-				DMG = [POW x RANDOM(1~1.125) - MDEF] x [2 + MAG x (Lv+MAG)/256)]
-			if white:
-				HEAL = POW x RANDOM(1~1.125) x [2 + MAG x (Lv+MAG)/256)]
-		'''
-		import random
-		PHYSICAL = Ability.ELEMENTS[0][0]
-		WHITE = Ability.ELEMENTS[5][0]
-
-		if ability.element == PHYSICAL:
-			dmg = (self.mob.power * random.uniform(1, 1.125) - self.character.get_defense()) \
-					* (1 + self.mob.power * (self.mob.level + self.mob.power) / 256)
-		elif ability.element == WHITE:
-			dmg = - (ability.power * random.uniform(1, 1.125)) \
-				* (2 + self.mob.mpower * (self.mob.level + self.mob.mpower) / 256)
-		else:
-			dmg = (ability.power * random.uniform(1, 1.125) - self.character.mdefense) \
-				* (2 + self.mob.mpower * (self.mob.level + self.mob.mpower) / 256)
-
-		return int(round(dmg))
 
 	def assign_damage_to_character(self, damage):
 		self.character.curr_hp -= damage
