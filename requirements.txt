@@ -11,7 +11,6 @@ celery==3.1.11
 dj-database-url==0.3.0
 dj-static==0.0.5
 django-announce==0.1.5
-django-celery==3.1.10
 django-cors-headers==0.12
 django-toolbelt==0.0.1
 django-uuslug==1.0.2

@@ -5,7 +5,11 @@ from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'socialbattle.settings')
 
-app = Celery('socialbattle')
+app = Celery(
+		'socialbattle',
+		broker='amqp://',
+		backend='amqp://',		
+)
 app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 

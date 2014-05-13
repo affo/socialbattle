@@ -335,30 +335,58 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 		return Response(data=data, status=status.HTTP_201_CREATED, headers=self.get_success_headers(data))
 
 ### BATTLE
+# POST: /characters/{character_name}/battles/
 # GET: /battles/{pk}/
-# POST: /battles/{pk}/abilities/
-# POST: /battles/{pk}/items
+# POST: /battles/{pk}/perform_ability/
+# POST: /battles/{pk}/use_item/
+class CharacterBattleViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+	queryset = models.Battle.objects.all()
+	serializer_class = serializers.BattleSerializer
+
+	def pre_save(self, obj):
+		character = get_object_or_404(models.Character.objects.all(), name=self.kwargs.get('character_name'))
+		obj.character = character
+		obj.mob_hp = obj.mob.hp
+
+	def post_save(self, obj, created=False):
+		#start mob task usign obj.mob
+		pass
+
+from socialbattle.api.helpers import AttackSerializer, UsageSerializer
 class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	queryset = models.Battle.objects.all()
 	serializer_class = serializers.BattleSerializer
 
-class BattleAbilityViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
-	'''
-		Here it is possible to perform an ability against a mob in the current battle.
-	'''
-	serializer_class = serializers.AbilitySerializer
+	@action(methods=['POST', ], serializer_class=AttackSerializer)
+	def perform_ability(self, request, *args, **kwargs):
+		serializer = AttackSerializer(data=request.DATA)
 
-	def create(self, request, *args, **kwargs):
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-		pass
-	pass
+		battle = self.get_object()
+		character = battle.character
+		ability = serializer.object.ability
 
-class BattleItemViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
-	'''
-		Here it is possible to use an item in the current battle.
-	'''
-	serializer_class = serializers.ItemSerializer
+		if ability not in character.abilities.all():
+			return Response({'msg': 'You do not have the specified ability'}, status=status.HTTP_400_BAD_REQUEST)
 
-	def create(self, request, *args, **kwargs):
-		pass
-	pass
+		#perform the attack
+		return Response(serializer.data, status=status.HTTP_200_OK)			
+
+	@action(methods=['POST', ], serializer_class=UsageSerializer)
+	def use_item(self, request, *args, **kwargs):
+		serializer = UsageSerializer(data=request.DATA)
+
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		battle = self.get_object()
+		character = battle.character
+		item = serializer.object.item
+
+		if item not in character.items.all():
+			return Response({'msg': 'You do not have the specified item'}, status=status.HTTP_400_BAD_REQUEST)
+
+		#use the item
+		return Response(serializer.data, status=status.HTTP_200_OK)

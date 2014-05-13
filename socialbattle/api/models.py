@@ -199,3 +199,4 @@ class Comment(models.Model):
 class Battle(models.Model):
 	character = models.ForeignKey(Character)
 	mob = models.ForeignKey(Mob)
+	mob_hp = models.IntegerField(blank=True)

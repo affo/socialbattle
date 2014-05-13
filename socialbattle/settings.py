@@ -41,7 +41,6 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
     'corsheaders',
     'announce',
-    'djcelery',
     #'django_facebook',
 )
 
@@ -123,19 +122,6 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'api.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
-
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-
-# from datetime import timedelta
-# CELERYBEAT_SCHEDULE = {
-#     'add-every-30-seconds': {
-#         'task': 'socialbattle.api.tasks.spawn',
-#         'schedule': timedelta(seconds=5),
-#         'args': (16, 16)
-#     },
-# }
-
-CELERY_TIMEZONE = 'UTC'
 
 #FACEBOOK_APP_ID = '1441968896050367'
 #FACEBOOK_APP_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
