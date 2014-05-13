@@ -29,15 +29,14 @@ def spawn_beat():
 @shared_task
 def fight(battle_pk):
 	battle = Battle.objects.get(pk=battle_pk)
-	if battle.mob_hp > 0: #the mob is still alive
+	if battle.mob_hp > 0 and battle.character.curr_hp > 0: #the mob is still alive
 		abilities = list(battle.mob.abilities.all())
 		abilities_no = len(abilities)
 		ability = abilities[random.randint(0, abilities_no - 1)]
-		#calculate damage
-		#apply damage
-		#calculate countdown basing on mob's speed
-		print 'Battle %s: mob %s uses %s' % (battle.pk, battle.mob.name, ability.name)
-		cd = 5
+		dmg = battle.calculate_mob_damage(ability)
+		battle.assign_damage_to_character(dmg)
+		print 'Battle %s: mob %s uses %s --> dmg %d' % (battle.pk, battle.mob.name, ability.name, dmg)
+		cd = 10 #/ battle.mob.speed --> do something to calculate speed
 		fight.apply_async((battle_pk, ), countdown=cd)
 	else:
-		print 'Battle %s: mob %s is dead' % (battle.pk, battle.mob.name)
+		print 'Battle %s: mob %s is dead or character is dead, battle ended' % (battle.pk, battle.mob.name)

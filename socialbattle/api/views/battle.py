@@ -351,7 +351,7 @@ class CharacterBattleViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	def post_save(self, obj, created=False):
 		if created:
 			from socialbattle.api.tasks import fight
-			fight.delay(obj.pk)
+			fight.delay(obj.pk) #starts mob's AI
 
 from socialbattle.api.helpers import AttackSerializer, UsageSerializer
 class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):

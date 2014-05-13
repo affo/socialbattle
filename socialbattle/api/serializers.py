@@ -98,12 +98,13 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.Character
 		fields = (
 			'url', 'name', 'level', 'guils', 'owner',
-			'ap', 'hp', 'mp',
+			'ap', 'hp', 'mp', 'curr_hp', 'curr_mp',
 			'power', 'mpower',
 			'abilities',
 		)
 
-		read_only_fields = ('name', 'level', 'ap', 'guils', 'hp', 'mp', 'power', 'mpower', )
+		read_only_fields = ('name', 'level', 'ap', 'guils', 'hp', 'mp', 'power', 'mpower',
+							'curr_hp', 'curr_mp', )
 
 class InventoryRecordCreateSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
