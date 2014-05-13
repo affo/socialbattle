@@ -120,7 +120,7 @@ class Character(models.Model):
 										inventoryrecord__item__item_type=Item.ITEM_TYPE[1][0]).get()
 			atk = weapon.power
 		except ObjectDoesNotExist:
-			atk = 0
+			atk = 11 #as ffxii does
 
 		return atk
 

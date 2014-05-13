@@ -493,6 +493,26 @@
 			"exp": 9
 		}
 	},
+	{
+		"model": "api.mob",
+		"pk": 7,
+		"fields": {
+			"name": "lucky wolf",
+			"slug": "lucky-wolf",
+			"drops": [1],
+			"abilities": [1, 3, 16],
+			"level": 2,
+			"hp": 94,
+			"stre": 8,
+			"defense": 4,
+			"mdefense": 7,
+			"vit": 12,
+			"spd": 10,
+			"atk": 8,
+			"exp": 10000,
+			"guils": 1000
+		}
+	},
 
 
 

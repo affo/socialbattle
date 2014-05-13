@@ -29,6 +29,9 @@ def spawn_beat():
 from socialbattle.api.mechanics import calculate_damage, get_charge_time
 @shared_task
 def fight(battle_pk):
+	'''
+		"periodical" task started by a mob until the battle is alive
+	'''
 	battle = Battle.objects.get(pk=battle_pk)
 	if battle.mob_hp > 0 and battle.character.curr_hp > 0: #the mob is still alive
 		abilities = list(battle.mob.abilities.all())
@@ -37,7 +40,7 @@ def fight(battle_pk):
 		ct = get_charge_time(battle.mob, ability)
 		print 'Battle %s: mob %s charging %s --> ct %fs' % (battle.pk, battle.mob.name, ability.name, ct)
 		time.sleep(ct) #charging the ability
-		
+
 		dmg = calculate_damage(battle.mob, battle.character, ability)
 		battle.assign_damage_to_character(dmg)
 		print 'Battle %s: mob %s uses %s --> dmg %d' % (battle.pk, battle.mob.name, ability.name, dmg)
@@ -45,3 +48,4 @@ def fight(battle_pk):
 		fight.apply_async((battle_pk, ), countdown=random.uniform(2, 5))
 	else:
 		print 'Battle %s: mob %s is dead or character is dead, battle ended' % (battle.pk, battle.mob.name)
+		battle.delete()

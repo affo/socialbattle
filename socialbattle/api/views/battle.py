@@ -214,7 +214,7 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		The inventory of the selected character.  
 	'''
-	serializer_class = serializers.InventoryRecordCreateSerializer
+	serializer_class = serializers.InventoryRecordSerializer
 
 	def get_queryset(self):
 		queryset = models.InventoryRecord.objects.all()
@@ -232,7 +232,7 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 		It is possible to equip (`PUT`) items.
 	'''
 	queryset = models.InventoryRecord.objects.all()
-	serializer_class = serializers.InventoryRecordUpdateSerializer
+	serializer_class = serializers.InventoryRecordSerializer
 	permission_classes = [permissions.IsAuthenticated, IsOwnedByCharacter]
 
 	def pre_save(self, obj):
@@ -354,26 +354,77 @@ class CharacterBattleViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 			fight.delay(obj.pk) #starts mob's AI
 
 from socialbattle.api.helpers import AttackSerializer, UsageSerializer
+from socialbattle.api.mechanics import calculate_damage, get_charge_time, get_exp
+import time
 class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	queryset = models.Battle.objects.all()
 	serializer_class = serializers.BattleSerializer
 
 	@action(methods=['POST', ], serializer_class=AttackSerializer)
 	def perform_ability(self, request, *args, **kwargs):
-		serializer = AttackSerializer(data=request.DATA)
+		serializer = self.get_serializer(data=request.DATA)
 
 		if not serializer.is_valid():
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 		battle = self.get_object()
 		character = battle.character
+		mob = battle.mob
 		ability = serializer.object.ability
 
 		if ability not in character.abilities.all():
 			return Response({'msg': 'You do not have the specified ability'}, status=status.HTTP_400_BAD_REQUEST)
 
 		#perform the attack
-		return Response(serializer.data, status=status.HTTP_200_OK)			
+		ct = get_charge_time(character, ability)
+		print 'Battle %d: character %s chose %s ---> ct %fs' % (battle.pk, character.name, ability.name, ct)
+		time.sleep(ct) #charging the ability
+		
+		dmg = calculate_damage(character, mob, ability)
+		battle.assign_damage_to_mob(dmg)
+
+		if battle.mob_hp <= 0: #battle ended, you win
+			drops = list(mob.drops.all())
+			earned_items = []
+			for item in drops:
+				earned_items.append(item)
+				try:
+					record = models.InventoryRecord.objects.get(owner=character, item=item)
+					record.quantity += 1
+					record.save()
+				except ObjectDoesNotExist:
+					record = models.InventoryRecord.objects.create(
+								owner=character,
+								item=item, 
+							)
+
+			character.ap += mob.ap
+			character.guils += mob.guils
+			character.exp += mob.exp
+			diff_level = 0
+			while character.exp >= get_exp(character.level + 1):
+				character.level += 1
+				diff_level += 1
+			character.save()
+			data = {
+				'msg': 'Battle ended, you win',
+				'guils': mob.guils,
+				'ap': mob.ap,
+				'exp': mob.exp,
+				'levels_earned': diff_level,
+				'items': serializers.ItemSerializer(
+										earned_items,
+										context=self.get_serializer_context(),
+										many=True,
+									).data
+			}
+		else:
+			data = {
+				'ability': serializer.data,
+				'dmg': dmg,
+				'mob_hp_left': battle.mob_hp,
+			}
+		return Response(data, status=status.HTTP_200_OK)			
 
 	@action(methods=['POST', ], serializer_class=UsageSerializer)
 	def use_item(self, request, *args, **kwargs):

@@ -266,4 +266,3 @@ def get_charge_time(attacker, item_or_ability):
 	ct = item_or_ability.ct
 	cs_mod = CS_MOD[attacker.spd]
 	return ct * cs_mod * random.uniform(0, 0.5)
-

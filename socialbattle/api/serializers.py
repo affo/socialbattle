@@ -106,31 +106,7 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 		read_only_fields = ('name', 'level', 'ap', 'guils', 'max_hp', 'max_mp', 'stre', 'vit', 'mag', 'spd',
 							'curr_hp', 'curr_mp', )
 
-class InventoryRecordCreateSerializer(serializers.HyperlinkedModelSerializer):
-	url = serializers.HyperlinkedIdentityField(
-		view_name='inventoryrecord-detail',
-		lookup_field='pk',
-	)
-
-	owner = serializers.HyperlinkedRelatedField(
-		view_name='character-detail',
-		lookup_field='name',
-		read_only=True,
-	)
-
-	item = serializers.HyperlinkedRelatedField(
-		view_name='item-detail',
-		lookup_field='slug',
-	)
-
-	quantity = serializers.WritableField(source='quantity')
-	equipped = serializers.Field(source='equipped')
-
-	class Meta:
-		model = models.InventoryRecord
-		fields = ('url', 'owner', 'item', 'quantity', 'equipped', )
-
-class InventoryRecordUpdateSerializer(serializers.HyperlinkedModelSerializer):
+class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 		view_name='inventoryrecord-detail',
 		lookup_field='pk',
@@ -224,7 +200,8 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.Mob
-		fields = ('url', 'name', 'drops', )
+		fields = ('url', 'name', 'drops',
+					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', )
 
 class BattleSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
