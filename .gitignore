@@ -1,4 +1,5 @@
 venv
+celerybeat-schedule
 
 ignore/*
 *.py[cod]

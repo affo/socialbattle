@@ -123,5 +123,14 @@ AUTH_USER_MODEL = 'api.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+from datetime import timedelta
+CELERYBEAT_SCHEDULE = {
+    'spawn': {
+        'task': 'socialbattle.api.tasks.spawn_beat',
+        'schedule': timedelta(seconds=10),
+        'args': None
+    },
+}
+
 #FACEBOOK_APP_ID = '1441968896050367'
 #FACEBOOK_APP_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
