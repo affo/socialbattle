@@ -349,8 +349,9 @@ class CharacterBattleViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 		obj.mob_hp = obj.mob.hp
 
 	def post_save(self, obj, created=False):
-		#start mob task usign obj.mob
-		pass
+		if created:
+			from socialbattle.api.tasks import fight
+			fight.delay(obj.pk)
 
 from socialbattle.api.helpers import AttackSerializer, UsageSerializer
 class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):

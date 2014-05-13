@@ -4,7 +4,7 @@ from celery import shared_task
 import random
 import time
 
-from socialbattle.api.models import PVERoom
+from socialbattle.api.models import PVERoom, Battle
 
 @shared_task
 def spawn(room):
@@ -14,12 +14,30 @@ def spawn(room):
 	mob = mobs[random.randint(0, mobs_no - 1)]
 	#mob = MobSerializer(mob).data
 	#announce_client.broadcast(self.room.name, mob)
-	## operation on db
 	print 'Task for %s: %s spawned' % (room_slug, mob.name)
 
 @shared_task
 def spawn_beat():
+	'''
+		Periodic task configured in settings.py that spawns random monsters in all rooms
+	'''
 	rooms = list(PVERoom.objects.all())
 	for room in rooms:
 		cd = random.uniform(0, 5)
 		spawn.apply_async((room, ), countdown=cd)
+
+@shared_task
+def fight(battle_pk):
+	battle = Battle.objects.get(pk=battle_pk)
+	if battle.mob_hp > 0: #the mob is still alive
+		abilities = list(battle.mob.abilities.all())
+		abilities_no = len(abilities)
+		ability = abilities[random.randint(0, abilities_no - 1)]
+		#calculate damage
+		#apply damage
+		#calculate countdown basing on mob's speed
+		print 'Battle %s: mob %s uses %s' % (battle.pk, battle.mob.name, ability.name)
+		cd = 5
+		fight.apply_async((battle_pk, ), countdown=cd)
+	else:
+		print 'Battle %s: mob %s is dead' % (battle.pk, battle.mob.name)

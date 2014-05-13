@@ -127,11 +127,13 @@ class Mob(models.Model):
 	#stats
 	hp = models.IntegerField(default=250)
 	power = models.IntegerField(default=10)
+	speed = models.IntegerField(default=10)
 	guils = models.IntegerField(default=0)
 	exp = models.IntegerField(default=0)
 	ap = models.IntegerField(default=1)
 	#relations
 	drops = models.ManyToManyField('Item')
+	abilities = models.ManyToManyField(Ability)
 
 	slug = models.CharField(max_length=200, unique=True)
 	def __unicode__(self):
