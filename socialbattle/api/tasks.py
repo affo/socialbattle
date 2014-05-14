@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
 from celery import shared_task
-import random
-import time
-
+import random, time
 from socialbattle.api.models import PVERoom, Battle
+from announce import AnnounceClient
+announce_client = AnnounceClient()
 
 @shared_task
 def spawn(room):
@@ -12,8 +12,11 @@ def spawn(room):
 	mobs = list(room.mobs.all())
 	mobs_no = len(mobs)
 	mob = mobs[random.randint(0, mobs_no - 1)]
-	#mob = MobSerializer(mob).data
-	#announce_client.broadcast(self.room.name, mob)
+	data = {'mob_pk': mob.pk}
+	try:
+		announce_client.broadcast(room.slug, data)
+	except:
+		pass
 	print 'Task for %s: %s spawned' % (room_slug, mob.name)
 
 @shared_task

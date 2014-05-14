@@ -360,7 +360,8 @@
 		"fields": {
 			"name": "potion",
 			"slug": "potion",
-			"item_type": "R"
+			"item_type": "R",
+			"power": 20
 		}
 	},
 	{

@@ -341,7 +341,7 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 # POST: /battles/{pk}/use_item/
 class CharacterBattleViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	queryset = models.Battle.objects.all()
-	serializer_class = serializers.BattleSerializer
+	serializer_class = serializers.BattleCreateSerializer
 
 	def pre_save(self, obj):
 		character = get_object_or_404(models.Character.objects.all(), name=self.kwargs.get('character_name'))
@@ -354,14 +354,14 @@ class CharacterBattleViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 			fight.delay(obj.pk) #starts mob's AI
 
 from socialbattle.api.helpers import AttackSerializer, UsageSerializer
-from socialbattle.api.mechanics import calculate_damage, get_charge_time, get_exp
+from socialbattle.api.mechanics import calculate_damage, get_charge_time, get_exp, get_stat
 import time
 class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	queryset = models.Battle.objects.all()
-	serializer_class = serializers.BattleSerializer
+	serializer_class = serializers.BattleRetrieveSerializer
 
 	@action(methods=['POST', ], serializer_class=AttackSerializer)
-	def perform_ability(self, request, *args, **kwargs):
+	def abilities(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.DATA)
 
 		if not serializer.is_valid():
@@ -375,13 +375,18 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 		if ability not in character.abilities.all():
 			return Response({'msg': 'You do not have the specified ability'}, status=status.HTTP_400_BAD_REQUEST)
 
+		if ability.mp_required > character.curr_mp:
+			return Response({'msg': 'The ability requires too much MPs'}, status=status.HTTP_400_BAD_REQUEST)
+
 		#perform the attack
 		ct = get_charge_time(character, ability)
 		print 'Battle %d: character %s chose %s ---> ct %fs' % (battle.pk, character.name, ability.name, ct)
 		time.sleep(ct) #charging the ability
 		
 		dmg = calculate_damage(character, mob, ability)
+		battle.remove_mp(ability)
 		battle.assign_damage_to_mob(dmg)
+		character.save()
 
 		if battle.mob_hp <= 0: #battle ended, you win
 			drops = list(mob.drops.all())
@@ -405,6 +410,22 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 			while character.exp >= get_exp(character.level + 1):
 				character.level += 1
 				diff_level += 1
+
+			#update character statistics
+			old_hp = character.max_hp
+			old_mp = character.max_mp
+			old_stre = character.stre
+			old_spd = character.spd
+			old_mag = character.mag
+			old_vit = character.vit
+			if diff_level > 0:
+				character.max_hp = get_stat(character.level, 'HP')
+				character.max_mp = get_stat(character.level, 'MP')
+				character.stre = get_stat(character.level, 'STR')
+				character.spd = get_stat(character.level, 'SPD')
+				character.mag = get_stat(character.level, 'MAG')
+				character.vit = get_stat(character.level, 'VIT')
+
 			character.save()
 			data = {
 				'msg': 'Battle ended, you win',
@@ -412,7 +433,13 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 				'ap': mob.ap,
 				'exp': mob.exp,
 				'levels_earned': diff_level,
-				'items': serializers.ItemSerializer(
+				'hp_gain': character.max_hp - old_hp,
+				'mp_gain': character.max_mp - old_mp,
+				'str_gain': character.stre - old_stre,
+				'spd_gain': character.spd - old_spd,
+				'mag_gain': character.mag - old_mag,
+				'vit_gain': character.vit - old_vit,
+				'dropped': serializers.ItemSerializer(
 										earned_items,
 										context=self.get_serializer_context(),
 										many=True,
@@ -427,8 +454,8 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 		return Response(data, status=status.HTTP_200_OK)			
 
 	@action(methods=['POST', ], serializer_class=UsageSerializer)
-	def use_item(self, request, *args, **kwargs):
-		serializer = UsageSerializer(data=request.DATA)
+	def items(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.DATA)
 
 		if not serializer.is_valid():
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -440,5 +467,22 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 		if item not in character.items.all():
 			return Response({'msg': 'You do not have the specified item'}, status=status.HTTP_400_BAD_REQUEST)
 
-		#use the item
-		return Response(serializer.data, status=status.HTTP_200_OK)
+		if item.item_type != models.Item.ITEM_TYPE[0][0]:
+			return Response({'msg': 'You can use only restorative items'}, status=status.HTTP_400_BAD_REQUEST)
+
+		effect = item.get_restorative_effect(character)
+		battle.assign_damage_to_character(-effect)
+		record = models.InventoryRecord.objects.get(owner=character, item=item)
+		record.quantity -= 1
+		if record.quantity == 0:
+			record.delete()
+		else:
+			record.save()
+		data = {
+				'item': serializer.data,
+				'effect': effect,
+				'curr_hp': character.curr_hp,
+				'inventory_record': serializers.InventoryRecordSerializer(record,
+									context=self.get_serializer_context()).data
+			}
+		return Response(data, status=status.HTTP_200_OK)

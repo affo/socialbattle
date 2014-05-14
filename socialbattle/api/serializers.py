@@ -21,7 +21,10 @@ class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 			read_only=True,
 		)
 
-	to_user = serializers.PrimaryKeyRelatedField(source='to_user')
+	to_user = serializers.HyperlinkedRelatedField(
+			view_name='user-detail',
+			lookup_field='username',
+		)
 
 	class Meta:
 		model = models.Fellowship
@@ -203,7 +206,25 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name', 'drops',
 					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', )
 
-class BattleSerializer(serializers.HyperlinkedModelSerializer):
+class BattleCreateSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+		view_name='battle-detail',
+		lookup_field='pk',
+	)
+
+	character = serializers.HyperlinkedRelatedField(
+		view_name='character-detail',
+		lookup_field='name',
+		read_only=True,
+	)
+
+	mob = serializers.PrimaryKeyRelatedField(source='mob')
+
+	class Meta:
+		model = models.Battle
+		fields = ('url', 'character', 'mob', )
+
+class BattleRetrieveSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 		view_name='battle-detail',
 		lookup_field='pk',
@@ -218,6 +239,7 @@ class BattleSerializer(serializers.HyperlinkedModelSerializer):
 	mob = serializers.HyperlinkedRelatedField(
 		view_name='mob-detail',
 		lookup_field='slug',
+		read_only=True,
 	)
 
 	class Meta:

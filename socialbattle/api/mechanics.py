@@ -231,9 +231,9 @@ def get_stat(level, stat):
 
 		r = range(1, level)
 		bonuses = reduce(reduce_function, r)
-		new_stat = (STATS[stat][0] + bonuses) * STATS[stat][1]
+		new_stat = (BASE_STATS[stat][0] + bonuses) * BASE_STATS[stat][1]
 	else:
-		new_stat = STATS[stat][0] + (level * STATS[stat][1]) / 128
+		new_stat = BASE_STATS[stat][0] + (level * BASE_STATS[stat][1]) / 128
 	return int(round(new_stat))
 
 # Exp = 0.1*Lv^4 + 4.2*Lv^3 + 6.1*Lv^2 + 1.4*Lv - 11.4

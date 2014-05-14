@@ -125,7 +125,7 @@ class Character(models.Model):
 		return atk
 
 	def clean(self):
-		if self.curr_hp > self.hp or self.curr_mp > self.mp:
+		if self.curr_hp > self.max_hp or self.curr_mp > self.max_mp:
 			raise ValidationError('It is not possible to overcome maximum hps or mps')
 
 class LearntAbility(models.Model):
@@ -212,7 +212,7 @@ class Item(models.Model):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
 	item_type = models.CharField(max_length=1, choices=ITEM_TYPE, blank=False)
-	power = models.IntegerField(default=0)
+	power = models.IntegerField(default=0) #percentage of hp restored in the case of R
 	cost = models.IntegerField(default=50)
 	ct = models.IntegerField(default=0)
 
@@ -224,6 +224,11 @@ class Item(models.Model):
 		if not self.id:
 			self.slug = slugify(self.name, instance=self)
 			super(Item, self).save(*args, **kwargs)
+
+	def get_restorative_effect(self, character):
+		hp = character.max_hp
+		hp_gain = hp * self.power / 100
+		return int(round(hp_gain))
 
 class Post(models.Model):
 	content = models.TextField(max_length=1024)
@@ -240,8 +245,22 @@ class Battle(models.Model):
 	mob = models.ForeignKey(Mob)
 	mob_hp = models.IntegerField(blank=True)
 
+	def remove_mp(self, ability):
+		self.character.curr_mp -= ability.mp_required
+		if self.character.curr_mp > self.character.max_mp:
+			self.character.curr_mp = self.character.max_mp
+
+		if self.character.curr_mp < 0:
+			self.character.curr_mp = 0
+		self.character.save()
+
 	def assign_damage_to_character(self, damage):
 		self.character.curr_hp -= damage
+		if self.character.curr_hp > self.character.max_hp:
+			self.character.curr_hp = self.character.max_hp
+
+		if self.character.curr_hp < 0:
+			self.character.curr_hp = 0
 		self.character.save()
 
 	def assign_damage_to_mob(self, damage):
