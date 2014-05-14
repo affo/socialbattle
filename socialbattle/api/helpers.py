@@ -27,7 +27,7 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 		model = Transaction
 		fields = ('character', 'item', 'quantity', 'operation', )
 
-class AttackSerializer(serializers.HyperlinkedModelSerializer):
+class AbilityUsageSerializer(serializers.HyperlinkedModelSerializer):
 	ability = serializers.HyperlinkedRelatedField(
 		view_name='ability-detail',
 		lookup_field='slug'
@@ -37,7 +37,7 @@ class AttackSerializer(serializers.HyperlinkedModelSerializer):
 		model = Attack
 		fields = ('ability', )
 
-class UsageSerializer(serializers.HyperlinkedModelSerializer):
+class ItemUsageSerializer(serializers.HyperlinkedModelSerializer):
 	item = serializers.HyperlinkedRelatedField(
 		view_name='item-detail',
 		lookup_field='slug'

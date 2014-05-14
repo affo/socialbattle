@@ -206,25 +206,14 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name', 'drops',
 					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', )
 
-class BattleCreateSerializer(serializers.HyperlinkedModelSerializer):
-	url = serializers.HyperlinkedIdentityField(
-		view_name='battle-detail',
-		lookup_field='pk',
-	)
-
-	character = serializers.HyperlinkedRelatedField(
-		view_name='character-detail',
-		lookup_field='name',
-		read_only=True,
-	)
-
-	mob = serializers.PrimaryKeyRelatedField(source='mob')
+class MobSnapshotSerializer(serializers.HyperlinkedModelSerializer):
+	mob = MobSerializer()
 
 	class Meta:
-		model = models.Battle
-		fields = ('url', 'character', 'mob', )
+		model = models.MobSnapshot
+		fields = ('mob', 'curr_hp', 'curr_mp')
 
-class BattleRetrieveSerializer(serializers.HyperlinkedModelSerializer):
+class BattleSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 		view_name='battle-detail',
 		lookup_field='pk',
@@ -236,12 +225,13 @@ class BattleRetrieveSerializer(serializers.HyperlinkedModelSerializer):
 		read_only=True,
 	)
 
-	mob = serializers.HyperlinkedRelatedField(
-		view_name='mob-detail',
+	mob_snapshot = MobSnapshotSerializer(read_only=True)
+
+	room = serializers.HyperlinkedRelatedField(
+		view_name='pveroom-detail',
 		lookup_field='slug',
-		read_only=True,
 	)
 
 	class Meta:
 		model = models.Battle
-		fields = ('url', 'character', 'mob', )
+		fields = ('url', 'character', 'mob_snapshot', 'room')

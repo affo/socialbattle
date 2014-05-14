@@ -68,8 +68,45 @@ class Ability(models.Model):
 			self.slug = slugify(self.name, instance=self)
 			super(Ability, self).save(*args, **kwargs)
 
+class Target(models.Model):
+	def update_hp(self, damage):
+		self.curr_hp -= damage
+		if self.curr_hp > self.max_hp:
+			self.curr_hp = self.max_hp
+
+		if self.curr_hp < 0:
+			self.curr_hp = 0
+		self.save()
+
+	def update_mp(self, ability):
+		self.curr_mp -= ability.mp_required
+		if self.curr_mp > self.max_mp:
+			self.curr_mp = self.max_mp
+
+		if self.curr_mp < 0:
+			self.curr_mp = 0
+		self.save()
+
+	def get_atk(self):
+		return self.atk
+
+	def get_defense(self):
+		return self.defense
+
+	def get_level(self):
+		return self.level
+
+	def get_str(self):
+		return self.stre
+
+	def get_mag(self):
+		return self.mag
+
+	class Meta:
+		abstract = True
+
 from socialbattle.api.mechanics import BASE_STATS
-class Character(models.Model):
+class Character(Target):
 	'''
 		The character the user will use to fight
 	'''
@@ -128,22 +165,6 @@ class Character(models.Model):
 		if self.curr_hp > self.max_hp or self.curr_mp > self.max_mp:
 			raise ValidationError('It is not possible to overcome maximum hps or mps')
 
-class LearntAbility(models.Model):
-	character = models.ForeignKey(Character)
-	ability = models.ForeignKey(Ability)
-
-	class Meta:
-		unique_together = ('character', 'ability')
-
-class InventoryRecord(models.Model):
-	owner = models.ForeignKey(Character)
-	item = models.ForeignKey('Item')
-	quantity = models.IntegerField(default=1)
-	equipped = models.BooleanField(default=False)
-
-	class Meta:
-		unique_together = ('owner', 'item')
-
 class Mob(models.Model):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
@@ -151,6 +172,7 @@ class Mob(models.Model):
 	#stats
 	level = models.IntegerField(default=1)
 	hp = models.IntegerField(default=250)
+	mp = models.IntegerField(default=250)
 	stre = models.IntegerField(default=10)
 	mag = models.IntegerField(default=10)
 	defense = models.IntegerField(default=10)
@@ -174,11 +196,43 @@ class Mob(models.Model):
 			self.slug = slugify(self.name, instance=self)
 			super(Mob, self).save(*args, **kwargs)
 
+class MobSnapshot(Target):
+	mob = models.ForeignKey(Mob)
+	max_hp = models.IntegerField(default=0)
+	max_mp = models.IntegerField(default=0)
+	curr_hp = models.IntegerField(default=0)
+	curr_mp = models.IntegerField(default=0)
+
 	def get_atk(self):
-		return self.atk
+		return self.mob.atk
 
 	def get_defense(self):
-		return self.defense
+		return self.mob.defense
+
+	def get_level(self):
+		return self.mob.level
+
+	def get_str(self):
+		return self.mob.stre
+
+	def get_mag(self):
+		return self.mob.mag
+
+class LearntAbility(models.Model):
+	character = models.ForeignKey(Character)
+	ability = models.ForeignKey(Ability)
+
+	class Meta:
+		unique_together = ('character', 'ability')
+
+class InventoryRecord(models.Model):
+	owner = models.ForeignKey(Character)
+	item = models.ForeignKey('Item')
+	quantity = models.IntegerField(default=1)
+	equipped = models.BooleanField(default=False)
+
+	class Meta:
+		unique_together = ('owner', 'item')
 
 class Room(models.Model):
 	name = models.CharField(max_length=200, unique=True)
@@ -241,29 +295,7 @@ class Comment(models.Model):
 	post = models.ForeignKey(Post)
 
 class Battle(models.Model):
+	room = models.ForeignKey(PVERoom)
 	character = models.ForeignKey(Character)
-	mob = models.ForeignKey(Mob)
-	mob_hp = models.IntegerField(blank=True)
-
-	def remove_mp(self, ability):
-		self.character.curr_mp -= ability.mp_required
-		if self.character.curr_mp > self.character.max_mp:
-			self.character.curr_mp = self.character.max_mp
-
-		if self.character.curr_mp < 0:
-			self.character.curr_mp = 0
-		self.character.save()
-
-	def assign_damage_to_character(self, damage):
-		self.character.curr_hp -= damage
-		if self.character.curr_hp > self.character.max_hp:
-			self.character.curr_hp = self.character.max_hp
-
-		if self.character.curr_hp < 0:
-			self.character.curr_hp = 0
-		self.character.save()
-
-	def assign_damage_to_mob(self, damage):
-		self.mob_hp -= damage
-		self.save()
+	mob_snapshot = models.ForeignKey(MobSnapshot)
 

@@ -8,6 +8,8 @@ from rest_framework import status
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsOwner, IsOwnedByCharacter
+from socialbattle.api.helpers import TransactionSerializer, AbilityUsageSerializer, ItemUsageSerializer
+from socialbattle.api.mechanics import calculate_damage, get_charge_time, get_exp, get_stat
 
 ### ROOM
 # GET: /rooms/
@@ -147,7 +149,9 @@ class CharacterViewSet(viewsets.GenericViewSet,
 # GET: /characters/{character_name}/abilities/	
 # GET, POST: /characters/{character_name}/abilities/next/
 # GET: /abilities/{ability_name}
-class CharacterAbilityViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class CharacterAbilityViewSet(viewsets.GenericViewSet,
+								mixins.ListModelMixin,
+								mixins.CreateModelMixin):
 	'''
 		List of the learned abilities for the chosen character
 	'''
@@ -157,6 +161,30 @@ class CharacterAbilityViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 		abilities = character.abilities.all()
 		abilities = serializers.AbilitySerializer(abilities, context=self.get_serializer_context(), many=True).data
 		return Response(data=abilities, status=status.HTTP_200_OK)
+
+	def create(self, request, *args, **kwargs):
+		name = self.kwargs.get('character_name')
+		character = get_object_or_404(models.Character.objects.all(), name=name)
+		serializer = self.get_serializer(data=request.DATA)
+
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		ability = serializer.object.ability
+
+		if ability not in character.abilities.all():
+			return Response({'msg': 'You do not have the specified ability'}, status=status.HTTP_400_BAD_REQUEST)
+
+		if ability.element != models.Ability.ELEMENTS[5][0]:
+			return Response({'msg': 'Can use only white magic abilities'}, status=status.HTTP_400_BAD_REQUEST)
+
+		if ability.mp_required > character.curr_mp:
+			return Response({'msg': 'The ability requires too much MPs'}, status=status.HTTP_400_BAD_REQUEST)
+		dmg = calculate_damage(character, None, ability)
+		character.remove_mp(ability)
+		#battle.assign_damage_to_mob(dmg)
+		character.save()
+
 
 class CharacterNextAbilityViewSet(viewsets.GenericViewSet,
 									mixins.ListModelMixin,
@@ -257,7 +285,6 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 
 ### TRANSACTION
 # POST: /characters/{character_name}/transactions/
-from socialbattle.api.helpers import Transaction, TransactionSerializer
 class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	'''
 		From this view it is possible for a character to buy and sell items.
@@ -337,30 +364,34 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 ### BATTLE
 # POST: /characters/{character_name}/battles/
 # GET: /battles/{pk}/
-# POST: /battles/{pk}/perform_ability/
-# POST: /battles/{pk}/use_item/
+# POST: /battles/{pk}/abilities/
+# POST: /battles/{pk}/items/
+import random
 class CharacterBattleViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	queryset = models.Battle.objects.all()
-	serializer_class = serializers.BattleCreateSerializer
+	serializer_class = serializers.BattleSerializer
 
 	def pre_save(self, obj):
 		character = get_object_or_404(models.Character.objects.all(), name=self.kwargs.get('character_name'))
 		obj.character = character
-		obj.mob_hp = obj.mob.hp
+		mobs = list(obj.room.mobs.all())
+		mobs_no = len(mobs)
+		mob = mobs[random.randint(0, mobs_no - 1)]
+		obj.mob_snapshot = models.MobSnapshot.objects.create(mob=mob,
+								curr_hp=mob.hp, curr_mp=mob.mp,
+								max_hp=mob.hp, max_mp=mob.hp)
 
 	def post_save(self, obj, created=False):
 		if created:
 			from socialbattle.api.tasks import fight
 			fight.delay(obj.pk) #starts mob's AI
 
-from socialbattle.api.helpers import AttackSerializer, UsageSerializer
-from socialbattle.api.mechanics import calculate_damage, get_charge_time, get_exp, get_stat
 import time
 class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 	queryset = models.Battle.objects.all()
-	serializer_class = serializers.BattleRetrieveSerializer
+	serializer_class = serializers.BattleSerializer
 
-	@action(methods=['POST', ], serializer_class=AttackSerializer)
+	@action(methods=['POST', ], serializer_class=AbilityUsageSerializer)
 	def abilities(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.DATA)
 
@@ -369,7 +400,8 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 
 		battle = self.get_object()
 		character = battle.character
-		mob = battle.mob
+		mob_snapshot = battle.mob_snapshot
+		mob = mob_snapshot.mob
 		ability = serializer.object.ability
 
 		if ability not in character.abilities.all():
@@ -380,15 +412,16 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 
 		#perform the attack
 		ct = get_charge_time(character, ability)
-		print 'Battle %d: character %s chose %s ---> ct %fs' % (battle.pk, character.name, ability.name, ct)
 		time.sleep(ct) #charging the ability
 		
-		dmg = calculate_damage(character, mob, ability)
-		battle.remove_mp(ability)
-		battle.assign_damage_to_mob(dmg)
-		character.save()
+		dmg = calculate_damage(character, mob_snapshot, ability)
+		character.update_mp(ability)
+		if ability.element == models.Ability.ELEMENTS[5][0]: #white magic
+			character.update_hp(dmg)
+		else:
+			mob_snapshot.update_hp(dmg)
 
-		if battle.mob_hp <= 0: #battle ended, you win
+		if mob_snapshot.curr_hp <= 0: #battle ended, you win
 			drops = list(mob.drops.all())
 			earned_items = []
 			for item in drops:
@@ -449,11 +482,11 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 			data = {
 				'ability': serializer.data,
 				'dmg': dmg,
-				'mob_hp_left': battle.mob_hp,
+				'mob_hp_left': mob_snapshot.curr_hp,
 			}
 		return Response(data, status=status.HTTP_200_OK)			
 
-	@action(methods=['POST', ], serializer_class=UsageSerializer)
+	@action(methods=['POST', ], serializer_class=ItemUsageSerializer)
 	def items(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.DATA)
 
@@ -471,7 +504,7 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 			return Response({'msg': 'You can use only restorative items'}, status=status.HTTP_400_BAD_REQUEST)
 
 		effect = item.get_restorative_effect(character)
-		battle.assign_damage_to_character(-effect)
+		character.update_hp(-effect)
 		record = models.InventoryRecord.objects.get(owner=character, item=item)
 		record.quantity -= 1
 		if record.quantity == 0:
