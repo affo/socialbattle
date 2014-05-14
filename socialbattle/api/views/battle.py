@@ -246,24 +246,12 @@ class AbilityViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 
 ### INVENTORY
 # GET, DELETE, PUT: /inventory/{pk}/
-# GET, POST: /characters/{character_name}/inventory/
-class CharacterInventoryViewSet(viewsets.GenericViewSet,
-								mixins.ListModelMixin,
-								mixins.CreateModelMixin):
+# GET: /characters/{character_name}/inventory/
+class CharacterInventoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,):
 	'''
 		The inventory of the selected character.  
 	'''
-	serializer_class = ItemUsageSerializer
-	
-	def get_serializer(self, instance=None, data=None, files=None, many=False, partial=False):
-		if self.action == 'list':
-			serializer_class = serializers.InventoryRecordSerializer
-		elif self.action == 'create':
-			serializer_class = ItemUsageSerializer
-
-		context = self.get_serializer_context()
-		return serializer_class(instance, data=data, files=files,
-									many=many, partial=partial, context=context)
+	serializer_class = serializers.InventoryRecordSerializer
 
 	def get_queryset(self):
 		queryset = models.InventoryRecord.objects.all()
@@ -272,45 +260,14 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet,
 			queryset = queryset.filter(owner__name=name)
 		return queryset
 
-	def create(self, request, *args, **kwargs):
-		name = self.kwargs.get('character_name')
-		character = get_object_or_404(models.Character.objects.all(), name=name)
-		serializer = self.get_serializer(data=request.DATA)
-
-		if not serializer.is_valid():
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-		item = serializer.object.item
-
-		if item not in character.items.all():
-			return Response({'msg': 'You do not have the specified item'}, status=status.HTTP_400_BAD_REQUEST)
-
-		if item.item_type != models.Item.ITEM_TYPE[0][0]:
-			return Response({'msg': 'You can use only restorative items'}, status=status.HTTP_400_BAD_REQUEST)
-
-		effect = item.get_restorative_effect(character)
-		character.update_hp(-effect)
-		record = models.InventoryRecord.objects.get(owner=character, item=item)
-		record.quantity -= 1
-		if record.quantity == 0:
-			record.delete()
-		else:
-			record.save()
-		data = {
-				'item': serializer.data,
-				'effect': effect,
-				'curr_hp': character.curr_hp,
-				'inventory_record': serializers.InventoryRecordSerializer(record,
-									context=self.get_serializer_context()).data
-			}
-		return Response(data, status=status.HTTP_200_OK)
-
 class InventoryRecordViewSet(viewsets.GenericViewSet,
 							mixins.RetrieveModelMixin,
-							mixins.UpdateModelMixin):
+							mixins.UpdateModelMixin,
+							mixins.DestroyModelMixin):
 	'''
 		Detailed view of an inventory record:
-		It is possible to equip (`PUT`) items.
+		It is possible to equip (`PUT`) items.  
+		It is possible to use (`DELETE`) restorative items.
 	'''
 	queryset = models.InventoryRecord.objects.all()
 	serializer_class = serializers.InventoryRecordSerializer
@@ -335,6 +292,28 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 		print 'weapon: %s, armor %s' % (n_weapon, n_armor)
 		if n_weapon == 1 and obj.item.item_type == WEAPON and obj.equipped == True:
 			raise ValidationError({"msg": ["Cannot equip two weapons at the same time"]})
+
+	def destroy(self, request, *args, **kwargs):
+		record = self.get_object()
+		character = record.owner
+		item = record.item
+
+		if item.item_type != models.Item.ITEM_TYPE[0][0]:
+			return Response({'msg': 'You can use only restorative items'}, status=status.HTTP_400_BAD_REQUEST)
+
+		effect = item.get_restorative_effect(character)
+		character.update_hp(-effect)
+		record.quantity -= 1
+		if record.quantity == 0:
+			record.delete()
+		else:
+			record.save()
+		data = {
+				'effect': effect,
+				'curr_hp': character.curr_hp,
+				'inventory_record': self.get_serializer(record).data
+			}
+		return Response(data, status=status.HTTP_200_OK)
 
 ### TRANSACTION
 # POST: /characters/{character_name}/transactions/
