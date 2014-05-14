@@ -514,6 +514,26 @@
 			"guils": 1000
 		}
 	},
+	{
+		"model": "api.mob",
+		"pk": 8,
+		"fields": {
+			"name": "o yeah",
+			"slug": "o-yeah",
+			"drops": [1, 2, 3, 4, 5, 6],
+			"abilities": [1],
+			"level": 2,
+			"hp": 100,
+			"stre": 0,
+			"defense": 0,
+			"mdefense": 0,
+			"vit": 0,
+			"spd": 10,
+			"atk": 0,
+			"exp": 10000,
+			"guils": 1000
+		}
+	},
 
 
 
@@ -561,6 +581,15 @@
 			"name": "dalmasca estersand",
 			"slug": "dalmasca-estersand",
 			"mobs": [6]
+		}
+	},
+	{
+		"model": "api.pveroom",
+		"pk": 4,
+		"fields": {
+			"name": "the dream room",
+			"slug": "dream-room",
+			"mobs": [8]
 		}
 	},
 

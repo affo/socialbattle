@@ -155,6 +155,8 @@ class CharacterAbilityViewSet(viewsets.GenericViewSet,
 	'''
 		List of the learned abilities for the chosen character
 	'''
+	serializer_class = AbilityUsageSerializer
+
 	def list(self, request, *args, **kwargs):
 		name = self.kwargs.get('character_name')
 		character = get_object_or_404(models.Character.objects.all(), name=name)
@@ -181,10 +183,17 @@ class CharacterAbilityViewSet(viewsets.GenericViewSet,
 		if ability.mp_required > character.curr_mp:
 			return Response({'msg': 'The ability requires too much MPs'}, status=status.HTTP_400_BAD_REQUEST)
 		dmg = calculate_damage(character, None, ability)
-		character.remove_mp(ability)
-		#battle.assign_damage_to_mob(dmg)
+		character.update_mp(ability)
+		character.update_hp(dmg)
 		character.save()
 
+		data = {
+			'effect': dmg,
+			'curr_hp': character.curr_hp,
+			'mp_left': character.curr_mp,
+			'mp_spent': ability.mp_required,
+		}
+		return Response(data, status=status.HTTP_200_OK)
 
 class CharacterNextAbilityViewSet(viewsets.GenericViewSet,
 									mixins.ListModelMixin,
@@ -238,11 +247,23 @@ class AbilityViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 ### INVENTORY
 # GET, DELETE, PUT: /inventory/{pk}/
 # GET, POST: /characters/{character_name}/inventory/
-class CharacterInventoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class CharacterInventoryViewSet(viewsets.GenericViewSet,
+								mixins.ListModelMixin,
+								mixins.CreateModelMixin):
 	'''
 		The inventory of the selected character.  
 	'''
-	serializer_class = serializers.InventoryRecordSerializer
+	serializer_class = ItemUsageSerializer
+	
+	def get_serializer(self, instance=None, data=None, files=None, many=False, partial=False):
+		if self.action == 'list':
+			serializer_class = serializers.InventoryRecordSerializer
+		elif self.action == 'create':
+			serializer_class = ItemUsageSerializer
+
+		context = self.get_serializer_context()
+		return serializer_class(instance, data=data, files=files,
+									many=many, partial=partial, context=context)
 
 	def get_queryset(self):
 		queryset = models.InventoryRecord.objects.all()
@@ -251,12 +272,44 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 			queryset = queryset.filter(owner__name=name)
 		return queryset
 
+	def create(self, request, *args, **kwargs):
+		name = self.kwargs.get('character_name')
+		character = get_object_or_404(models.Character.objects.all(), name=name)
+		serializer = self.get_serializer(data=request.DATA)
+
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		item = serializer.object.item
+
+		if item not in character.items.all():
+			return Response({'msg': 'You do not have the specified item'}, status=status.HTTP_400_BAD_REQUEST)
+
+		if item.item_type != models.Item.ITEM_TYPE[0][0]:
+			return Response({'msg': 'You can use only restorative items'}, status=status.HTTP_400_BAD_REQUEST)
+
+		effect = item.get_restorative_effect(character)
+		character.update_hp(-effect)
+		record = models.InventoryRecord.objects.get(owner=character, item=item)
+		record.quantity -= 1
+		if record.quantity == 0:
+			record.delete()
+		else:
+			record.save()
+		data = {
+				'item': serializer.data,
+				'effect': effect,
+				'curr_hp': character.curr_hp,
+				'inventory_record': serializers.InventoryRecordSerializer(record,
+									context=self.get_serializer_context()).data
+			}
+		return Response(data, status=status.HTTP_200_OK)
+
 class InventoryRecordViewSet(viewsets.GenericViewSet,
 							mixins.RetrieveModelMixin,
 							mixins.UpdateModelMixin):
 	'''
 		Detailed view of an inventory record:
-		It is possible to sell (`DELETE`) items.  
 		It is possible to equip (`PUT`) items.
 	'''
 	queryset = models.InventoryRecord.objects.all()
