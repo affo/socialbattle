@@ -1,6 +1,6 @@
 from django.db import models
 from rest_framework import serializers
-from socialbattle.api.models import Character, Item, Ability
+from socialbattle.api.models import Character, Item, Ability, Target
 
 class Transaction(models.Model):
 	OPERATION_TYPE = (('B', 'Buy'), ('S', 'Sell'), )
@@ -12,9 +12,11 @@ class Transaction(models.Model):
 
 class Attack(models.Model):
 	ability = models.ForeignKey(Ability)
+	target = models.ForeignKey(Target)
 
 class Usage(models.Model):
 	item = models.ForeignKey(Item)
+	target = models.ForeignKey(Target)
 
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 	character = serializers.HyperlinkedRelatedField(
@@ -33,9 +35,14 @@ class AbilityUsageSerializer(serializers.HyperlinkedModelSerializer):
 		lookup_field='slug'
 	)
 
+	target = serializers.HyperlinkedRelatedField(
+		view_name='target-detail',
+		lookup_field='pk'
+	)
+
 	class Meta:
 		model = Attack
-		fields = ('ability', )
+		fields = ('ability', 'target')
 
 class ItemUsageSerializer(serializers.HyperlinkedModelSerializer):
 	item = serializers.HyperlinkedRelatedField(
@@ -43,6 +50,11 @@ class ItemUsageSerializer(serializers.HyperlinkedModelSerializer):
 		lookup_field='slug'
 	)
 
+	target = serializers.HyperlinkedRelatedField(
+		view_name='target-detail',
+		lookup_field='pk'
+	)
+
 	class Meta:
 		model = Usage
-		fields = ('item', )
+		fields = ('item', 'target')

@@ -435,6 +435,7 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 		mob_snapshot = battle.mob_snapshot
 		mob = mob_snapshot.mob
 		ability = serializer.object.ability
+		target = serializer.object.target
 
 		if ability not in character.abilities.all():
 			return Response({'msg': 'You do not have the specified ability'}, status=status.HTTP_400_BAD_REQUEST)
@@ -445,13 +446,15 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 		#perform the attack
 		ct = get_charge_time(character, ability)
 		time.sleep(ct) #charging the ability
+
+		try:
+			target = target.mobsnapshot
+		except ObjectDoesNotExist:
+			target = target.character
 		
-		dmg = calculate_damage(character, mob_snapshot, ability)
+		dmg = calculate_damage(character, target, ability)
 		character.update_mp(ability)
-		if ability.element == models.Ability.ELEMENTS[5][0]: #white magic
-			character.update_hp(dmg)
-		else:
-			mob_snapshot.update_hp(dmg)
+		target.update_hp(dmg)
 
 		if mob_snapshot.curr_hp <= 0: #battle ended, you win
 			drops = list(mob.drops.all())
@@ -551,3 +554,7 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 									context=self.get_serializer_context()).data
 			}
 		return Response(data, status=status.HTTP_200_OK)
+
+class TargetViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
+	queryset = models.Target.objects.all()
+	serializer_class = serializers.TargetSerializer

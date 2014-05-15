@@ -143,7 +143,26 @@
 	},
 
 
-
+	{
+		"model": "api.target",
+		"pk": 1,
+		"fields": {}
+	},
+	{
+		"model": "api.target",
+		"pk": 2,
+		"fields": {}
+	},
+	{
+		"model": "api.target",
+		"pk": 3,
+		"fields": {}
+	},
+	{
+		"model": "api.target",
+		"pk": 4,
+		"fields": {}
+	},
 	{
 		"model": "api.character",
 		"pk": 1,

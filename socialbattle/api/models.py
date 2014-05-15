@@ -102,9 +102,6 @@ class Target(models.Model):
 	def get_mag(self):
 		return self.mag
 
-	class Meta:
-		abstract = True
-
 from socialbattle.api.mechanics import BASE_STATS
 class Character(Target):
 	'''
@@ -128,7 +125,6 @@ class Character(Target):
 	owner = models.ForeignKey(User)
 	abilities = models.ManyToManyField(Ability, through='LearntAbility')
 	items = models.ManyToManyField('Item', through='InventoryRecord')
-	#equip
 
 	def get_next_abilities(self):
 		abilities = list(Ability.objects.all())

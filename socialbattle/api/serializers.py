@@ -235,3 +235,8 @@ class BattleSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Battle
 		fields = ('url', 'character', 'mob_snapshot', 'room')
+
+class TargetSerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = models.Target
+		fields = ('url', )
