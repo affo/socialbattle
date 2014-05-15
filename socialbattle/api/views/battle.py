@@ -8,7 +8,7 @@ from rest_framework import status
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsOwner, IsOwnedByCharacter
-from socialbattle.api.helpers import TransactionSerializer, AbilityUsageSerializer, ItemUsageSerializer
+from socialbattle.api.helpers import TransactionSerializer, AbilityUsageSerializer, ItemUsageSerializer, Transaction
 from socialbattle.api.mechanics import calculate_damage, get_charge_time, get_exp, get_stat
 
 ### ROOM
@@ -218,7 +218,7 @@ class CharacterNextAbilityViewSet(viewsets.GenericViewSet,
 		if character.owner != request.user:
 			self.permission_denied(request)
 
-		serializer = serializers.LearntAbilitySerializer(data=request.DATA, files=request.FILES)
+		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
 		if not serializer.is_valid():
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -385,7 +385,7 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 			character.guils += (transaction.item.cost / 2) * transaction.quantity
 
 		character.save()
-		record = serializers.InventoryRecordUpdateSerializer(record, context=self.get_serializer_context()).data
+		record = serializers.InventoryRecordSerializer(record, context=self.get_serializer_context()).data
 		data = {
 			'inventory_record': record,
 			'guils left': character.guils,

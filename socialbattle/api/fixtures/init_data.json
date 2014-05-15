@@ -389,7 +389,8 @@
 			"name": "mythril sword",
 			"slug": "mythril-sword",
 			"item_type": "W",
-			"ct": 21
+			"ct": 21,
+			"power": 25
 		}
 	},
 	{
@@ -399,7 +400,8 @@
 			"name": "sunflower",
 			"slug": "sunflower",
 			"item_type": "W",
-			"ct": 26
+			"ct": 26,
+			"power": 50
 		}
 	},
 	{

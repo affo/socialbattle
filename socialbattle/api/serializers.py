@@ -76,7 +76,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Item
-		fields = ('url', 'name', 'cost', 'item_type')
+		fields = ('url', 'name', 'cost', 'item_type', 'power')
 		lookup_field = 'slug'
 
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):

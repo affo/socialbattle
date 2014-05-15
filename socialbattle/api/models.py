@@ -280,8 +280,11 @@ class Item(models.Model):
 			super(Item, self).save(*args, **kwargs)
 
 	def get_restorative_effect(self, character):
-		hp = character.max_hp
-		hp_gain = hp * self.power / 100
+		if self.ITEM_TYPE == ITEM_TYPE[0][0]:
+			hp = character.max_hp
+			hp_gain = hp * self.power / 100
+		else:
+			hp_gain = 0
 		return int(round(hp_gain))
 
 class Post(models.Model):
