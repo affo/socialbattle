@@ -1,6 +1,7 @@
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 from socialbattle.private import models
 from socialbattle.private import serializers
 from socialbattle.private.permissions import IsOwner
@@ -35,10 +36,12 @@ class UserCharacterViewSet(viewsets.GenericViewSet,
 			potion = models.Item.objects.get(name='potion')
 			record = models.InventoryRecord.objects.create(owner=obj, item=potion, quantity=3)
 
+from socialbattle.private.views.action import ActionMixin
 class CharacterViewSet(viewsets.GenericViewSet,
 						mixins.RetrieveModelMixin,
 						mixins.DestroyModelMixin,
-						mixins.ListModelMixin):
+						mixins.ListModelMixin,
+						ActionMixin):
 	queryset = models.Character.objects.all()
 	serializer_class = serializers.CharacterSerializer
 	permission_classes = [permissions.IsAuthenticated, IsOwner]
@@ -54,3 +57,17 @@ class CharacterViewSet(viewsets.GenericViewSet,
 		characters = models.Character.objects.filter(name__icontains=query)
 		return Response(serializers.CharacterSerializer(characters, context=self.get_serializer_context(), many=True).data,
 						status=status.HTTP_200_OK)
+
+	@action(methods=['GET', ], serializer_class=serializers.ItemSerializer)
+	def weapon(self, request, *args, **kwargs):
+		character = self.get_object()
+		weapon = character.get_weapon()
+		serializer = self.get_serializer(weapon)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+	@action(methods=['GET', ], serializer_class=serializers.ItemSerializer)
+	def armor(self, request, *args, **kwargs):
+		character = self.get_object()
+		armor = character.get_armor()
+		serializer = self.get_serializer(armor)
+		return Response(serializer.data, status=status.HTTP_200_OK)

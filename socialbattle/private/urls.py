@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from rest_framework.urlpatterns import format_suffix_patterns
-from socialbattle.private.views import user, ability, character, item, mob, post, room
+from socialbattle.private.views import user, ability, character, item, mob, post, room, transaction, action
 from rest_framework.routers import SimpleRouter
 router = SimpleRouter()
 
@@ -39,8 +39,16 @@ router.register(
 	r'characters/(?P<character_name>[a-zA-Z0-9-_]+)/inventory',
 	item.CharacterInventoryViewSet, base_name='characterinventory'
 )
+router.register(
+	r'characters/(?P<character_name>[a-zA-Z0-9-_]+)/transactions',
+	transaction.TransactionViewSet, base_name='transaction'
+)
+
+router.register(r'inventory', item.InventoryRecordViewSet)
+router.register(r'abilities', ability.AbilityViewSet)
 
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
 	url(r'^auth/', 'rest_framework.authtoken.views.obtain_auth_token'),
+	url(r'^damage/', action.damage)
 )

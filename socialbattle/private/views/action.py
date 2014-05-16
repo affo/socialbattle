@@ -1,42 +1,26 @@
 from rest_framework.generics import get_object_or_404
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status
 from socialbattle.private import models
 from socialbattle.private import serializers
+from django.db import models as dj_models
+from rest_framework import serializers as drf_serializers
 
-class Transaction(models.Model):
-	OPERATION_TYPE = (('B', 'Buy'), ('S', 'Sell'), )
-	character = models.ForeignKey(models.Character)
+class AbilityUsage(dj_models.Model):
+	ability = dj_models.ForeignKey(models.Ability)
 
-	item = models.ForeignKey(models.Item)
-	quantity = models.IntegerField(default=0)
-	operation = models.CharField(max_length=1, choices=OPERATION_TYPE)
+class ItemUsage(dj_models.Model):
+	item = dj_models.ForeignKey(models.Item)
 
-class TransactionSerializer(serializers.HyperlinkedModelSerializer):
-	character = serializers.HyperlinkedRelatedField(
-		view_name='character-detail',
-		lookup_field='name',
-		read_only=True,
-	)
-
-	class Meta:
-		model = Transaction
-		fields = ('character', 'item', 'quantity', 'operation', )
-
-class AbilityUsage(models.Model):
-	ability = models.ForeignKey(models.Ability)
-
-class ItemUsage(models.Model):
-	item = models.ForeignKey(models.Item)
-
-class AbilityUsageSerializer(serializers.HyperlinkedModelSerializer):
-	ability = serializers.HyperlinkedRelatedField(
+class AbilityUsageSerializer(drf_serializers.HyperlinkedModelSerializer):
+	ability = drf_serializers.HyperlinkedRelatedField(
 		view_name='ability-detail',
 		lookup_field='slug'
 	)
 
-	target = serializers.HyperlinkedRelatedField(
+	target = drf_serializers.HyperlinkedRelatedField(
 		view_name='target-detail',
 		lookup_field='pk'
 	)
@@ -45,132 +29,31 @@ class AbilityUsageSerializer(serializers.HyperlinkedModelSerializer):
 		model = AbilityUsage
 		fields = ('ability', 'target')
 
-class ItemUsageSerializer(serializers.HyperlinkedModelSerializer):
-	item = serializers.HyperlinkedRelatedField(
+class ItemUsageSerializer(drf_serializers.HyperlinkedModelSerializer):
+	item = drf_serializers.HyperlinkedRelatedField(
 		view_name='item-detail',
 		lookup_field='slug'
 	)
 
-	target = serializers.HyperlinkedRelatedField(
+	target = drf_serializers.HyperlinkedRelatedField(
 		view_name='target-detail',
 		lookup_field='pk'
 	)
 
 	class Meta:
-		model = models.ItemUsage
+		model = ItemUsage
 		fields = ('item', 'target')
 
-### TRANSACTION
-# POST: /characters/{character_name}/transactions/
-class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
-	'''
-		From this view it is possible for a character to buy and sell items.
-	'''
-	serializer_class = TransactionSerializer
-
-	def create(self, request, *args, **kwargs):
-		name = self.kwargs.get('character_name')
-		character = get_object_or_404(models.Character.objects.all(), name=name)
-		if character.owner != request.user:
-			self.permission_denied(request)
-
-		BUY_OP = Transaction.OPERATION_TYPE[0][0]
-		SELL_OP = Transaction.OPERATION_TYPE[1][0]
-
-		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
-		if not serializer.is_valid():
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-		transaction = serializer.object	
-
-		if transaction.operation == BUY_OP:	
-			if transaction.item.cost * transaction.quantity > character.guils and transaction.operation:
-				return Response(
-							data={'msg': 'Not enough money to buy this item'},
-						)
-
-			try:
-				record = models.InventoryRecord.objects.get(owner=character, item=transaction.item)
-				record.quantity += transaction.quantity
-				record.save()
-			except ObjectDoesNotExist:
-				record = models.InventoryRecord.objects.create(
-							owner=character,
-							item=transaction.item, 
-							quantity=transaction.quantity
-						)
-
-			character.guils -= (transaction.item.cost * transaction.quantity)
-
-		elif transaction.operation == SELL_OP:
-			try:
-				record = models.InventoryRecord.objects.get(owner=character, item=transaction.item)
-				if transaction.quantity > record.quantity:
-					return Response(
-							data={'msg': 'You do not have as much items of that type'},
-							status=status.HTTP_400_BAD_REQUEST
-						)
-
-				record.quantity -= transaction.quantity
-				if record.quantity == 0:
-					if record.equipped == True:
-						if item == character.current_weapon:
-							character.current_weapon = None
-						else:
-							character.current_armor = None
-					record.delete()
-				else:
-					record.save()
-			except ObjectDoesNotExist:
-				return Response(
-						data={'msg': 'The specified character does not own the specified item'},
-						status=status.HTTP_400_BAD_REQUEST
-					)
-
-			character.guils += (transaction.item.cost / 2) * transaction.quantity
-
-		character.save()
-		record = serializers.InventoryRecordSerializer(record, context=self.get_serializer_context()).data
-		data = {
-			'inventory_record': record,
-			'guils left': character.guils,
-		}
-
-		return Response(data=data, status=status.HTTP_201_CREATED, headers=self.get_success_headers(data))
-
-
-### BATTLE
+### ACTION
 # POST: /characters/{character_name}/battles/
 # GET: /battles/{pk}/
 # POST: /battles/{pk}/abilities/
 # POST: /battles/{pk}/items/
-import random
-class CharacterBattleViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
-	#queryset = models.Battle.objects.all()
-	#serializer_class = serializers.BattleSerializer
-
-	def pre_save(self, obj):
-		character = get_object_or_404(models.Character.objects.all(), name=self.kwargs.get('character_name'))
-		obj.character = character
-		mobs = list(obj.room.mobs.all())
-		mobs_no = len(mobs)
-		mob = mobs[random.randint(0, mobs_no - 1)]
-		obj.mob_snapshot = models.MobSnapshot.objects.create(mob=mob,
-								curr_hp=mob.hp, curr_mp=mob.mp,
-								max_hp=mob.hp, max_mp=mob.hp)
-
-	def post_save(self, obj, created=False):
-		if created:
-			from socialbattle.api.tasks import fight
-			fight.delay(obj.pk) #starts mob's AI
-
 import time
-class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
-#	queryset = models.Battle.objects.all()
-#	serializer_class = serializers.BattleSerializer
+class ActionMixin(object):
 
 	@action(methods=['POST', ], serializer_class=AbilityUsageSerializer)
-	def abilities(self, request, *args, **kwargs):
+	def use_ability(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.DATA)
 
 		if not serializer.is_valid():
@@ -268,7 +151,7 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 		return Response(data, status=status.HTTP_200_OK)			
 
 	@action(methods=['POST', ], serializer_class=ItemUsageSerializer)
-	def items(self, request, *args, **kwargs):
+	def use_item(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.DATA)
 
 		if not serializer.is_valid():
@@ -300,3 +183,90 @@ class BattleViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 									context=self.get_serializer_context()).data
 			}
 		return Response(data, status=status.HTTP_200_OK)
+
+
+class Target(dj_models.Model):
+	atk = dj_models.IntegerField(default=0)
+	stre = dj_models.IntegerField(default=0)
+	mag = dj_models.IntegerField(default=0)
+	defense = dj_models.IntegerField(default=0)
+	mdefense = dj_models.IntegerField(default=0)
+	level = dj_models.IntegerField(default=0)
+
+class Ability(dj_models.Model):
+	power = dj_models.IntegerField(default=0)
+	element = dj_models.CharField(
+			max_length=1,
+			choices=models.Ability.ELEMENTS,
+			default=models.Ability.ELEMENTS[0][0],
+	)
+
+class Attack(dj_models.Model):
+	attacker = dj_models.ForeignKey(Target)
+	attacked = dj_models.ForeignKey(Target)
+	ability = dj_models.ForeignKey(Ability)
+
+class TargetSerializer(drf_serializers.ModelSerializer):
+	class Meta:
+		model = Target
+		fields = ('atk', 'stre', 'mag', 'defense', 'mdefense', 'level')
+	
+
+class AbilitySerializer(drf_serializers.ModelSerializer):
+	element = drf_serializers.CharField(required=False)
+	class Meta:
+		model = Ability
+		fields = ('power', 'element')
+
+class AttackSerializer(drf_serializers.ModelSerializer):
+	attacker = TargetSerializer()
+	attacked = TargetSerializer()
+	ability = AbilitySerializer()
+
+	class Meta:
+		model = Attack
+		fields = ('attacker', 'attacked', 'ability')
+
+from socialbattle.private import mechanics
+from rest_framework.decorators import api_view
+@api_view(['POST'])
+def damage(request, *args, **kwargs):
+	'''
+	Calculates the damage giving an attacker, the target and the ability used.  
+	Sample input:
+
+		{
+			"attacker": {
+				"level": 2,
+				"stre": 8,
+				"mag": 5,
+				"defense": 4,
+				"mdefense": 7,
+				"atk": 8
+			},
+
+			"attacked": {
+				"level": 2,
+				"stre": 8,
+				"mag": 5,
+				"defense": 4,
+				"mdefense": 7,
+				"atk": 8
+			},
+
+			"ability": {
+				"power": 5,
+				"element": "N"
+			}
+		}
+	'''
+	serializer = AttackSerializer(data=request.DATA)
+	if serializer.is_valid():
+		attacker = serializer.object.attacker
+		attacked = serializer.object.attacked
+		ability = serializer.object.ability
+		dmg = mechanics.calculate_damage(attacker, attacked, ability)
+		return Response({'dmg': dmg}, status=status.HTTP_200_OK)
+	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+

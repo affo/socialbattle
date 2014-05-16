@@ -249,14 +249,18 @@ def get_exp(level):
 # 	HEAL = POW x RANDOM(1~1.125) x [2 + MAG x (Lv+MAG)/256)]
 def calculate_damage(attacker, attacked, ability):
 	if ability.element == PHYSICAL:
-		dmg = (attacker.get_atk() * random.uniform(1, 1.125) - attacked.get_defense()) \
-				* (1 + attacker.get_str() * (attacker.get_level() + attacker.get_str()) / 256)
+		dmg = (attacker.atk * random.uniform(1, 1.125) - attacked.defense) \
+				* (1 + attacker.stre * (attacker.level + attacker.stre) / 256)
+		if dmg < 0:
+			dmg = 0
 	elif ability.element == WHITE:
 		dmg = - (ability.power * random.uniform(1, 1.125)) \
-			* (2 + attacker.get_mag() * (attacker.get_level() + attacker.get_mag()) / 256)
+			* (2 + attacker.mag * (attacker.level + attacker.mag) / 256)
 	else:
-		dmg = (ability.power * random.uniform(1, 1.125) - attacked.get_defense()) \
-			* (2 + attacker.get_mag() * (attacker.get_level() + attacker.get_mag()) / 256)
+		dmg = (ability.power * random.uniform(1, 1.125) - attacked.mdefense) \
+			* (2 + attacker.mag * (attacker.level + attacker.mag) / 256)
+		if dmg < 0:
+			dmg = 0
 
 	return int(round(dmg))
 

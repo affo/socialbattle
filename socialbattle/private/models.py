@@ -103,25 +103,48 @@ class Character(models.Model):
 
 		return list(set(filter(filter_function, abilities)) - set(learnt_abilities))
 
-	def get_defense(self):
-		try:
-			armor = self.items.filter(inventoryrecord__equipped=True,
-										inventoryrecord__item__item_type=Item.ITEM_TYPE[2][0]).get()
-			armor_def = armor.power
-		except ObjectDoesNotExist:
-			armor_def = 0
-
-		return armor_def
-
-	def get_atk(self):
+	def get_weapon(self):
 		try:
 			weapon = self.items.filter(inventoryrecord__equipped=True,
 										inventoryrecord__item__item_type=Item.ITEM_TYPE[1][0]).get()
-			atk = weapon.power
 		except ObjectDoesNotExist:
-			atk = 11 #as ffxii does
+			return None
 
-		return atk
+		return weapon
+
+
+	def get_armor(self):
+		try:
+			armor = self.items.filter(inventoryrecord__equipped=True,
+										inventoryrecord__item__item_type=Item.ITEM_TYPE[2][0]).get()
+		except ObjectDoesNotExist:
+			return None
+
+		return armor
+
+	@property
+	def defense(self):
+		armor = self.get_armor()
+		if armor:
+			return armor.power
+		else:
+			return 0
+
+	@property
+	def mdefense(self):
+		'''
+			Should be implemented with a real magical defense.
+			In the future, with more work on equipments...
+		'''
+		return 0
+
+	@property
+	def atk(self):
+		weapon = self.get_weapon()
+		if weapon:
+			return weapon.power
+		else:
+			return 11 #as ffxii does
 
 	def clean(self):
 		if self.curr_hp > self.max_hp or self.curr_mp > self.max_mp:
