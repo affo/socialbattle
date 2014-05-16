@@ -3,7 +3,8 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-	url(r'^api/', include('socialbattle.api.urls')),
+	url(r'^public/', include('socialbattle.public.urls')),
+	url(r'^private/', include('socialbattle.private.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 )

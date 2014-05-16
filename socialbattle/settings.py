@@ -36,7 +36,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'socialbattle.api',
+    'socialbattle.public',
+    'socialbattle.private',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -119,7 +120,7 @@ REST_FRAMEWORK = {
     #'PAGINATE_BY': 10
 }
 
-AUTH_USER_MODEL = 'api.User'
+AUTH_USER_MODEL = 'private.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
 

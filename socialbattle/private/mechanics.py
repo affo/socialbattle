@@ -215,7 +215,7 @@ CS_MOD = {
 	98: 0.107,
 	99: 0.107,
 }
-from socialbattle.api.models import Ability
+from socialbattle.private.models import Ability
 PHYSICAL = Ability.ELEMENTS[0][0]
 WHITE = Ability.ELEMENTS[5][0]
 

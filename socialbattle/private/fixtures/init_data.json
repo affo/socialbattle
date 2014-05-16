@@ -1,6 +1,6 @@
 [
 	{
-		"model": "api.user",
+		"model": "private.user",
 		"pk": 1,
 		"fields": {
 			"username": "billi",
@@ -11,7 +11,7 @@
 		}
 	},
 	{
-		"model": "api.user",
+		"model": "private.user",
 		"pk": 2,
 		"fields": {
 			"username": "arci",
@@ -22,7 +22,7 @@
 		}
 	},
 	{
-		"model": "api.user",
+		"model": "private.user",
 		"pk": 3,
 		"fields": {
 			"username": "tomma",
@@ -33,7 +33,7 @@
 		}
 	},
 	{
-		"model": "api.user",
+		"model": "private.user",
 		"pk": 4,
 		"fields": {
 			"username": "cazza",
@@ -46,7 +46,7 @@
 
 
 	{
-		"model": "api.fellowship",
+		"model": "private.fellowship",
 		"pk": 1,
 		"fields": {
 			"from_user": 1,
@@ -54,7 +54,7 @@
 		}
 	},
 	{
-		"model": "api.fellowship",
+		"model": "private.fellowship",
 		"pk": 2,
 		"fields": {
 			"from_user": 1,
@@ -62,7 +62,7 @@
 		}
 	},
 	{
-		"model": "api.fellowship",
+		"model": "private.fellowship",
 		"pk": 3,
 		"fields": {
 			"from_user": 3,
@@ -70,7 +70,7 @@
 		}
 	},
 	{
-		"model": "api.fellowship",
+		"model": "private.fellowship",
 		"pk": 4,
 		"fields": {
 			"from_user": 3,
@@ -78,7 +78,7 @@
 		}
 	},
 	{
-		"model": "api.fellowship",
+		"model": "private.fellowship",
 		"pk": 5,
 		"fields": {
 			"from_user": 3,
@@ -88,16 +88,16 @@
 
 
 	{
-		"model": "api.post",
+		"model": "private.post",
 		"pk": 1,
 		"fields": {
-			"content": "Praesent nec velit consectetur, tincidunt sapien sed, tristique dui.",
+			"content": "Praesent nec velit consectetur, tincidunt sprivateen sed, tristique dui.",
 			"author": 1,
 			"room": 1
 		}
 	},
 	{
-		"model": "api.post",
+		"model": "private.post",
 		"pk": 2,
 		"fields": {
 			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -106,7 +106,7 @@
 		}
 	},
 	{
-		"model": "api.post",
+		"model": "private.post",
 		"pk": 3,
 		"fields": {
 			"content": "Maecenas cursus nisi sit amet est aliquam, at laoreet tortor cursus.",
@@ -115,7 +115,7 @@
 		}
 	},
 	{
-		"model": "api.post",
+		"model": "private.post",
 		"pk": 4,
 		"fields": {
 			"content": "Ut a elit egestas odio hendrerit mollis quis et lacus.",
@@ -124,7 +124,7 @@
 		}
 	},
 	{
-		"model": "api.post",
+		"model": "private.post",
 		"pk": 5,
 		"fields": {
 			"content": "Vestibulum venenatis justo sit amet lectus tincidunt, et sagittis massa venenatis.",
@@ -133,7 +133,7 @@
 		}
 	},
 	{
-		"model": "api.post",
+		"model": "private.post",
 		"pk": 6,
 		"fields": {
 			"content": "Proin eleifend lorem in massa gravida feugiat.",
@@ -142,29 +142,8 @@
 		}
 	},
 
-
 	{
-		"model": "api.target",
-		"pk": 1,
-		"fields": {}
-	},
-	{
-		"model": "api.target",
-		"pk": 2,
-		"fields": {}
-	},
-	{
-		"model": "api.target",
-		"pk": 3,
-		"fields": {}
-	},
-	{
-		"model": "api.target",
-		"pk": 4,
-		"fields": {}
-	},
-	{
-		"model": "api.character",
+		"model": "private.character",
 		"pk": 1,
 		"fields": {
 			"name": "tidus",
@@ -172,7 +151,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 1,
 		"fields": {
 			"character": 1,
@@ -180,7 +159,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 2,
 		"fields": {
 			"character": 1,
@@ -188,7 +167,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 3,
 		"fields": {
 			"character": 1,
@@ -196,7 +175,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 4,
 		"fields": {
 			"character": 1,
@@ -206,7 +185,7 @@
 
 
 	{
-		"model": "api.character",
+		"model": "private.character",
 		"pk": 2,
 		"fields": {
 			"name": "yuna",
@@ -214,7 +193,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 5,
 		"fields": {
 			"character": 2,
@@ -222,7 +201,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 6,
 		"fields": {
 			"character": 2,
@@ -230,7 +209,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 7,
 		"fields": {
 			"character": 2,
@@ -238,7 +217,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 8,
 		"fields": {
 			"character": 2,
@@ -249,7 +228,7 @@
 
 
 	{
-		"model": "api.character",
+		"model": "private.character",
 		"pk": 3,
 		"fields": {
 			"name": "auron",
@@ -257,7 +236,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 9,
 		"fields": {
 			"character": 3,
@@ -265,7 +244,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 10,
 		"fields": {
 			"character": 3,
@@ -273,7 +252,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 11,
 		"fields": {
 			"character": 3,
@@ -281,7 +260,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 12,
 		"fields": {
 			"character": 3,
@@ -292,7 +271,7 @@
 
 
 	{
-		"model": "api.character",
+		"model": "private.character",
 		"pk": 4,
 		"fields": {
 			"name": "rikku",
@@ -300,7 +279,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 13,
 		"fields": {
 			"character": 4,
@@ -308,7 +287,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 14,
 		"fields": {
 			"character": 4,
@@ -316,7 +295,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 15,
 		"fields": {
 			"character": 4,
@@ -324,7 +303,7 @@
 		}
 	},
 	{
-		"model": "api.learntability",
+		"model": "private.learntability",
 		"pk": 16,
 		"fields": {
 			"character": 4,
@@ -336,7 +315,7 @@
 
 
 	{
-		"model": "api.inventoryrecord",
+		"model": "private.inventoryrecord",
 		"pk": 1,
 		"fields": {
 			"owner": 1,
@@ -345,7 +324,7 @@
 		}
 	},
 	{
-		"model": "api.inventoryrecord",
+		"model": "private.inventoryrecord",
 		"pk": 2,
 		"fields": {
 			"owner": 2,
@@ -354,7 +333,7 @@
 		}
 	},
 	{
-		"model": "api.inventoryrecord",
+		"model": "private.inventoryrecord",
 		"pk": 3,
 		"fields": {
 			"owner": 3,
@@ -363,7 +342,7 @@
 		}
 	},
 	{
-		"model": "api.inventoryrecord",
+		"model": "private.inventoryrecord",
 		"pk": 4,
 		"fields": {
 			"owner": 4,
@@ -374,7 +353,7 @@
 
 
 	{
-		"model": "api.item",
+		"model": "private.item",
 		"pk": 1,
 		"fields": {
 			"name": "potion",
@@ -384,7 +363,7 @@
 		}
 	},
 	{
-		"model": "api.item",
+		"model": "private.item",
 		"pk": 2,
 		"fields": {
 			"name": "leather clothing",
@@ -393,7 +372,7 @@
 		}
 	},
 	{
-		"model": "api.item",
+		"model": "private.item",
 		"pk": 3,
 		"fields": {
 			"name": "maximilian",
@@ -402,7 +381,7 @@
 		}
 	},
 	{
-		"model": "api.item",
+		"model": "private.item",
 		"pk": 4,
 		"fields": {
 			"name": "mythril sword",
@@ -413,7 +392,7 @@
 		}
 	},
 	{
-		"model": "api.item",
+		"model": "private.item",
 		"pk": 5,
 		"fields": {
 			"name": "sunflower",
@@ -424,7 +403,7 @@
 		}
 	},
 	{
-		"model": "api.item",
+		"model": "private.item",
 		"pk": 6,
 		"fields": {
 			"name": "hi potion",
@@ -433,7 +412,7 @@
 		}
 	},
 	{
-		"model": "api.item",
+		"model": "private.item",
 		"pk": 7,
 		"fields": {
 			"name": "swarovski armor",
@@ -447,7 +426,7 @@
 
 
 	{
-		"model": "api.mob",
+		"model": "private.mob",
 		"pk": 1,
 		"fields": {
 			"name": "slime",
@@ -457,7 +436,7 @@
 		}
 	},
 	{
-		"model": "api.mob",
+		"model": "private.mob",
 		"pk": 2,
 		"fields": {
 			"name": "grenade",
@@ -467,7 +446,7 @@
 		}
 	},
 	{
-		"model": "api.mob",
+		"model": "private.mob",
 		"pk": 3,
 		"fields": {
 			"name": "malboro",
@@ -477,7 +456,7 @@
 		}
 	},
 	{
-		"model": "api.mob",
+		"model": "private.mob",
 		"pk": 4,
 		"fields": {
 			"name": "hellhound",
@@ -487,7 +466,7 @@
 		}
 	},
 	{
-		"model": "api.mob",
+		"model": "private.mob",
 		"pk": 5,
 		"fields": {
 			"name": "gargoyle",
@@ -497,7 +476,7 @@
 		}
 	},
 	{
-		"model": "api.mob",
+		"model": "private.mob",
 		"pk": 6,
 		"fields": {
 			"name": "wolf",
@@ -516,7 +495,7 @@
 		}
 	},
 	{
-		"model": "api.mob",
+		"model": "private.mob",
 		"pk": 7,
 		"fields": {
 			"name": "lucky wolf",
@@ -536,7 +515,7 @@
 		}
 	},
 	{
-		"model": "api.mob",
+		"model": "private.mob",
 		"pk": 8,
 		"fields": {
 			"name": "o yeah",
@@ -560,7 +539,7 @@
 
 
 	{
-		"model": "api.relaxroom",
+		"model": "private.relaxroom",
 		"pk": 1,
 		"fields": {
 			"name": "moguri shop",
@@ -569,7 +548,7 @@
 		}
 	},
 	{
-		"model": "api.pveroom",
+		"model": "private.pveroom",
 		"pk": 1,
 		"fields": {
 			"name": "zertinan caves",
@@ -578,7 +557,7 @@
 		}
 	},
 	{
-		"model": "api.pveroom",
+		"model": "private.pveroom",
 		"pk": 2,
 		"fields": {
 			"name": "golmore jungle",
@@ -587,7 +566,7 @@
 		}
 	},
 	{
-		"model": "api.relaxroom",
+		"model": "private.relaxroom",
 		"pk": 2,
 		"fields": {
 			"name": "chocobo emporium",
@@ -596,7 +575,7 @@
 		}
 	},
 	{
-		"model": "api.pveroom",
+		"model": "private.pveroom",
 		"pk": 3,
 		"fields": {
 			"name": "dalmasca estersand",
@@ -605,7 +584,7 @@
 		}
 	},
 	{
-		"model": "api.pveroom",
+		"model": "private.pveroom",
 		"pk": 4,
 		"fields": {
 			"name": "the dream room",
@@ -617,7 +596,7 @@
 
 
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 1,
 		"fields": {
 			"name": "attack",
@@ -626,7 +605,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 2,
 		"fields": {
 			"name": "tokkata",
@@ -636,7 +615,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 3,
 		"fields": {
 			"name": "fire",
@@ -645,7 +624,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 4,
 		"fields": {
 			"name": "fira",
@@ -655,7 +634,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 5,
 		"fields": {
 			"name": "firaga",
@@ -665,7 +644,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 6,
 		"fields": {
 			"name": "thunder",
@@ -674,7 +653,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 7,
 		"fields": {
 			"name": "thundara",
@@ -684,7 +663,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 8,
 		"fields": {
 			"name": "thundaga",
@@ -694,7 +673,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 9,
 		"fields": {
 			"name": "blizzard",
@@ -703,7 +682,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 10,
 		"fields": {
 			"name": "blizzara",
@@ -713,7 +692,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 11,
 		"fields": {
 			"name": "blizzaga",
@@ -723,7 +702,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 12,
 		"fields": {
 			"name": "idro",
@@ -732,7 +711,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 13,
 		"fields": {
 			"name": "idrora",
@@ -742,7 +721,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 14,
 		"fields": {
 			"name": "idroga",
@@ -752,7 +731,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 15,
 		"fields": {
 			"name": "flare",
@@ -762,7 +741,7 @@
 	},
 
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 16,
 		"fields": {
 			"name": "cure",
@@ -771,7 +750,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 17,
 		"fields": {
 			"name": "cura",
@@ -781,7 +760,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 18,
 		"fields": {
 			"name": "curaga",
@@ -791,7 +770,7 @@
 		}
 	},
 	{
-		"model": "api.ability",
+		"model": "private.ability",
 		"pk": 19,
 		"fields": {
 			"name": "crioshock",

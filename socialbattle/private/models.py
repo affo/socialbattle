@@ -68,42 +68,8 @@ class Ability(models.Model):
 			self.slug = slugify(self.name, instance=self)
 			super(Ability, self).save(*args, **kwargs)
 
-class Target(models.Model):
-	def update_hp(self, damage):
-		self.curr_hp -= damage
-		if self.curr_hp > self.max_hp:
-			self.curr_hp = self.max_hp
-
-		if self.curr_hp < 0:
-			self.curr_hp = 0
-		self.save()
-
-	def update_mp(self, ability):
-		self.curr_mp -= ability.mp_required
-		if self.curr_mp > self.max_mp:
-			self.curr_mp = self.max_mp
-
-		if self.curr_mp < 0:
-			self.curr_mp = 0
-		self.save()
-
-	def get_atk(self):
-		return self.atk
-
-	def get_defense(self):
-		return self.defense
-
-	def get_level(self):
-		return self.level
-
-	def get_str(self):
-		return self.stre
-
-	def get_mag(self):
-		return self.mag
-
-from socialbattle.api.mechanics import BASE_STATS
-class Character(Target):
+from socialbattle.private.mechanics import BASE_STATS
+class Character(models.Model):
 	'''
 		The character the user will use to fight
 	'''
@@ -192,28 +158,6 @@ class Mob(models.Model):
 			self.slug = slugify(self.name, instance=self)
 			super(Mob, self).save(*args, **kwargs)
 
-class MobSnapshot(Target):
-	mob = models.ForeignKey(Mob)
-	max_hp = models.IntegerField(default=0)
-	max_mp = models.IntegerField(default=0)
-	curr_hp = models.IntegerField(default=0)
-	curr_mp = models.IntegerField(default=0)
-
-	def get_atk(self):
-		return self.mob.atk
-
-	def get_defense(self):
-		return self.mob.defense
-
-	def get_level(self):
-		return self.mob.level
-
-	def get_str(self):
-		return self.mob.stre
-
-	def get_mag(self):
-		return self.mob.mag
-
 class LearntAbility(models.Model):
 	character = models.ForeignKey(Character)
 	ability = models.ForeignKey(Ability)
@@ -292,9 +236,4 @@ class Comment(models.Model):
 	content = models.TextField(max_length=1024)
 	author = models.ForeignKey(User)
 	post = models.ForeignKey(Post)
-
-class Battle(models.Model):
-	room = models.ForeignKey(PVERoom)
-	character = models.ForeignKey(Character)
-	mob_snapshot = models.ForeignKey(MobSnapshot)
 
