@@ -30,30 +30,30 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'socialbattle.public',
-    'socialbattle.private',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'corsheaders',
-    'announce',
-    #'django_facebook',
+	'django.contrib.admin',
+	'django.contrib.auth',
+	'django.contrib.contenttypes',
+	'django.contrib.sessions',
+	'django.contrib.messages',
+	'django.contrib.staticfiles',
+	'socialbattle.public',
+	'socialbattle.private',
+	'rest_framework',
+	'rest_framework.authtoken',
+	'corsheaders',
+	'announce',
+	'django_facebook',
 )
 
 MIDDLEWARE_CLASSES = (
-    'announce.middleware.AnnounceCookieMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+	'announce.middleware.AnnounceCookieMiddleware',
+	'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.common.CommonMiddleware',
+	'django.middleware.csrf.CsrfViewMiddleware',
+	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'django.contrib.messages.middleware.MessageMiddleware',
+	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
 )
 
 ROOT_URLCONF = 'socialbattle.urls'
@@ -66,19 +66,19 @@ WSGI_APPLICATION = 'socialbattle.wsgi.application'
 
 DATABASES = {}
 if os.environ.get('HEROKU'):  # heroku config:set HEROKU=1
-    import dj_database_url
-    DATABASES['default'] = dj_database_url.config()
+	import dj_database_url
+	DATABASES['default'] = dj_database_url.config()
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'socialbattle',
-            'HOST': 'localhost',
-            'PORT': 3306,
-            'USER': 'py',
-            'PASSWORD': 'py'
-        }
-    }
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.mysql',
+			'NAME': 'socialbattle',
+			'HOST': 'localhost',
+			'PORT': 3306,
+			'USER': 'py',
+			'PASSWORD': 'py'
+		}
+	}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -97,25 +97,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-MEDIA_ROOT = '/media/'
+MEDIA_ROOT = '/home/affo/Projects/socialbattle/socialbattle/media/'
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
-    # Use hyperlinked styles by default.
-    # Only used if the `serializer_class` attribute is not set on a view.
-    'DEFAULT_MODEL_SERIALIZER_CLASS':
-        'rest_framework.serializers.HyperlinkedModelSerializer',
+	# Use hyperlinked styles by default.
+	# Only used if the `serializer_class` attribute is not set on a view.
+	'DEFAULT_MODEL_SERIALIZER_CLASS':
+		'rest_framework.serializers.HyperlinkedModelSerializer',
 
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
-    ],
+	# Use Django's standard `django.contrib.auth` permissions,
+	# or allow read-only access for unauthenticated users.
+	'DEFAULT_PERMISSION_CLASSES': [
+		'rest_framework.permissions.IsAuthenticated'
+	],
 
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ), 
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+		'rest_framework.authentication.TokenAuthentication',
+		'rest_framework.authentication.SessionAuthentication',
+	), 
 
     #'PAGINATE_BY': 10
 }
@@ -124,13 +124,22 @@ AUTH_USER_MODEL = 'private.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# from datetime import timedelta
-# CELERYBEAT_SCHEDULE = {
-#     'spawn': {
-#         'task': 'socialbattle.api.tasks.spawn_beat',
-#         'schedule': timedelta(seconds=20),
-#         'args': None
-#     },
-# }
-#FACEBOOK_APP_ID = '1441968896050367'
-#FACEBOOK_APP_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
+FACEBOOK_APP_ID = '1451410555106201'
+FACEBOOK_APP_SECRET = '89bf6904f14a36d9014dfa0eaaab4370'
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+	'django.contrib.auth.context_processors.auth',
+	'django.core.context_processors.debug',
+	'django.core.context_processors.i18n',
+	'django.core.context_processors.media',
+	'django.core.context_processors.static',
+	'django.core.context_processors.tz',
+	'django.core.context_processors.request',
+	'django.contrib.messages.context_processors.messages',
+	'django_facebook.context_processors.facebook',
+)
+
+AUTHENTICATION_BACKENDS = (
+	'django_facebook.auth_backends.FacebookBackend',
+	'django.contrib.auth.backends.ModelBackend',
+)

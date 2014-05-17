@@ -50,5 +50,5 @@ router.register(r'abilities', ability.AbilityViewSet)
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
 	url(r'^auth/', 'rest_framework.authtoken.views.obtain_auth_token'),
-	url(r'^damage/', action.damage)
+	url(r'^rpg/damage/', action.damage)
 )

@@ -8,7 +8,9 @@ from django.dispatch import receiver
 from uuslug import uuslug as slugify
 from rest_framework.authtoken.models import Token
 
-class User(AbstractUser):
+from django_facebook.models import FacebookProfileModel
+
+class User(AbstractUser, FacebookProfileModel):
 	'''
 		This user will include Twitter's (maybe) one and Facebook's one.
 		Up to now we use the standard django user.
@@ -16,17 +18,6 @@ class User(AbstractUser):
 	'''
 	avatar = models.ImageField(upload_to='avatars', blank=True)
 	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False, through='Fellowship')
-
-	# @receiver(post_save)
-	# def create_profile(sender, instance, created, **kwargs):
-	# 	'''
-	# 		Create a matching profile whenever a user object is created.
-	# 	'''
-	# 	if sender == get_user_model():
-	# 		facebook_user = instance
-	# 		profile_model = get_profile_model()
-	# 		if profile_model == User and created:
-	# 			profile, new = User.objects.get_or_create(user=instance)
 
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
