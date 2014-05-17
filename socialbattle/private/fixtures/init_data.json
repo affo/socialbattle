@@ -142,6 +142,7 @@
 		}
 	},
 
+
 	{
 		"model": "private.character",
 		"pk": 1,

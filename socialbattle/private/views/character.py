@@ -36,17 +36,64 @@ class UserCharacterViewSet(viewsets.GenericViewSet,
 			potion = models.Item.objects.get(name='potion')
 			record = models.InventoryRecord.objects.create(owner=obj, item=potion, quantity=3)
 
-from socialbattle.private.views.action import ActionMixin
+from socialbattle.private.views.action import use_ability, use_item, end_battle
+from django.db import models as dj_models
+from rest_framework import serializers as drf_serializers
+class AbilityUsage(dj_models.Model):
+	attacked = dj_models.ForeignKey(models.Mob, null=True)
+	ability = dj_models.ForeignKey(models.Ability)
+
+class AbilityUsageSerializer(drf_serializers.HyperlinkedModelSerializer):
+	ability = drf_serializers.HyperlinkedRelatedField(
+		view_name='ability-detail',
+		lookup_field='slug'
+	)
+
+	attacked = drf_serializers.HyperlinkedRelatedField(
+		view_name='mob-detail',
+		lookup_field='slug',
+		required=False,
+	)
+
+	class Meta:
+		model = AbilityUsage
+		fields = ('attacked', 'ability', )
+
+class ItemUsage(dj_models.Model):
+	item = dj_models.ForeignKey(models.Item)
+
+class ItemUsageSerializer(drf_serializers.HyperlinkedModelSerializer):
+	item = drf_serializers.HyperlinkedRelatedField(
+		view_name='item-detail',
+		lookup_field='slug'
+	)
+
+	class Meta:
+		model = ItemUsage
+		fields = ('item', )
+
+class Battle(dj_models.Model):
+	mob = dj_models.ForeignKey(models.Mob)
+
+class BattleSerializer(drf_serializers.HyperlinkedModelSerializer):
+	mob = drf_serializers.HyperlinkedRelatedField(
+		view_name='mob-detail',
+		lookup_field='slug'
+	)
+
+	class Meta:
+		model = Battle
+		fields = ('mob', )
+
 class CharacterViewSet(viewsets.GenericViewSet,
 						mixins.RetrieveModelMixin,
 						mixins.DestroyModelMixin,
-						mixins.ListModelMixin,
-						ActionMixin):
+						mixins.ListModelMixin):
 	queryset = models.Character.objects.all()
 	serializer_class = serializers.CharacterSerializer
 	permission_classes = [permissions.IsAuthenticated, IsOwner]
 	lookup_field = 'name'
-
+        
 	def list(self, request, *args, **kwargs):
 		try:
 			query = request.QUERY_PARAMS['query']
@@ -71,3 +118,42 @@ class CharacterViewSet(viewsets.GenericViewSet,
 		armor = character.get_armor()
 		serializer = self.get_serializer(armor)
 		return Response(serializer.data, status=status.HTTP_200_OK)
+
+	@action(methods=['POST'], serializer_class=AbilityUsageSerializer)
+	def use_ability(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.DATA)
+
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		attacker = self.get_object()
+		ability = serializer.object.ability
+		attacked = serializer.object.attacked
+		if not attacked:
+			attacked = attacker
+
+		return use_ability(attacker, attacked, ability)
+
+	@action(methods=['POST'], serializer_class=ItemUsageSerializer)
+	def use_item(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.DATA)
+
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		character = self.get_object()
+		item = serializer.object.item
+
+		return use_item(character, item)
+
+	@action(methods=['POST'], serializer_class=BattleSerializer)
+	def end_battle(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.DATA)
+
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		character = self.get_object()
+		mob = serializer.object.mob
+
+		return end_battle(character, mob, self.get_serializer_context())

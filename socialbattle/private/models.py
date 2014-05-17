@@ -68,8 +68,15 @@ class Ability(models.Model):
 			self.slug = slugify(self.name, instance=self)
 			super(Ability, self).save(*args, **kwargs)
 
+class TargetMixin(object):
+	def update_hp(self, damage):
+		pass
+
+	def update_mp(self, ability):
+		pass
+
 from socialbattle.private.mechanics import BASE_STATS
-class Character(models.Model):
+class Character(models.Model, TargetMixin):
 	'''
 		The character the user will use to fight
 	'''
@@ -122,6 +129,24 @@ class Character(models.Model):
 
 		return armor
 
+	def update_hp(self, damage):
+		self.curr_hp -= damage
+		if self.curr_hp > self.max_hp:
+			self.curr_hp = self.max_hp
+
+		if self.curr_hp < 0:
+			self.curr_hp = 0
+		self.save()
+
+	def update_mp(self, ability):
+		self.curr_mp -= ability.mp_required
+		if self.curr_mp > self.max_mp:
+			self.curr_mp = self.max_mp
+
+		if self.curr_mp < 0:
+			self.curr_mp = 0
+		self.save()
+
 	@property
 	def defense(self):
 		armor = self.get_armor()
@@ -150,7 +175,7 @@ class Character(models.Model):
 		if self.curr_hp > self.max_hp or self.curr_mp > self.max_mp:
 			raise ValidationError('It is not possible to overcome maximum hps or mps')
 
-class Mob(models.Model):
+class Mob(models.Model, TargetMixin):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
 	weakness = models.CharField(max_length=1, choices=Ability.ELEMENTS, default=Ability.ELEMENTS[0][0])
@@ -180,6 +205,11 @@ class Mob(models.Model):
 		if not self.id:
 			self.slug = slugify(self.name, instance=self)
 			super(Mob, self).save(*args, **kwargs)
+
+	@property
+	def curr_mp(self):
+	    return self.mp
+	
 
 class LearntAbility(models.Model):
 	character = models.ForeignKey(Character)
@@ -243,7 +273,7 @@ class Item(models.Model):
 			super(Item, self).save(*args, **kwargs)
 
 	def get_restorative_effect(self, character):
-		if self.ITEM_TYPE == ITEM_TYPE[0][0]:
+		if self.item_type == self.ITEM_TYPE[0][0]:
 			hp = character.max_hp
 			hp_gain = hp * self.power / 100
 		else:

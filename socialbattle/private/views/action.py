@@ -5,184 +5,63 @@ from rest_framework.decorators import action
 from rest_framework import status
 from socialbattle.private import models
 from socialbattle.private import serializers
+from socialbattle.private import mechanics
 from django.db import models as dj_models
 from rest_framework import serializers as drf_serializers
+from socialbattle.private.tasks import update_status
 
-class AbilityUsage(dj_models.Model):
-	ability = dj_models.ForeignKey(models.Ability)
+def use_ability(attacker, attacked, ability):
+	if ability not in attacker.abilities.all():
+		return Response({'msg': 'You do not have the specified ability'}, status=status.HTTP_400_BAD_REQUEST)
 
-class ItemUsage(dj_models.Model):
-	item = dj_models.ForeignKey(models.Item)
+	if ability.mp_required > attacker.curr_mp:
+		return Response({'msg': 'The ability requires too much MPs'}, status=status.HTTP_400_BAD_REQUEST)
 
-class AbilityUsageSerializer(drf_serializers.HyperlinkedModelSerializer):
-	ability = drf_serializers.HyperlinkedRelatedField(
-		view_name='ability-detail',
-		lookup_field='slug'
-	)
+	#ct = mechanics.get_charge_time(attacker, ability)	
+	ct = 10	
+	dmg = mechanics.calculate_damage(attacker, attacked, ability)
+	
+	update_status.apply_async((attacker, attacked, dmg, ability), countdown=ct)
 
-	target = drf_serializers.HyperlinkedRelatedField(
-		view_name='target-detail',
-		lookup_field='pk'
-	)
+	data = {
+		'dmg': dmg,
+		'ct': ct,
+	}
+	return Response(data, status=status.HTTP_200_OK)
 
-	class Meta:
-		model = AbilityUsage
-		fields = ('ability', 'target')
+from socialbattle.private.tasks import end_battle as end_battle_task
+def end_battle(character, mob, context):
+	end_battle_task.delay(character, mob)
+	data = {
+		'msg': 'Battle ended, you win',
+		'guils_gain': mob.guils,
+		'ap_gain': mob.ap,
+		'exp_gain': mob.exp,
+		'level': character.level,
+		'dropped': serializers.ItemSerializer(list(mob.drops.all()), context=context, many=True).data
+	}
+	return Response(data, status=status.HTTP_200_OK)
 
-class ItemUsageSerializer(drf_serializers.HyperlinkedModelSerializer):
-	item = drf_serializers.HyperlinkedRelatedField(
-		view_name='item-detail',
-		lookup_field='slug'
-	)
+def use_item(character, item):
+	if item not in character.items.all():
+		return Response({'msg': 'You do not have the specified item'}, status=status.HTTP_400_BAD_REQUEST)
 
-	target = drf_serializers.HyperlinkedRelatedField(
-		view_name='target-detail',
-		lookup_field='pk'
-	)
+	if item.item_type != models.Item.ITEM_TYPE[0][0]:
+		return Response({'msg': 'You can use only restorative items'}, status=status.HTTP_400_BAD_REQUEST)
 
-	class Meta:
-		model = ItemUsage
-		fields = ('item', 'target')
-
-### ACTION
-# POST: /characters/{character_name}/battles/
-# GET: /battles/{pk}/
-# POST: /battles/{pk}/abilities/
-# POST: /battles/{pk}/items/
-import time
-class ActionMixin(object):
-
-	@action(methods=['POST', ], serializer_class=AbilityUsageSerializer)
-	def use_ability(self, request, *args, **kwargs):
-		serializer = self.get_serializer(data=request.DATA)
-
-		if not serializer.is_valid():
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-		battle = self.get_object()
-		character = battle.character
-		mob_snapshot = battle.mob_snapshot
-		mob = mob_snapshot.mob
-		ability = serializer.object.ability
-		target = serializer.object.target
-
-		if ability not in character.abilities.all():
-			return Response({'msg': 'You do not have the specified ability'}, status=status.HTTP_400_BAD_REQUEST)
-
-		if ability.mp_required > character.curr_mp:
-			return Response({'msg': 'The ability requires too much MPs'}, status=status.HTTP_400_BAD_REQUEST)
-
-		#perform the attack
-		ct = get_charge_time(character, ability)
-		time.sleep(ct) #charging the ability
-
-		try:
-			target = target.mobsnapshot
-		except ObjectDoesNotExist:
-			target = target.character
-		
-		dmg = calculate_damage(character, target, ability)
-		character.update_mp(ability)
-		target.update_hp(dmg)
-
-		if mob_snapshot.curr_hp <= 0: #battle ended, you win
-			drops = list(mob.drops.all())
-			earned_items = []
-			for item in drops:
-				earned_items.append(item)
-				try:
-					record = models.InventoryRecord.objects.get(owner=character, item=item)
-					record.quantity += 1
-					record.save()
-				except ObjectDoesNotExist:
-					record = models.InventoryRecord.objects.create(
-								owner=character,
-								item=item, 
-							)
-
-			character.ap += mob.ap
-			character.guils += mob.guils
-			character.exp += mob.exp
-			diff_level = 0
-			while character.exp >= get_exp(character.level + 1):
-				character.level += 1
-				diff_level += 1
-
-			#update character statistics
-			old_hp = character.max_hp
-			old_mp = character.max_mp
-			old_stre = character.stre
-			old_spd = character.spd
-			old_mag = character.mag
-			old_vit = character.vit
-			if diff_level > 0:
-				character.max_hp = get_stat(character.level, 'HP')
-				character.max_mp = get_stat(character.level, 'MP')
-				character.stre = get_stat(character.level, 'STR')
-				character.spd = get_stat(character.level, 'SPD')
-				character.mag = get_stat(character.level, 'MAG')
-				character.vit = get_stat(character.level, 'VIT')
-
-			character.save()
-			data = {
-				'msg': 'Battle ended, you win',
-				'guils': mob.guils,
-				'ap': mob.ap,
-				'exp': mob.exp,
-				'levels_earned': diff_level,
-				'hp_gain': character.max_hp - old_hp,
-				'mp_gain': character.max_mp - old_mp,
-				'str_gain': character.stre - old_stre,
-				'spd_gain': character.spd - old_spd,
-				'mag_gain': character.mag - old_mag,
-				'vit_gain': character.vit - old_vit,
-				'dropped': serializers.ItemSerializer(
-										earned_items,
-										context=self.get_serializer_context(),
-										many=True,
-									).data
-			}
-		else:
-			data = {
-				'ability': serializer.data,
-				'dmg': dmg,
-				'mob_hp_left': mob_snapshot.curr_hp,
-			}
-		return Response(data, status=status.HTTP_200_OK)			
-
-	@action(methods=['POST', ], serializer_class=ItemUsageSerializer)
-	def use_item(self, request, *args, **kwargs):
-		serializer = self.get_serializer(data=request.DATA)
-
-		if not serializer.is_valid():
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-		battle = self.get_object()
-		character = battle.character
-		item = serializer.object.item
-
-		if item not in character.items.all():
-			return Response({'msg': 'You do not have the specified item'}, status=status.HTTP_400_BAD_REQUEST)
-
-		if item.item_type != models.Item.ITEM_TYPE[0][0]:
-			return Response({'msg': 'You can use only restorative items'}, status=status.HTTP_400_BAD_REQUEST)
-
-		effect = item.get_restorative_effect(character)
-		character.update_hp(-effect)
-		record = models.InventoryRecord.objects.get(owner=character, item=item)
-		record.quantity -= 1
-		if record.quantity == 0:
-			record.delete()
-		else:
-			record.save()
-		data = {
-				'item': serializer.data,
-				'effect': effect,
-				'curr_hp': character.curr_hp,
-				'inventory_record': serializers.InventoryRecordSerializer(record,
-									context=self.get_serializer_context()).data
-			}
-		return Response(data, status=status.HTTP_200_OK)
+	effect = item.get_restorative_effect(character)
+	character.update_hp(-effect)
+	record = models.InventoryRecord.objects.get(owner=character, item=item)
+	record.quantity -= 1
+	if record.quantity == 0:
+		record.delete()
+	else:
+		record.save()
+	data = {
+			'effect': effect,
+			'curr_hp': character.curr_hp,
+		}
+	return Response(data, status=status.HTTP_200_OK)
 
 
 class Target(dj_models.Model):
@@ -227,7 +106,6 @@ class AttackSerializer(drf_serializers.ModelSerializer):
 		model = Attack
 		fields = ('attacker', 'attacked', 'ability')
 
-from socialbattle.private import mechanics
 from rest_framework.decorators import api_view
 @api_view(['POST'])
 def damage(request, *args, **kwargs):
@@ -268,5 +146,4 @@ def damage(request, *args, **kwargs):
 		dmg = mechanics.calculate_damage(attacker, attacked, ability)
 		return Response({'dmg': dmg}, status=status.HTTP_200_OK)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
