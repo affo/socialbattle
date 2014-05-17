@@ -267,6 +267,6 @@ def calculate_damage(attacker, attacked, ability):
 # Charge Time = [CT x CS-MOD + RAN0.5] x L-MOD x B-MOD x ST-MOD
 # We will ignore L-MOB, B-MOD and ST-MOD
 def get_charge_time(attacker, item_or_ability):
-	ct = item_or_ability.ct
+	ctf = item_or_ability.ctf
 	cs_mod = CS_MOD[attacker.spd]
-	return ct * cs_mod * random.uniform(0, 0.5)
+	return ctf * cs_mod * random.uniform(0, 0.5)

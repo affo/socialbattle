@@ -6,5 +6,8 @@ router = SimpleRouter()
 
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
-	url(r'^rpg/dmg/$', views.get_damage)
+	url(r'^rpg/dmg/$', views.damage),
+	url(r'^rpg/exp/$', views.exp),
+	url(r'^rpg/ct/$', views.ct),
+	url(r'^rpg/stat/$', views.stat),
 )

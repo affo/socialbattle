@@ -48,7 +48,7 @@ class Ability(models.Model):
 	requires = models.ManyToManyField('self', symmetrical=False)
 	mp_required = models.IntegerField(default=0)
 	element = models.CharField(max_length=1, choices=ELEMENTS, default=ELEMENTS[0][0])
-	ct = models.IntegerField(default=30)
+	ctf = models.IntegerField(default=30)
 
 	slug = models.CharField(max_length=200, unique=True)
 	def __unicode__(self):
@@ -252,7 +252,7 @@ class Item(models.Model):
 	item_type = models.CharField(max_length=1, choices=ITEM_TYPE, blank=False)
 	power = models.IntegerField(default=0) #percentage of hp restored in the case of R
 	cost = models.IntegerField(default=50)
-	ct = models.IntegerField(default=0)
+	ctf = models.IntegerField(default=0)
 
 	slug = models.CharField(max_length=200, unique=True)
 	def __unicode__(self):
