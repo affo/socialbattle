@@ -8,9 +8,7 @@ from django.dispatch import receiver
 from uuslug import uuslug as slugify
 from rest_framework.authtoken.models import Token
 
-from django_facebook.models import FacebookProfileModel
-
-class User(AbstractUser, FacebookProfileModel):
+class User(AbstractUser):
 	'''
 		This user will include Twitter's (maybe) one and Facebook's one.
 		Up to now we use the standard django user.

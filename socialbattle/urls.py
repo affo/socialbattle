@@ -7,6 +7,5 @@ urlpatterns = patterns('',
 	url(r'^private/', include('socialbattle.private.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-	url(r'^facebook/', include('django_facebook.urls')),
-	url(r'^accounts/', include('django_facebook.auth_urls')),
+	url(r'', include('social_auth.urls')),
 )
