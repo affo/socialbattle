@@ -11,7 +11,7 @@ var app = angular.module('socialBattle', [
 
 app.config(
   function(RestangularProvider){
-    RestangularProvider.setBaseUrl('http://localhost:8000/api/');
+    RestangularProvider.setBaseUrl('http://localhost.socialbattle:8000/private/');
     RestangularProvider.setRequestSuffix('/');
   });
 

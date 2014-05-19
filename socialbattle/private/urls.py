@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from rest_framework.urlpatterns import format_suffix_patterns
-from socialbattle.private.views import user, ability, character, item, mob, post, room, transaction
+from socialbattle.private.views import user, ability, character, item, mob, post, room, transaction, auth
 from rest_framework.routers import SimpleRouter
 router = SimpleRouter()
 
@@ -50,4 +50,6 @@ router.register(r'abilities', ability.AbilityViewSet)
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
 	url(r'^auth/', 'rest_framework.authtoken.views.obtain_auth_token'),
+	url(r'^sa/', include('social_auth.urls')),
+	url(r'^sa/register/(?P<backend>[a-z]+)', auth.register_by_access_token),
 )
