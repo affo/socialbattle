@@ -4,10 +4,40 @@
 
 var ctrls = angular.module('controllers', ['restangular']);
 
-ctrls.controller('UserList',
-  function($scope, Restangular) {
-    $scope.users = Restangular.all('users').getList().$object;
+ctrls.controller('Auth', ['$scope', 'Facebook', function($scope, Facebook) {
+
+  // Here, usually you should watch for when Facebook is ready and loaded
+  $scope.$watch(function() {
+    return Facebook.isReady(); // This is for convenience, to notify if Facebook is loaded and ready to go.
+  }, function(newVal) {
+    $scope.facebookReady = true; // You might want to use this to disable/show/hide buttons and else
   });
+
+  $scope.getLoginStatus = function() {
+    console.log('getLoginStatus');
+    Facebook.getLoginStatus(function(response) {
+      if(response.status == 'connected') {
+        $scope.$apply(function() {
+          $scope.loggedIn = true;
+          $scope.me();
+        });
+      }
+      else {
+        $scope.$apply(function() {
+          $scope.loggedIn = false;
+        });
+      }
+    })};
+
+    $scope.me = function() {
+      Facebook.api('/me', function(response) {
+        $scope.$apply(function() {
+          // Here you could re-check for user status (just in case)
+          $scope.user = response;
+        });
+      });
+    };
+}]);
 
 ctrls.controller('UserDetail',
   function($scope, $stateParams, Restangular) {
@@ -34,6 +64,11 @@ ctrls.controller('Home',
     $scope.signinForm = {};
     $scope.signupForm = {};
     $scope.user = {};
+    
+    $scope.fb_login = function(){
+        console.log("fb_login()");
+    }
+
 
     $scope.signin = function(){
         var data = {

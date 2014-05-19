@@ -5,7 +5,8 @@
 var app = angular.module('socialBattle', [
   'ui.router',
   'restangular',
-  'controllers'
+  'controllers',
+  'facebook',
 ]);
 
 app.config(
@@ -13,6 +14,12 @@ app.config(
     RestangularProvider.setBaseUrl('http://localhost:8000/api/');
     RestangularProvider.setRequestSuffix('/');
   });
+
+app.config(['FacebookProvider', function(FacebookProvider) {
+    // Here you could set your appId through the setAppId method and then initialize
+    // or use the shortcut in the initialize method directly.
+    FacebookProvider.init('1441968896050367');
+}])
 
 app.config(
   function($stateProvider, $urlRouterProvider) {
@@ -22,7 +29,7 @@ app.config(
       state('home', {
         url: '/index',
         templateUrl: 'html/partials/home.html',
-        controller: 'Home'
+        controller: 'Auth'
       }).
 
       state('home.user-list', {

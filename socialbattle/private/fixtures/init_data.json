@@ -388,7 +388,7 @@
 			"name": "mythril sword",
 			"slug": "mythril-sword",
 			"item_type": "W",
-			"ct": 21,
+			"ctf": 21,
 			"power": 25
 		}
 	},
@@ -399,7 +399,7 @@
 			"name": "sunflower",
 			"slug": "sunflower",
 			"item_type": "W",
-			"ct": 26,
+			"ctf": 26,
 			"power": 50
 		}
 	},
@@ -602,7 +602,7 @@
 		"fields": {
 			"name": "attack",
 			"slug": "attack",
-			"ct": 0
+			"ctf": 0
 		}
 	},
 	{
@@ -612,7 +612,7 @@
 			"name": "tokkata",
 			"slug": "tokkata",
 			"requires": [1],
-			"ct": 0
+			"ctf": 0
 		}
 	},
 	{
@@ -778,7 +778,7 @@
 			"slug": "crioshock",
 			"element": "B",
 			"requires": [1, 9],
-			"ct": 15
+			"ctf": 15
 		}
 	}
 ]

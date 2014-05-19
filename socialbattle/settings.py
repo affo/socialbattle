@@ -124,22 +124,24 @@ AUTH_USER_MODEL = 'private.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-FACEBOOK_APP_ID = '1451410555106201'
-FACEBOOK_APP_SECRET = '89bf6904f14a36d9014dfa0eaaab4370'
+FACEBOOK_APP_ID = '1441968896050367'
+FACEBOOK_APP_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-	'django.contrib.auth.context_processors.auth',
-	'django.core.context_processors.debug',
-	'django.core.context_processors.i18n',
-	'django.core.context_processors.media',
-	'django.core.context_processors.static',
-	'django.core.context_processors.tz',
-	'django.core.context_processors.request',
-	'django.contrib.messages.context_processors.messages',
-	'django_facebook.context_processors.facebook',
-)
+FACEBOOK_DEFAULT_SCOPE =  ['email', 'public_profile', 'publish_actions']
 
 AUTHENTICATION_BACKENDS = (
 	'django_facebook.auth_backends.FacebookBackend',
 	'django.contrib.auth.backends.ModelBackend',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
+    'django_facebook.context_processors.facebook',
 )

@@ -24,5 +24,7 @@
 <br/>
 <br/>
 
-<a ui-sref='home.user-list'>Users</a>
+ <button type="button" data-ng-show="!logged" data-ng-disabled="!facebookReady" data-ng-click="getLoginStatus()">Login with Facebook</button>
+
+{{ user }}
 <div ui-view></div>
