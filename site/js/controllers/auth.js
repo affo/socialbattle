@@ -1,7 +1,7 @@
 'use strict';
-var auth = angular.module('auth', ['restangular', 'ngStorage', 'facebook']);
+angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
-auth.controller('Auth',
+.controller('Auth',
   function($scope, Restangular, Facebook, $localStorage, $location) {
     $scope.$storage = $localStorage;
     $scope.signinForm = {};
@@ -91,9 +91,9 @@ auth.controller('Auth',
                 console.log(response);
             });
     };
-});
+})
 
-auth.controller('NavBar',
+.controller('NavBar',
 function($scope, Restangular, $localStorage, $location){
   if($localStorage.token){
       Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
