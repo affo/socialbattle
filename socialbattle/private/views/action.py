@@ -3,6 +3,7 @@ from rest_framework import status
 from socialbattle.private import models
 from socialbattle.private import serializers
 from socialbattle.private.tasks import update_status
+from socialbattle.private import mechanics
 
 def use_ability(attacker, attacked, ability):
 	if ability not in attacker.abilities.all():

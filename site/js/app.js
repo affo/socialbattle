@@ -7,6 +7,8 @@ var app = angular.module('socialBattle', [
   'restangular',
   'controllers',
   'facebook',
+  'ngStorage',
+  'auth',
 ]);
 
 app.config(
@@ -19,22 +21,18 @@ app.config(['FacebookProvider', function(FacebookProvider) {
     // Here you could set your appId through the setAppId method and then initialize
     // or use the shortcut in the initialize method directly.
     FacebookProvider.init('1441968896050367');
-}])
+}]);
 
 app.config(
   function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/index');
 
     $stateProvider.
+
       state('home', {
         url: '/index',
         templateUrl: 'html/partials/home.html',
-      }).
-
-      state('home.user-list', {
-        url: '/users',
-        templateUrl: 'html/partials/user-list.html',
-        controller: 'UserList'
+        controller: 'Auth',
       }).
 
       state('user-detail', {
