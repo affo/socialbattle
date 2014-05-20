@@ -29,7 +29,6 @@ app.config(
       state('home', {
         url: '/index',
         templateUrl: 'html/partials/home.html',
-        controller: 'Auth'
       }).
 
       state('home.user-list', {

@@ -1,30 +1,4 @@
-<h1>HOME</h1>
-<h3>signin</h3>
-<form ng-submit="signin()" ng-if="!logged">
-	username:<input type="text" ng-model="signinForm.username" name="username" /><br/>
-	password:<input type="password" ng-model="signinForm.password" name="password" />
-	<input type="submit" value="signin" />
-</form>
-{{ signinForm }}
-
-<form ng-submit="signup()" ng-if="!logged">
-	<h3>signup</h3>
-	username:<input type="text" ng-model="signupForm.username" name="username" /><br/>
-	email:<input type="text" ng-model="signupForm.email" name="email" /><br/>
-	password:<input type="text" ng-model="signupForm.password" name="password" />
-	<input type="submit" value="signup" />
-</form>
-{{ signupForm }}
-
-<form ng-submit="signout()" ng-if="logged">
-	<h3>signout</h3>
-	<input type="submit" type="submit" value="signout" />
-</form>
-
-<br/>
-<br/>
-
- <button type="button" data-ng-show="!logged" data-ng-disabled="!facebookReady" data-ng-click="getLoginStatus()">Login with Facebook</button>
+<h1>HOME</h1> 
 
 {{ user }}
 <div ui-view></div>
