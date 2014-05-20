@@ -1,8 +1,7 @@
-'use strict';
-var auth = angular.module('auth', ['restangular', 'ngStorage', 'facebook']);
+angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
-auth.controller('Auth',
-  function($scope, Restangular, Facebook, $localStorage, $location) {
+.controller('Auth',
+  function($scope, Restangular, Facebook, $localStorage, $state) {
     $scope.$storage = $localStorage;
     $scope.signinForm = {};
     $scope.signupForm = {};
@@ -62,12 +61,12 @@ auth.controller('Auth',
         Restangular.all('auth').post(data).then(
             function(response){
                 console.log(response);
+                var username = data.username;
                 $localStorage.token = response.token;
-                $localStorage.logged = true;
                 Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
-                var user = Restangular.all('users').get(data.username).$object;
-                $localStorage.user = user;
-                $location.path('/users/' + data.username);
+                $localStorage.logged = $localStorage.token !== undefined;
+                $localStorage.user = Restangular.one('users', username).get().$object;
+                $state.go('user-detail', {username: username});
             },
             function(response){
                 console.log(response);
@@ -90,24 +89,5 @@ auth.controller('Auth',
             function(response){
                 console.log(response);
             });
-    };
-});
-
-auth.controller('NavBar',
-function($scope, Restangular, $localStorage, $location){
-  if($localStorage.token){
-      Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
-  }
-  $scope.$storage = $localStorage;
-
-  $scope.logout = function(){ 
-      var username = $localStorage.user.username;
-      Restangular.setDefaultHeaders(
-          {'Authorization': ''}
-      );
-      delete $localStorage.token;
-      delete $localStorage.logged;
-      delete $localStorage.user;
-      $location.path('/');
     };
 });

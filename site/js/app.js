@@ -3,13 +3,26 @@
 /* App Module */
 
 var app = angular.module('socialBattle', [
-  'ui.router',
+  'ui.router', 'states',
   'restangular',
-  'controllers',
   'facebook',
   'ngStorage',
   'auth',
+  'main',
+  'user',
 ]);
+
+app.run(
+    function($rootScope, $state, $stateParams) {
+
+      // It's very handy to add references to $state and $stateParams to the $rootScope
+      // so that you can access them from any scope within your applications.For example,
+      // <li ui-sref-active="active }"> will set the <li> // to active whenever
+      // 'contacts.list' or one of its decendents is active.
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
+    }
+);
 
 app.config(
   function(RestangularProvider){
@@ -24,26 +37,6 @@ app.config(['FacebookProvider', function(FacebookProvider) {
 }]);
 
 app.config(
-  function($stateProvider, $urlRouterProvider) {
-    $urlRouterProvider.otherwise('/index');
-
-    $stateProvider.
-
-      state('home', {
-        url: '/index',
-        templateUrl: 'html/partials/home.html',
-        controller: 'Auth',
-      }).
-
-      state('user-detail', {
-        url: '/users/:username',
-        templateUrl: 'html/partials/user-detail.html',
-        controller: 'UserDetail'
-      }).
-
-      state('user-detail.follows', {
-        url: '/follows',
-        templateUrl: 'html/partials/user-detail.follows.html',
-        controller: 'UserFollows'
-      })
+  function($urlRouterProvider) {
+    $urlRouterProvider.otherwise('/');
   });

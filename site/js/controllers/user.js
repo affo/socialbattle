@@ -1,15 +1,11 @@
-'use strict';
+angular.module('user', ['restangular'])
 
-/* Controllers */
-
-var ctrls = angular.module('controllers', ['restangular']);
-
-ctrls.controller('UserDetail',
+.controller('UserDetail',
   function($scope, $stateParams, Restangular) {
     $scope.user = Restangular.one('users', $stateParams.username).get().$object;
-  });
+  })
 
-ctrls.controller('UserFollows',
+.controller('UserFollows',
   function($http, $scope) {
     var urls = $scope.user.follows;
     console.log(urls);
