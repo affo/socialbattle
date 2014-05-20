@@ -2,7 +2,7 @@
 var auth = angular.module('auth', ['restangular', 'ngStorage', 'facebook']);
 
 auth.controller('Auth',
-  function($scope, Restangular, Facebook, $localStorage, $state) {
+  function($scope, Restangular, Facebook, $localStorage, $location) {
     $scope.$storage = $localStorage;
     $scope.signinForm = {};
     $scope.signupForm = {};
@@ -57,11 +57,17 @@ auth.controller('Auth',
             password: $scope.signinForm.password,
         };
 
+        console.log(data);
+
         Restangular.all('auth').post(data).then(
             function(response){
                 console.log(response);
                 $localStorage.token = response.token;
-                $state.go('logged', {username: data.username});
+                $localStorage.logged = true;
+                Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
+                var user = Restangular.all('users').get(data.username).$object;
+                $localStorage.user = user;
+                $location.path('/users/' + data.username);
             },
             function(response){
                 console.log(response);
