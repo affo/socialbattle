@@ -2,11 +2,14 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Auth',
   function($scope, Restangular, Facebook, $localStorage, $state) {
+    //if you are logged you cannot authenticate
+    if($localStorage.logged){
+      $state.go('user-detail', {username: $localStorage.user.username});
+    }
+
     $scope.$storage = $localStorage;
     $scope.signinForm = {};
     $scope.signupForm = {};
-    console.log('this is the user in webstorage');
-    console.log($scope.user);
     // Here, usually you should watch for when Facebook is ready and loaded
     $scope.$watch(function() {
       return Facebook.isReady(); // This is for convenience, to notify if Facebook is loaded and ready to go.
@@ -14,43 +17,40 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       $scope.facebookReady = true; // You might want to use this to disable/show/hide buttons and else
     });
 
-    $scope.getLoginStatus = function() {
+    var login = function(username, token){
+      $localStorage.token = token;
+      Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
+      $localStorage.logged = $localStorage.token !== undefined;
+      $localStorage.user = Restangular.one('users', username).get().$object;
+      $state.go('user-detail', {username: username});
+    }
+
+    $scope.fb_login = function() {
       console.log('getLoginStatus');
-      Facebook.getLoginStatus(function(response) {
-        if(response.status == 'connected') {
-          $scope.$apply(function() {
-            $scope.logged = true;
-            $scope.me();
-            console.log(response)
-            var data = {
-              access_token: response.authResponse.accessToken
-            };
-            console.log(data);
-            Restangular.all('sa/register/').customGET('facebook', data).then(
-              function(response){
-                console.log(response);
-              }
-            );
-          });
-        }
-        else {
-          $scope.$apply(function() {
-            $scope.logged = false;
-          });
-        }
-      })};
+      Facebook.getLoginStatus(function(response){
+        $scope.$apply(function(){
+          if(response.status == 'connected') {
+              $localStorage.logged = true;
+              console.log(response);
+              var data = {access_token: response.authResponse.accessToken};
 
-      $scope.me = function() {
-        Facebook.api('/me', function(response) {
-          $scope.$apply(function() {
-            // Here you could re-check for user status (just in case)
-            $scope.user = response;
-          });
+              Restangular.all('sa/register/').customGET('facebook', data).then(
+                function(response){
+                  console.log(response);
+                  login(response.username, response.token);
+                }, function(response){
+                  //error
+                  console.log(response);
+                });
+          } else {
+            //not logged to facebook
+          };
         });
-      };
+      });
+    }
 
 
-    $scope.signin = function(){
+    $scope.sb_login = function(){
         var data = {
             username: $scope.signinForm.username,
             password: $scope.signinForm.password,
@@ -61,12 +61,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
         Restangular.all('auth').post(data).then(
             function(response){
                 console.log(response);
-                var username = data.username;
-                $localStorage.token = response.token;
-                Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
-                $localStorage.logged = $localStorage.token !== undefined;
-                $localStorage.user = Restangular.one('users', username).get().$object;
-                $state.go('user-detail', {username: username});
+                login(data.username, response.token);
             },
             function(response){
                 console.log(response);
