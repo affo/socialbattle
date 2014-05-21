@@ -2,19 +2,27 @@ angular.module('user', ['restangular'])
 
 .controller('UserDetail',
   function($scope, $stateParams, Restangular) {
-    $scope.user = Restangular.one('users', $stateParams.username).get().$object;
+    $scope.endpoint = Restangular.one('users', $stateParams.username);
+    $scope.user = $scope.endpoint.get().$object;
   })
 
-.controller('UserFollows',
+.controller('UserFollowing',
+  function($scope, Restangular) {
+    var followx = $scope.endpoint.getList('following').$object;
+    $scope.followx = followx;
+  })
+
+.controller('UserFollowers',
   function($http, $scope) {
-    var urls = $scope.user.follows;
-    console.log(urls);
-    var follows = new Array();
-    for(var i = 0; i < urls.length; i++){
-        $http.get(urls[i]).then(
-                function(result){
-                    follows.push(result.data);
-                });
-    }
-    $scope.follows = follows;
-  });
+    var followx = $scope.endpoint.getList('followers').$object;
+    $scope.followx = followx;
+  })
+
+.controller('UserPosts', function($scope, Restangular){
+  var posts = $scope.endpoint.getList('posts').$object;
+  $scope.posts = posts;
+})
+
+.controller('UserCharacters', function($scope, Restangular){
+
+});

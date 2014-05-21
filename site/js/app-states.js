@@ -17,10 +17,28 @@ angular.module('states', ['ui.router'])
       controller: 'UserDetail'
     })
 
-    .state('user-detail.follows', {
-      url: '/follows',
-      templateUrl: 'html/partials/user-detail.follows.html',
-      controller: 'UserFollows'
+    .state('user-detail.following', {
+      url: '/following',
+      templateUrl: 'html/partials/user-detail.followx.html',
+      controller: 'UserFollowing'
+    })
+
+    .state('user-detail.followers', {
+      url: '/followers',
+      templateUrl: 'html/partials/user-detail.followx.html',
+      controller: 'UserFollowers'
+    })
+
+    .state('user-detail.posts', {
+      url: '/posts',
+      templateUrl: 'html/partials/user-detail.posts.html',
+      controller: 'UserPosts'
+    })
+
+    .state('user-detail.characters', {
+      url: '/characters',
+      templateUrl: 'html/partials/user-detail.characters.html',
+      controller: 'UserCharacters'
     })
 	}
 );

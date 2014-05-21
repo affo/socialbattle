@@ -2,11 +2,14 @@ from rest_framework import serializers
 from socialbattle.private import models
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-	password = serializers
+	no_following = serializers.Field(source='no_following')	
+	no_followers = serializers.Field(source='no_followers')	
 	class Meta:
 		model = models.User
-		fields = ('url', 'id', 'username', 'first_name', 'last_name', 'password','email', 'follows')
+		fields = ('url', 'id', 'username', 'first_name', 'last_name', 'password','email', 'img',
+					'no_following', 'no_followers', )
 		write_only_fields = ('password', )
+		read_only_fields = ('img', )
 		lookup_field = 'username'
 
 class FellowshipSerializer(serializers.HyperlinkedModelSerializer):

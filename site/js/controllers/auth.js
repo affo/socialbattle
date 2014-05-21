@@ -22,7 +22,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
       $localStorage.logged = $localStorage.token !== undefined;
       $localStorage.user = Restangular.one('users', username).get().$object;
-      $state.go('user-detail', {username: username});
+      $state.go('user-detail.posts', {username: username});
     }
 
     $scope.fb_login = function() {

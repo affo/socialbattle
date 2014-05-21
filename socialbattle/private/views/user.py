@@ -55,26 +55,32 @@ class UserViewSet(viewsets.GenericViewSet,
 class UserFollowingViewSet(viewsets.GenericViewSet, 
 						mixins.CreateModelMixin,
 						mixins.ListModelMixin):
-	serializer_class = serializers.FellowshipSerializer
+	serializer_class = serializers.UserSerializer
+
+	def get_serializer_class(self):
+		if self.request.method == 'POST':
+			return serializers.FellowshipSerializer
+		else:
+			return self.serializer_class
 
 	def get_queryset(self):
-		queryset = models.Fellowship.objects.all()
+		queryset = models.User.objects.all()
 		username = self.kwargs.get('username')
 		if username:
-			queryset = queryset.filter(from_user__username=username).all()
+			queryset = queryset.get(username=username).follows.all()
 		return queryset
 
 	def pre_save(self, obj):
 		obj.from_user = self.request.user
 
 class UserFollowersViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-	serializer_class = serializers.FellowshipSerializer
+	serializer_class = serializers.UserSerializer
 
 	def get_queryset(self):
-		queryset = models.Fellowship.objects.all()
+		queryset = models.User.objects.all()
 		username = self.kwargs.get('username')
 		if username:
-			queryset = queryset.filter(to_user__username=username).all()
+			queryset = queryset.get(username=username).followss.all()
 		return queryset
 
 	def pre_save(self, obj):

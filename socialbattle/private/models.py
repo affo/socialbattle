@@ -8,19 +8,39 @@ from django.dispatch import receiver
 from uuslug import uuslug as slugify
 from rest_framework.authtoken.models import Token
 
+GRAVATAR_URL = 'http://www.gravatar.com/avatar/%s?d=identicon'
+
 class User(AbstractUser):
 	'''
 		This user will include Twitter's (maybe) one and Facebook's one.
 		Up to now we use the standard django user.
 		In addition we have:
 	'''
-	avatar = models.ImageField(upload_to='avatars', blank=True)
 	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False, through='Fellowship')
+	img = models.URLField()
+
+	@property
+	def no_following(self):
+		return self.follows.count();
+
+	@property
+	def no_followers(self):
+		return self.follows.count();
 
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
 	if created:
 		Token.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def add_image_url(sender, instance=None, created=False, **kwargs):
+	if created:
+		import hashlib
+		gravatar_url = 'http://www.gravatar.com/avatar/%s?d=identicon'
+		ash = hashlib.md5(instance.email.strip().lower()).hexdigest()
+		instance.img = GRAVATAR_URL % ash
+		instance.save()
+		
 
 class Fellowship(models.Model):
 	from_user = models.ForeignKey(User, related_name='from')
@@ -70,6 +90,7 @@ class Character(models.Model, TargetMixin):
 		The character the user will use to fight
 	'''
 	name = models.CharField(max_length=200, unique=True)
+	img = models.URLField()
 	level = models.IntegerField(default=1)
 	exp = models.IntegerField(default=0)
 	ap = models.IntegerField(default=0)
@@ -166,6 +187,7 @@ class Character(models.Model, TargetMixin):
 
 class Mob(models.Model, TargetMixin):
 	name = models.CharField(max_length=200, unique=True)
+	img = models.URLField()
 	description = models.TextField(blank=True)
 	weakness = models.CharField(max_length=1, choices=Ability.ELEMENTS, default=Ability.ELEMENTS[0][0])
 	#stats
