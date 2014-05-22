@@ -16,7 +16,10 @@ def use_ability(attacker, attacked, ability):
 	ct = 10	
 	dmg = mechanics.calculate_damage(attacker, attacked, ability)
 	
-	update_status.apply_async((attacker, attacked, dmg, ability), countdown=ct)
+	try:
+		update_status.apply_async((attacker, attacked, dmg, ability), countdown=ct)
+	except:
+		update_status(attacker, attacked, dmg, ability)
 
 	data = {
 		'dmg': dmg,

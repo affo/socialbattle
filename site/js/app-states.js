@@ -11,34 +11,40 @@ angular.module('states', ['ui.router'])
       controller: 'Auth',
     })
 
-    .state('user-detail', {
+    .state('user', {
       url: '/users/:username',
-      templateUrl: 'html/partials/user-detail.html',
+      templateUrl: 'html/partials/user.html',
       controller: 'UserDetail'
     })
 
-    .state('user-detail.following', {
-      url: '/following',
-      templateUrl: 'html/partials/user-detail.followx.html',
-      controller: 'UserFollowing'
-    })
+      .state('user.following', {
+        url: '/following',
+        templateUrl: 'html/partials/user.followx.html',
+        controller: 'UserFollowing'
+      })
 
-    .state('user-detail.followers', {
-      url: '/followers',
-      templateUrl: 'html/partials/user-detail.followx.html',
-      controller: 'UserFollowers'
-    })
+      .state('user.followers', {
+        url: '/followers',
+        templateUrl: 'html/partials/user.followx.html',
+        controller: 'UserFollowers'
+      })
 
-    .state('user-detail.posts', {
-      url: '/posts',
-      templateUrl: 'html/partials/user-detail.posts.html',
-      controller: 'UserPosts'
-    })
+      .state('user.posts', {
+        url: '/posts',
+        templateUrl: 'html/partials/user.posts.html',
+        controller: 'UserPosts'
+      })
 
-    .state('user-detail.characters', {
-      url: '/characters',
-      templateUrl: 'html/partials/user-detail.characters.html',
-      controller: 'UserCharacters'
-    })
+        .state('user.posts.comments', {
+          url: '/:post_id/comments',
+          templateUrl: 'html/partials/comments.html',
+          controller: 'PostComments'
+        })
+
+      .state('user.characters', {
+        url: '/characters',
+        templateUrl: 'html/partials/user.characters.html',
+        controller: 'UserCharacters'
+      })
 	}
 );

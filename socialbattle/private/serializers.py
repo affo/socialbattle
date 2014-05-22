@@ -50,9 +50,12 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 			read_only=True,
 		)
 
+	author_username = serializers.Field(source='author.username')
+	room_name = serializers.Field(source='room.name')
+
 	class Meta:
 		model = models.Post
-		fields = ('url', 'content', 'author', 'room', )
+		fields = ('url', 'id', 'content', 'author', 'author_username', 'room', 'room_name' )
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -100,13 +103,15 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			many=True,
 		)
 
+	img = serializers.Field(source='img')
+
 	class Meta:
 		model = models.Character
 		fields = (
 			'url', 'name', 'level', 'guils', 'owner',
 			'ap', 'max_hp', 'max_mp', 'curr_hp', 'curr_mp',
 			'stre', 'vit', 'mag', 'spd',
-			'abilities',
+			'abilities', 'img', 
 		)
 
 		read_only_fields = ('name', 'level', 'ap', 'guils', 'max_hp', 'max_mp', 'stre', 'vit', 'mag', 'spd',
@@ -204,7 +209,9 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 			many=True,
 		) 
 
+	img = serializers.Field(source='img')
+
 	class Meta:
 		model = models.Mob
 		fields = ('url', 'name', 'drops',
-					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', )
+					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', )

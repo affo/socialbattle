@@ -15,13 +15,17 @@
 	<script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 	<script src="/bower_components/angular-facebook/lib/angular-facebook.js"></script>
 	<script src="/bower_components/ngstorage/ngStorage.min.js"></script>
+	<!--- TRIANGLIFY
 	<script src="http://d3js.org/d3.v3.min.js"></script>
 	<script src="/bower_components/trianglify/trianglify.min.js"></script>
+	-->
 	<script src="/js/app.js"></script>
 	<script src="/js/app-states.js"></script>
 	<script src="/js/controllers/user.js"></script>
 	<script src="/js/controllers/main.js"></script>
 	<script src="/js/controllers/auth.js"></script>
+	<script src="/js/controllers/room.js"></script>
+	<script src="/js/controllers/post.js"></script>
 	
 	<!-- <script type="text/javascript">
 		// use .on() to add a listener. you can add as many listeners as you want.
@@ -39,7 +43,7 @@
 	  <div class="container-fluid">
 	    <!-- Brand and toggle get grouped for better mobile display -->
 	    <div class="navbar-header">
-	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	      <button type="button" class="navbar-toggle" data-toggle="collapse">
 	        <span class="sr-only">Toggle navigation</span>
 	        <span class="icon-bar"></span>
 	        <span class="icon-bar"></span>
@@ -48,7 +52,7 @@
 	      <a class="navbar-brand" ui-sref="home">SocialBattle</a>
 	    </div>
 
-	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	    <div class="collapse navbar-collapse">
 	      <form class="navbar-form navbar-left" role="search">
 	        <div class="form-group">
 	          <input type="text" class="form-control" placeholder="Search">
@@ -58,7 +62,7 @@
 
 
 	      <ul class="nav navbar-nav navbar-right" ng-show="$storage.logged">
-	        <li><p class="navbar-text">Hi <a ui-sref="user-detail({ username: $storage.user.username})" class="navbar-link">
+	        <li><p class="navbar-text">Hi <a ui-sref="user({ username: $storage.user.username})" class="navbar-link">
 	        	{{ $storage.user.username }}</a></p>
 	        </li>
 	        <li><button type="button" class="btn btn-danger navbar-btn" data-ng-click="logout()">Log out</button></li>
@@ -71,8 +75,24 @@
 	  </div> -->
 	</nav>
 
-	<div class="container">
-	  <div ui-view></div>
-	</div>
+	<div class="row" ng-if="$storage.logged">
+  <div class="col-md-2" ng-controller="Rooms">
+    <nav class=" navbar navbar-default" role="navigation">
+      <!-- room bar -->
+      <ul class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="#">PVE</a></li>
+        <li ng-repeat="pve in pverooms"><a href="#">{{ pve.name }}</a></li>
+        <li class="divider"></li>
+        <li class="disabled"><a href="#">RELAX</a></li>
+        <li ng-repeat="relax in relaxrooms"><a href="#">{{ relax.name }}</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="col-md-10">
+    <div ui-view></div>
+  </div>
+</div> 
+
+	<div ui-view ng-if="!$storage.logged"></div>
 </body>
 </html>

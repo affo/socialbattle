@@ -8,7 +8,9 @@ from django.dispatch import receiver
 from uuslug import uuslug as slugify
 from rest_framework.authtoken.models import Token
 
-GRAVATAR_URL = 'http://www.gravatar.com/avatar/%s?d=identicon'
+GRAVATAR_USER_URL = 'http://www.gravatar.com/avatar/%s?d=identicon'
+GRAVATAR_CHARACTER_URL = 'http://www.gravatar.com/avatar/%s?d=identicon'
+GRAVATAR_MOB_URL = 'http://www.gravatar.com/avatar/%s?d=retro'
 
 class User(AbstractUser):
 	'''
@@ -25,7 +27,8 @@ class User(AbstractUser):
 
 	@property
 	def no_followers(self):
-		return self.follows.count();
+		return self.followss.count();
+
 
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
@@ -36,9 +39,8 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 def add_image_url(sender, instance=None, created=False, **kwargs):
 	if created:
 		import hashlib
-		gravatar_url = 'http://www.gravatar.com/avatar/%s?d=identicon'
 		ash = hashlib.md5(instance.email.strip().lower()).hexdigest()
-		instance.img = GRAVATAR_URL % ash
+		instance.img = GRAVATAR_USER_URL % ash
 		instance.save()
 		
 
@@ -90,7 +92,6 @@ class Character(models.Model, TargetMixin):
 		The character the user will use to fight
 	'''
 	name = models.CharField(max_length=200, unique=True)
-	img = models.URLField()
 	level = models.IntegerField(default=1)
 	exp = models.IntegerField(default=0)
 	ap = models.IntegerField(default=0)
@@ -181,13 +182,18 @@ class Character(models.Model, TargetMixin):
 		else:
 			return 11 #as ffxii does
 
+	@property
+	def img(self):
+		import hashlib
+		ash = hashlib.md5(self.name.strip().lower()).hexdigest()
+		return GRAVATAR_CHARACTER_URL % ash
+
 	def clean(self):
 		if self.curr_hp > self.max_hp or self.curr_mp > self.max_mp:
 			raise ValidationError('It is not possible to overcome maximum hps or mps')
 
 class Mob(models.Model, TargetMixin):
 	name = models.CharField(max_length=200, unique=True)
-	img = models.URLField()
 	description = models.TextField(blank=True)
 	weakness = models.CharField(max_length=1, choices=Ability.ELEMENTS, default=Ability.ELEMENTS[0][0])
 	#stats
@@ -220,6 +226,12 @@ class Mob(models.Model, TargetMixin):
 	@property
 	def curr_mp(self):
 	    return self.mp
+
+	@property
+	def img(self):
+		import hashlib
+		ash = hashlib.md5(self.slug.strip().lower()).hexdigest()
+		return GRAVATAR_MOB_URL % ash
 	
 
 class LearntAbility(models.Model):

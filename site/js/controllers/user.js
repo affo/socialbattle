@@ -18,11 +18,7 @@ angular.module('user', ['restangular'])
     $scope.followx = followx;
   })
 
-.controller('UserPosts', function($scope, Restangular){
-  var posts = $scope.endpoint.getList('posts').$object;
-  $scope.posts = posts;
-})
-
 .controller('UserCharacters', function($scope, Restangular){
-
+  var characters = $scope.endpoint.getList('characters').$object;
+  $scope.characters = characters;
 });
