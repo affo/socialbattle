@@ -93,7 +93,8 @@
 		"fields": {
 			"content": "Praesent nec velit consectetur, tincidunt sprivateen sed, tristique dui.",
 			"author": 1,
-			"room": 1
+			"room": 1,
+			"time": "2014-04-22T17:42:42+01:00"
 		}
 	},
 	{
@@ -102,7 +103,8 @@
 		"fields": {
 			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
 			"author": 1,
-			"room": 1
+			"room": 1,
+			"time": "2014-04-22T17:42:42+01:00"
 		}
 	},
 	{
@@ -111,7 +113,8 @@
 		"fields": {
 			"content": "Maecenas cursus nisi sit amet est aliquam, at laoreet tortor cursus.",
 			"author": 1,
-			"room": 1
+			"room": 1,
+			"time": "2014-04-22T17:42:42+01:00"
 		}
 	},
 	{
@@ -120,7 +123,8 @@
 		"fields": {
 			"content": "Ut a elit egestas odio hendrerit mollis quis et lacus.",
 			"author": 2,
-			"room": 1
+			"room": 1,
+			"time": "2014-04-22T17:42:42+01:00"
 		}
 	},
 	{
@@ -129,7 +133,8 @@
 		"fields": {
 			"content": "Vestibulum venenatis justo sit amet lectus tincidunt, et sagittis massa venenatis.",
 			"author": 3,
-			"room": 1
+			"room": 1,
+			"time": "2014-04-22T17:42:42+01:00"
 		}
 	},
 	{
@@ -138,7 +143,8 @@
 		"fields": {
 			"content": "Proin eleifend lorem in massa gravida feugiat.",
 			"author": 3,
-			"room": 1
+			"room": 1,
+			"time": "2014-04-22T17:42:42+01:00"
 		}
 	},
 

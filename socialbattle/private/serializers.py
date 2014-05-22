@@ -55,7 +55,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.Post
-		fields = ('url', 'id', 'content', 'author', 'author_username', 'room', 'room_name' )
+		fields = ('url', 'id', 'content', 'author', 'author_username', 'room', 'room_name', 'time' )
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -75,9 +75,11 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 			read_only=True,
 		)
 
+	author_username = serializers.Field(source='author.username')
+
 	class Meta:
 		model = models.Comment
-		fields = ('url', 'content', 'author', 'post', )
+		fields = ('url', 'content', 'author', 'post', 'time', 'author_username')
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:

@@ -307,9 +307,11 @@ class Post(models.Model):
 	content = models.TextField(max_length=1024)
 	author = models.ForeignKey(User)
 	room = models.ForeignKey(RelaxRoom)
+	time = models.DateTimeField(auto_now=True)
 
 class Comment(models.Model):
 	content = models.TextField(max_length=1024)
 	author = models.ForeignKey(User)
 	post = models.ForeignKey(Post)
+	time = models.DateTimeField(auto_now=True)
 

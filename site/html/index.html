@@ -62,7 +62,7 @@
 
 
 	      <ul class="nav navbar-nav navbar-right" ng-show="$storage.logged">
-	        <li><p class="navbar-text">Hi <a ui-sref="user({ username: $storage.user.username})" class="navbar-link">
+	        <li><p class="navbar-text">Hi <a ui-sref="user.posts({ username: $storage.user.username})" class="navbar-link">
 	        	{{ $storage.user.username }}</a></p>
 	        </li>
 	        <li><button type="button" class="btn btn-danger navbar-btn" data-ng-click="logout()">Log out</button></li>

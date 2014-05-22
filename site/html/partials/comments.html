@@ -1,5 +1,28 @@
 <ul class="list-group">
-  <li class="list-group-item" ng-repeat="comment in comments">{{ comment.content }}</li>
+    <li class="list-group-item" ng-repeat="comment in comments">
+    <div class="row">
+      <div class="col-md-9">
+        <strong>
+          <a ui-sref="user({username: comment.author_username})">
+            {{comment.author_username}}
+          </a>
+        </strong> 
+        {{ comment.content }}
+      </div>
+
+      <div class="col-md-3">
+        {{comment.time}}
+      </div>
+    </div>
+    </li>
 </ul>
+
+<form class="form-inline" ng-submit="submit(post.id)">
+    <div class="form-group">
+      <input type="text" class="form-control" ng-model="comment.content" name="content" placeholder="Comment..."/>
+    </div>
+    <button type="submit" class="btn btn-default">Comment</button>
+    form: {{comment | json}}
+</form>
 
 <div ui-view></div>
