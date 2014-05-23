@@ -3,7 +3,8 @@ from socialbattle.private import models
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 	no_following = serializers.Field(source='no_following')	
-	no_followers = serializers.Field(source='no_followers')	
+	no_followers = serializers.Field(source='no_followers')
+
 	class Meta:
 		model = models.User
 		fields = ('url', 'id', 'username', 'first_name', 'last_name', 'password','email', 'img',
@@ -12,7 +13,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 		read_only_fields = ('img', )
 		lookup_field = 'username'
 
-class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
+class FellowshipCreateSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='fellowship-detail',
 			lookup_field='pk',
@@ -32,6 +33,26 @@ class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Fellowship
 		fields = ('url', 'from_user', 'to_user')
+
+class FellowshipGetSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+			view_name='fellowship-detail',
+			lookup_field='pk',
+		)
+
+	from_user = serializers.HyperlinkedRelatedField(
+			view_name='user-detail',
+			lookup_field='username',
+			read_only=True,
+		)
+
+	to_user = UserSerializer()
+
+	class Meta:
+		model = models.Fellowship
+		fields = ('url', 'from_user', 'to_user')
+
+
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

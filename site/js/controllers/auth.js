@@ -20,9 +20,13 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     var login = function(username, token){
       $localStorage.token = token;
       Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
-      $localStorage.logged = $localStorage.token !== undefined;
-      $localStorage.user = Restangular.one('users', username).get().$object;
-      $state.go('user.posts', {username: username});
+      Restangular.one('users', username).get().then(
+        function(user){
+          $localStorage.user = user;
+          $state.go('user.posts', {username: username});
+          $localStorage.logged = $localStorage.token !== undefined;
+        }
+      );
     }
 
     $scope.fb_login = function() {
@@ -30,7 +34,6 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       Facebook.getLoginStatus(function(response){
         $scope.$apply(function(){
           if(response.status == 'connected') {
-              $localStorage.logged = true;
               console.log(response);
               var data = {access_token: response.authResponse.accessToken};
 
