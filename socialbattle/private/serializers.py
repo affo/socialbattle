@@ -13,7 +13,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 		read_only_fields = ('img', )
 		lookup_field = 'username'
 
-class FellowshipCreateSerializer(serializers.HyperlinkedModelSerializer):
+class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='fellowship-detail',
 			lookup_field='pk',
@@ -33,26 +33,6 @@ class FellowshipCreateSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Fellowship
 		fields = ('url', 'from_user', 'to_user')
-
-class FellowshipGetSerializer(serializers.HyperlinkedModelSerializer):
-	url = serializers.HyperlinkedIdentityField(
-			view_name='fellowship-detail',
-			lookup_field='pk',
-		)
-
-	from_user = serializers.HyperlinkedRelatedField(
-			view_name='user-detail',
-			lookup_field='username',
-			read_only=True,
-		)
-
-	to_user = UserSerializer()
-
-	class Meta:
-		model = models.Fellowship
-		fields = ('url', 'from_user', 'to_user')
-
-
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

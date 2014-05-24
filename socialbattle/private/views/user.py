@@ -1,3 +1,6 @@
+from rest_framework.generics import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
@@ -55,23 +58,37 @@ class UserViewSet(viewsets.GenericViewSet,
 class UserFollowingViewSet(viewsets.GenericViewSet, 
 						mixins.CreateModelMixin,
 						mixins.ListModelMixin):
-	serializer_class = serializers.FellowshipGetSerializer
+	serializer_class = serializers.UserSerializer
 
 	def get_serializer_class(self):
 		if self.request.method == 'POST':
-			return serializers.FellowshipCreateSerializer
+			return serializers.FellowshipSerializer
 		else:
 			return self.serializer_class
 
 	def get_queryset(self):
-		queryset = models.Fellowship.objects.all()
+		queryset = models.User.objects.all()
 		username = self.kwargs.get('username')
 		if username:
-			queryset = queryset.filter(from_user__username=username).all()
+			queryset = queryset.get(username=username).follows.all()
 		return queryset
 
 	def pre_save(self, obj):
 		obj.from_user = self.request.user
+
+	def list(self, request, username, *args, **kwargs):
+		try:
+			to_username = request.QUERY_PARAMS['uname']
+			from_user = get_object_or_404(models.User.objects.all(), username=username)
+			to_user = get_object_or_404(models.User.objects.all(), username=to_username)
+			following = models.Fellowship.objects.get(from_user=from_user, to_user=to_user)
+			data = serializers.FellowshipSerializer(following, context=self.get_serializer_context()).data
+			return Response(data, status=status.HTTP_200_OK)
+		except ObjectDoesNotExist:
+			raise Http404
+		except KeyError:
+			return super(UserFollowingViewSet, self).list(request, *args, **kwargs)
+
 
 class UserFollowersViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	serializer_class = serializers.UserSerializer
@@ -90,5 +107,5 @@ class FellowshipViewSet(viewsets.GenericViewSet,
 						mixins.DestroyModelMixin,
 						mixins.RetrieveModelMixin):
 	queryset = models.Fellowship.objects.all()
-	serializer_class = serializers.FellowshipGetSerializer
+	serializer_class = serializers.FellowshipSerializer
 	permission_classes = [permissions.IsAuthenticated, IsFromUser, ]
