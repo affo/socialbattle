@@ -10,15 +10,15 @@ angular.module('user', ['restangular'])
           $scope.isMe = true;
         }
 
-        Restangular.one('users', $localStorage.user.username).getList('following').then(
-          function(following){
-            $scope.following = following;
-
-            $scope.alreadyFollowing = false;
-            for(var i = 0; i < following.length; i++){
-              if(following[i].to_user.url == user.url) $scope.alreadyFollowing = true;
+        Restangular.one('users', $localStorage.user.username)
+          .customGET('following', {uname: user.username}).then(
+            function(response){
+              $scope.alreadyFollowing = true;
+              $scope.fellowship = response.url;
+            },
+            function(response){
+              $scope.alreadyFollowing = false;
             }
-          }
         );
       }
     );
@@ -35,6 +35,7 @@ angular.module('user', ['restangular'])
         function(response){
           console.log(response);
           $scope.alreadyFollowing = true;
+          $scope.fellowship = response.url;
           //update the stored user
           update_user();
         },
@@ -45,39 +46,24 @@ angular.module('user', ['restangular'])
     };
 
     $scope.unfollow = function(){
-      var following = $scope.following;
-      for(var i = 0; i < following.length; i++){
-        console.log(following[i].to_user.url + " ---> " + $scope.user.url);
-        if(following[i].to_user.url == $scope.user.url){
-          Restangular.oneUrl('fellowships', following[i].url).remove().then(
-            function(response){
-              $scope.alreadyFollowing = false;
-              //update the stored user
-              update_user();
-            },
-            function(response){
-              console.log(response);
-            }
-
-          );
+      Restangular.oneUrl('fellowships', $scope.fellowship).remove().then(
+        function(response){
+          $scope.alreadyFollowing = false;
+          //update the stored user
+          update_user();
+        },
+        function(response){
+          console.log(response);
         }
-      }
-    };
-  })
+      );
+    }
+  }
+)
+
 
 .controller('UserFollowing',
   function($scope, Restangular) {
-    $scope.endpoint.getList('following').then(
-      function(following){
-        var ret = Array();
-        for(var i = 0; i < following.length; i++){
-          ret.push(following[i].to_user);
-        }
-        $scope.followx = ret;
-      },
-      function(response){}
-    );
-    
+    $scope.followx = $scope.endpoint.getList('following').$object;
   })
 
 .controller('UserFollowers',
