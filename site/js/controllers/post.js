@@ -61,7 +61,7 @@ angular.module('post', ['restangular'])
       .then(
         function(response){//success
           console.log(response);
-          if($scope.comments){
+          if($scope.showing){
             $scope.comments.push(response);
           }
         },

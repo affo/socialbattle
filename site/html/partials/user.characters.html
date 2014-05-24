@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-2" ng-repeat="character in characters">
     <div class="thumbnail">
-      <img src="{{ character.img }}">
+      <img ng-src="{{ character.img }}">
       <div class="caption">
         <a class="text-centered" ui-sref="character({ name: character.name})">
         	{{ character.name }}

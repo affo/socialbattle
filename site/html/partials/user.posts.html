@@ -49,6 +49,10 @@
 
             <div class="col-md-3">
               {{comment.time}}
+              <span ng-if="$storage.user.username == comment.author_username">
+                <a href="" ng-click=""><span class="glyphicon glyphicon-pencil"></span></a>
+                <a href="" ng-click=""><span class="glyphicon glyphicon-remove"></span></a>
+              </span>
             </div>
           </div>
           </li>

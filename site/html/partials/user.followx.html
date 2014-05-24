@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-2" ng-repeat="user in followx">
     <div class="thumbnail">
-      <img src="{{ user.img }}">
+      <img ng-src="{{ user.img }}">
       <div class="caption">
         <a class="text-centered" ui-sref="user({ username: user.username})">
         	{{ user.first_name }} {{ user.last_name }} ({{user.username}})
