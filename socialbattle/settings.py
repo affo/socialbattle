@@ -123,7 +123,10 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'private.User'
 SOCIAL_AUTH_USER_MODEL = 'private.User'
 
-CORS_ORIGIN_WHITELIST = ('localhost.socialbattle:3000', )
+CORS_ORIGIN_WHITELIST = (
+	'localhost.socialbattle:3000',
+	'localhost.socialbattle:5000',
+)
 
 FACEBOOK_APP_ID = '1441968896050367'
 FACEBOOK_API_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
