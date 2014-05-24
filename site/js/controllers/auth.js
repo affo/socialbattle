@@ -23,8 +23,8 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       Restangular.one('users', username).get().then(
         function(user){
           $localStorage.user = user;
+          $localStorage.logged = true;
           $state.go('user.posts', {username: username});
-          $localStorage.logged = $localStorage.token !== undefined;
         }
       );
     }
@@ -34,12 +34,10 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       Facebook.getLoginStatus(function(response){
         $scope.$apply(function(){
           if(response.status == 'connected') {
-              console.log(response);
               var data = {access_token: response.authResponse.accessToken};
 
               Restangular.all('sa/register/').customGET('facebook', data).then(
                 function(response){
-                  console.log(response);
                   login(response.username, response.token);
                 }, function(response){
                   //error

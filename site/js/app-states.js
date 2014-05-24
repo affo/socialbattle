@@ -35,12 +35,6 @@ angular.module('states', ['ui.router'])
         controller: 'UserPosts'
       })
 
-        .state('user.posts.comments', {
-          url: '/:post_id/comments',
-          templateUrl: 'html/partials/comments.html',
-          controller: 'PostComments'
-        })
-
       .state('user.characters', {
         url: '/characters',
         templateUrl: 'html/partials/user.characters.html',
