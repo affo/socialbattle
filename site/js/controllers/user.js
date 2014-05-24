@@ -27,10 +27,6 @@ angular.module('user', ['restangular'])
       $localStorage.user = Restangular.one('users', $localStorage.user.username).get().$object;
     }
 
-    $scope.go = function(state){
-      $state.go(state);
-    };
-
     $scope.follow = function(){
       data = {
         to_user: $scope.user.url,

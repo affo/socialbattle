@@ -4,6 +4,8 @@ from rest_framework.routers import SimpleRouter
 from socialbattle.public import views
 router = SimpleRouter()
 
+router.register(r'users', views.UserViewSet)
+
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
 	url(r'^rpg/dmg/$', views.damage),

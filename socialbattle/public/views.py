@@ -1,53 +1,8 @@
 from socialbattle.private import mechanics
-from django.db import models
-from rest_framework import serializers
+from socialbattle.public import serializers
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-from socialbattle.private.models import Ability
-
-class Target(models.Model):
-	atk = models.IntegerField(default=0)
-	stre = models.IntegerField(default=0)
-	mag = models.IntegerField(default=0)
-	defense = models.IntegerField(default=0)
-	mdefense = models.IntegerField(default=0)
-	level = models.IntegerField(default=0)
-
-class Ability(models.Model):
-	power = models.IntegerField(default=0)
-	element = models.CharField(
-			max_length=1,
-			choices=Ability.ELEMENTS,
-			default=Ability.ELEMENTS[0][0],
-	)
-
-class Attack(models.Model):
-	attacker = models.ForeignKey(Target)
-	attacked = models.ForeignKey(Target)
-	ability = models.ForeignKey(Ability)
-
-class TargetSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Target
-		fields = ('atk', 'stre', 'mag', 'defense', 'mdefense', 'level')
-	
-
-class AbilitySerializer(serializers.ModelSerializer):
-	element = serializers.CharField(required=False)
-	class Meta:
-		model = Ability
-		fields = ('power', 'element')
-
-class AttackSerializer(serializers.ModelSerializer):
-	attacker = TargetSerializer()
-	attacked = TargetSerializer()
-	ability = AbilitySerializer()
-
-	class Meta:
-		model = Attack
-		fields = ('attacker', 'attacked', 'ability')
-
 
 @api_view(['POST'])
 def damage(request, *args, **kwargs):
@@ -80,7 +35,7 @@ def damage(request, *args, **kwargs):
 			}
 		}
 	'''
-	serializer = AttackSerializer(data=request.DATA)
+	serializer = serializers.AttackSerializer(data=request.DATA)
 	if serializer.is_valid():
 		attacker = serializer.object.attacker
 		attacked = serializer.object.attacked
@@ -105,22 +60,6 @@ def exp(request, *args, **kwargs):
 	except:
 		return Response({'lvl': 'this field is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-class Ct(object):
-	def __init__(self, spd, ctf):
-		self.spd = spd
-		self.ctf = ctf
-
-class CtSerializer(serializers.Serializer):
-	spd = serializers.IntegerField()
-	ctf = serializers.IntegerField()
-
-	def restore_object(self, attrs, instance=None):
-		if instance is not None:
-			instance.spd = attrs.get('spd', instance.spd)
-			instance.ctf = attrs.get('ctf', instance.ct)
-			return instance
-		return Ct(**attrs)
-
 @api_view(['POST'])
 def ct(request, *args, **kwargs):
 	'''
@@ -135,29 +74,12 @@ def ct(request, *args, **kwargs):
 			"ctf": 30
 		}
 	'''
-	serializer = CtSerializer(data=request.DATA)
+	serializer = serializers.CtSerializer(data=request.DATA)
 	if serializer.is_valid():
 		obj = serializer.object
 		ct = mechanics.get_charge_time(obj, obj)
 		return Response({'ct': ct}, status=status.HTTP_200_OK)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class Stat(object):
-	def __init__(self, lvl, stat):
-		self.lvl = lvl
-		self.stat = stat
-
-class StatSerializer(serializers.Serializer):
-	lvl = serializers.IntegerField()
-	stat = serializers.CharField()
-
-	def restore_object(self, attrs, instance=None):
-		if instance is not None:
-			instance.lvl = attrs.get('lvl', instance.lvl)
-			instance.stat = attrs.get('stat', instance.ct)
-			return instance
-		return Stat(**attrs)
 
 @api_view(['POST'])
 def stat(request, *args, **kwargs):
@@ -171,9 +93,17 @@ def stat(request, *args, **kwargs):
 			"stat": "HP"
 		}
 	'''
-	serializer = StatSerializer(data=request.DATA)
+	serializer = serializers.StatSerializer(data=request.DATA)
 	if serializer.is_valid():
 		obj = serializer.object
 		stat = mechanics.get_stat(obj.lvl, obj.stat)
 		return Response({obj.stat: stat}, status=status.HTTP_200_OK)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#################
+from socialbattle.private.views import user
+class UserViewSet(user.UserViewSet):
+	serializer_class = serializers.UserSerializer
+	allowed_methods = ('GET', )
+	
+	pass
