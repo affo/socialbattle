@@ -4,6 +4,7 @@ from django.http import Http404
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 from socialbattle.private import models
 from socialbattle.private import serializers
 from socialbattle.private.permissions import IsFromUser, IsAuthor
@@ -23,7 +24,8 @@ class UserViewSet(viewsets.GenericViewSet,
 	def list(self, request, *args, **kwargs):
 		try:
 			query = request.QUERY_PARAMS['query']
-		except:
+			if not query: raise KeyError
+		except KeyError:
 			return Response(data={'msg': 'Query param needed (?query=<query_string>)'},
 							status=status.HTTP_400_BAD_REQUEST)
 
@@ -51,6 +53,25 @@ class UserViewSet(viewsets.GenericViewSet,
 		
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+	@action(methods=['POST'], serializer_class=serializers.FellowshipSerializer)
+	def isfollowing(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.DATA)
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		from_user = self.get_object()
+		to_user = serializer.object.to_user
+		try:
+			f = models.Fellowship.objects.get(from_user=from_user, to_user=to_user)
+			data = {
+				'is_following': True,
+				'url': self.get_serializer(f).data['url'],
+			}
+		except ObjectDoesNotExist:
+			data = {'is_following': False}
+
+		return Response(data, status=status.HTTP_200_OK)
+
 ### FELLOWSHIP
 # GET: /users/{username}/follow[(ing)|(ers)]/
 # POST: /users/{username}/following/
@@ -70,7 +91,8 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 		queryset = models.User.objects.all()
 		username = self.kwargs.get('username')
 		if username:
-			queryset = queryset.get(username=username).follows.all()
+			user = get_object_or_404(models.User.objects.all(), username=username)
+			queryset = user.follows.all()
 		return queryset
 
 	def pre_save(self, obj):
@@ -78,14 +100,17 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 
 	def list(self, request, username, *args, **kwargs):
 		try:
-			to_username = request.QUERY_PARAMS['uname']
-			from_user = get_object_or_404(models.User.objects.all(), username=username)
-			to_user = get_object_or_404(models.User.objects.all(), username=to_username)
-			following = models.Fellowship.objects.get(from_user=from_user, to_user=to_user)
-			data = serializers.FellowshipSerializer(following, context=self.get_serializer_context()).data
-			return Response(data, status=status.HTTP_200_OK)
-		except ObjectDoesNotExist:
-			raise Http404
+			query = request.QUERY_PARAMS['query']
+			user = get_object_or_404(models.User.objects.all(), username=username)
+
+			from django.db.models import Q
+			users = user.follows.filter(
+					Q(username__icontains=query) |
+					Q(first_name__icontains=query) |
+					Q(last_name__icontains=query)
+				)
+			
+			return Response(self.get_serializer(users, many=True).data, status=status.HTTP_200_OK)
 		except KeyError:
 			return super(UserFollowingViewSet, self).list(request, *args, **kwargs)
 

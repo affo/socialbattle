@@ -99,17 +99,11 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 			read_only=True,
 		)
 
-	author = serializers.HyperlinkedRelatedField(
-			view_name='user-detail',
-			lookup_field='username',
-			read_only=True,
-		)
-
-	author_username = serializers.Field(source='author.username')
+	author = UserSerializer(fields=['url', 'username', 'img'], read_only=True)
 
 	class Meta:
 		model = models.Comment
-		fields = ('url', 'content', 'author', 'post', 'time', 'author_username')
+		fields = ('url', 'content', 'author', 'post', 'time', )
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:

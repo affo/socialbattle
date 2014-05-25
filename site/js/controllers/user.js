@@ -11,9 +11,9 @@ angular.module('user', ['restangular'])
         }
 
         Restangular.one('users', $localStorage.user.username)
-          .customGET('following', {uname: user.username}).then(
+          .post('isfollowing', {to_user: user.url}).then(
             function(response){
-              $scope.alreadyFollowing = true;
+              $scope.alreadyFollowing = response.is_following;
               $scope.fellowship = response.url;
             },
             function(response){
