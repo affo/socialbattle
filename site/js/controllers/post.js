@@ -34,6 +34,7 @@ angular.module('post', ['restangular'])
     $scope.editPost = { content: $scope.post.content };
     $scope.showing = false;
     $scope.editing = false;
+    $scope.next = undefined;
 
     $scope.toggle_editing = function(){
       $scope.editing = !$scope.editing;
@@ -67,11 +68,12 @@ angular.module('post', ['restangular'])
     };
 
     $scope.load_comments = function(){
-      Restangular.oneUrl('post', $scope.post.url).all('comments').getList()
+      Restangular.oneUrl('post', $scope.post.url).one('comments').get()
         .then(
-          function(comments){
-            $scope.comments = comments;
+          function(response){
+            $scope.comments = response.results;
             $scope.showing = true;
+            $scope.next = response.next;
           }
         );
     }
@@ -94,7 +96,26 @@ angular.module('post', ['restangular'])
           console.log(response);
         }
       );
+    };
+
+    $scope.next_page = function(){
+    Restangular.oneUrl('next_page', $scope.next).get().
+    then(
+      function(response){
+        for(var i = 0; i < response.results.length; i++){
+          $scope.comments.push(response.results[i]);
+        }
+
+        if(response.next){
+          $scope.next = response.next;
+        }else{
+          $scope.next = undefined;
+        }
+      }
+      );
     }
+
+
   }
 )
 

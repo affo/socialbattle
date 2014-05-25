@@ -58,6 +58,9 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 							mixins.ListModelMixin,
 							mixins.CreateModelMixin):
 	serializer_class = serializers.CommentSerializer
+	paginate_by = 5
+	paginate_by_param = 'limit'
+	max_paginate_by = 30
 
 	def get_queryset(self):
 		queryset = models.Comment.objects.all()
