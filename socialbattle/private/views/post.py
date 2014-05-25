@@ -32,6 +32,9 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 
 class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	serializer_class = serializers.PostSerializer
+	paginate_by = 5
+	paginate_by_param = 'limit'
+	max_paginate_by = 30
 
 	def get_queryset(self):
 		queryset = models.Post.objects.all()

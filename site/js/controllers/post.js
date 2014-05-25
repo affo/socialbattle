@@ -1,8 +1,31 @@
 angular.module('post', ['restangular'])
 
 .controller('UserPosts', function($scope, Restangular){
-  $scope.posts = $scope.endpoint.getList('posts').$object;
-  $scope.post_selected = 0;
+  //because of pagination
+  $scope.endpoint.one('posts').get().then(
+    function(response){
+      $scope.posts = response.results;
+      $scope.next = response.next;
+    }
+  );
+
+  $scope.next_page = function(){
+    Restangular.oneUrl('next_page', $scope.next).get().
+    then(
+      function(response){
+        for(var i = 0; i < response.results.length; i++){
+          $scope.posts.push(response.results[i]);
+        }
+
+        if(response.next){
+          $scope.next = response.next;
+        }else{
+          $scope.next = undefined;
+        }
+      }
+    );
+
+  };
 })
 
 .controller('Post',
