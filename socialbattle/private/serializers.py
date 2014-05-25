@@ -1,7 +1,28 @@
 from rest_framework import serializers
 from socialbattle.private import models
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+#taken from DRF
+class DynamicHyperlinkedModelSerializer(serializers.HyperlinkedModelSerializer):
+	"""
+	A ModelSerializer that takes an additional `fields` argument that
+	controls which fields should be displayed.
+	"""
+
+	def __init__(self, *args, **kwargs):
+		# Don't pass the 'fields' arg up to the superclass
+		fields = kwargs.pop('fields', None)
+
+		# Instantiate the superclass normally
+		super(DynamicHyperlinkedModelSerializer, self).__init__(*args, **kwargs)
+
+		if fields:
+			# Drop any fields that are not specified in the `fields` argument.
+			allowed = set(fields)
+			existing = set(self.fields.keys())
+			for field_name in existing - allowed:
+				self.fields.pop(field_name)
+
+class UserSerializer(DynamicHyperlinkedModelSerializer):
 	no_following = serializers.Field(source='no_following')	
 	no_followers = serializers.Field(source='no_followers')
 
@@ -12,6 +33,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 		write_only_fields = ('password', )
 		read_only_fields = ('img', )
 		lookup_field = 'username'
+
 
 class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -34,29 +56,36 @@ class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.Fellowship
 		fields = ('url', 'from_user', 'to_user')
 
+class RelaxRoomSerializer(DynamicHyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+			view_name='relaxroom-detail',
+			lookup_field='slug',
+		)
+
+	sells = serializers.HyperlinkedRelatedField(
+			view_name='item-detail',
+			lookup_field='slug',
+			many=True,
+		) 
+
+	class Meta:
+		model = models.RelaxRoom
+		fields = ('url', 'name', 'sells', )
+
 class PostSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='post-detail',
 			lookup_field='pk',
 		)
 
-	author = serializers.HyperlinkedRelatedField(
-			view_name='user-detail',
-			lookup_field='username',
-			read_only=True,
-		)
-	room = serializers.HyperlinkedRelatedField(
-			view_name='relaxroom-detail',
-			lookup_field='slug',
-			read_only=True,
-		)
+	author = UserSerializer(fields=['url', 'username', 'img'], read_only=True)
 
-	author_username = serializers.Field(source='author.username')
-	room_name = serializers.Field(source='room.name')
+	room = RelaxRoomSerializer(fields=['url', 'name'], read_only=True)
 
 	class Meta:
 		model = models.Post
-		fields = ('url', 'id', 'content', 'author', 'author_username', 'room', 'room_name', 'time' )
+		fields = ('url', 'content', 'author', 'room', 'time' )
+		read_only_fields = ('time', )
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -160,23 +189,6 @@ class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.PVERoom
 		fields = ('url', 'name', 'mobs', )
-
-
-class RelaxRoomSerializer(serializers.HyperlinkedModelSerializer):
-	url = serializers.HyperlinkedIdentityField(
-			view_name='relaxroom-detail',
-			lookup_field='slug',
-		)
-
-	sells = serializers.HyperlinkedRelatedField(
-			view_name='item-detail',
-			lookup_field='slug',
-			many=True,
-		) 
-
-	class Meta:
-		model = models.RelaxRoom
-		fields = ('url', 'name', 'sells', )
 
 class AbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:

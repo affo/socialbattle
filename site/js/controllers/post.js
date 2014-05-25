@@ -58,8 +58,8 @@ angular.module('post', ['restangular'])
       $scope.showing = false;
     }
 
-    $scope.submit = function(post_id){
-      Restangular.one('posts', post_id).all('comments').post($scope.comment)
+    $scope.submit = function(){
+      Restangular.oneUrl('post', $scope.post.url).all('comments').post($scope.comment)
       .then(
         function(response){//success
           console.log(response);
