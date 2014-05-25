@@ -15,7 +15,7 @@
                 {{ post.time }}
                 <span ng-if="$storage.user.username == post.author_username">
                   <a href="" ng-click="toggle_editing()"><span class="glyphicon glyphicon-pencil"></span></a>
-                  <a href="" ng-click="delete_post(post.id)"><span class="glyphicon glyphicon-remove"></span></a>
+                  <a href="" ng-click="delete_post()"><span class="glyphicon glyphicon-remove"></span></a>
                 </span>
               </div>
             </div>
@@ -23,7 +23,7 @@
       </div>
       <div class="panel-body">
         <p ng-if="!editing">{{ post.content }}</p>
-        <form class="form-inline" ng-if="editing" ng-submit="edit_post(post.id)">
+        <form class="form-inline" ng-if="editing" ng-submit="edit_post()">
           <div class="form-group">
             <textarea rows="1" class="form-control" ng-model="editPost.content" name="content"></textarea>
           </div>
@@ -31,12 +31,12 @@
           <button type="button" class="btn btn-default" ng-click="toggle_editing()">Cancel</button>
         </form>
 
-        <p ng-if="!showing"><a href="" ng-click="load_comments(post.id)">Show comments</a></p>
+        <p ng-if="!showing"><a href="" ng-click="load_comments()">Show comments</a></p>
         <p ng-if="showing"><a href="" ng-click="remove_comments()">Hide comments</a></p>
       </div>
 
         <ul class="list-group">
-          <li class="list-group-item" ng-repeat="comment in comments">
+          <li class="list-group-item" ng-repeat="comment in comments" ng-controller="Comment">
           <div class="row">
             <div class="col-md-9">
               <strong>
@@ -44,14 +44,21 @@
                   {{comment.author_username}}
                 </a>
               </strong> 
-              {{ comment.content }}
+              <span ng-if="!editing">{{ comment.content }}</span>
+                <form class="form-inline" ng-if="editing" ng-submit="edit_comment()">
+                  <div class="form-group">
+                    <textarea rows="1" class="form-control" ng-model="editComment.content" name="content"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-default">Edit</button>
+                  <button type="button" class="btn btn-default" ng-click="toggle_editing()">Cancel</button>
+                </form>
             </div>
 
             <div class="col-md-3">
               {{comment.time}}
               <span ng-if="$storage.user.username == comment.author_username">
-                <a href="" ng-click=""><span class="glyphicon glyphicon-pencil"></span></a>
-                <a href="" ng-click=""><span class="glyphicon glyphicon-remove"></span></a>
+                <a href="" ng-click="toggle_editing()"><span class="glyphicon glyphicon-pencil"></span></a>
+                <a href="" ng-click="delete_comment()"><span class="glyphicon glyphicon-remove"></span></a>
               </span>
             </div>
           </div>

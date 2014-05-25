@@ -14,22 +14,24 @@ angular.module('post', ['restangular'])
 
     $scope.toggle_editing = function(){
       $scope.editing = !$scope.editing;
-    }
+    };
 
-    $scope.delete_post = function(post_id){
-      Restangular.one('posts', post_id).remove()
+    $scope.delete_post = function(){
+      var post_url = $scope.post.url;
+      Restangular.oneUrl('post', post_url).remove()
       .then(
         function(response){
           for(var i = 0; i < $scope.posts.length; i++){
-            if($scope.posts[i].id == post_id){
+            if($scope.posts[i].url == post_url){
               $scope.posts.splice(i, 1);
             }
           }
         }
       );
     };
-    $scope.edit_post = function(post_id){
-      var post =  Restangular.one('posts', post_id);
+
+    $scope.edit_post = function(){
+      var post =  Restangular.oneUrl('posts', $scope.post.url);
       console.log(post);
       post.content = $scope.editPost.content;
       post.put().then(
@@ -41,8 +43,8 @@ angular.module('post', ['restangular'])
       );
     };
 
-    $scope.load_comments = function(post_id){
-      Restangular.one('posts', post_id).all('comments').getList()
+    $scope.load_comments = function(){
+      Restangular.oneUrl('post', $scope.post.url).all('comments').getList()
         .then(
           function(comments){
             $scope.comments = comments;
@@ -71,4 +73,44 @@ angular.module('post', ['restangular'])
       );
     }
   }
-);
+)
+
+.controller('Comment', function($scope, Restangular){
+  $scope.editing = false;
+  $scope.editComment = { content: $scope.comment.content };
+
+  $scope.toggle_editing = function(){
+      $scope.editing = !$scope.editing;
+  };
+
+  $scope.delete_comment = function(){
+    var comment_url = $scope.comment.url;
+    Restangular.oneUrl('comment', comment_url).remove()
+    .then(
+      function(response){
+        if($scope.showing){
+          for(var i = 0; i < $scope.comments.length; i++){
+            if($scope.comments[i].url == comment_url){
+              $scope.comments.splice(i, 1);
+            }
+          }
+        }
+      }
+    );
+  };
+
+  $scope.edit_comment = function(){
+    var comment =  Restangular.oneUrl('comments', $scope.comment.url);
+    console.log(comment);
+    comment.content = $scope.editComment.content;
+    comment.put().then(
+      function(response){
+        //update what you are seeing
+        $scope.comment.content = comment.content;
+        $scope.toggle_editing();
+      }
+    );
+  };
+
+
+});
