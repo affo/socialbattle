@@ -6,15 +6,17 @@
 
   <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="/bower_components/lodash/dist/lodash.js"></script>
   <script src="/bower_components/angular/angular.js"></script>
   <script src="/bower_components/restangular/dist/restangular.js"></script>
   <script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
   <script src="/bower_components/angular-facebook/lib/angular-facebook.js"></script>
   <script src="/bower_components/ngstorage/ngStorage.min.js"></script>
+
+  <script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
   <!--- TRIANGLIFY
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="/bower_components/trianglify/trianglify.min.js"></script>
@@ -60,7 +62,7 @@
                 id="searchbar"
                 class="form-control"
                 ng-model="searchForm.query"
-                ng-keyup="search()"
+                ng-keyup="keypressed($event)"
                 name="query"
                 autocomplete="off"
                 placeholder="Search">
@@ -70,11 +72,11 @@
               <li class="dropdown open">
                 <ul class="dropdown-menu">
                   <li ng-repeat="u in results.users">
-                      <a ui-sref="user({username: u.username})">{{ u.username }}</a>
+                      <a ui-sref="user({username: u.username})" ng-click="submit()">{{ u.username }}</a>
                   </li>
                   <li class="divider" ng-if="results.rooms.length > 0 && results.users.length > 0">Rooms</li>
                   <li ng-repeat="r in results.rooms">
-                      <a href="">{{ r.name }}</a>
+                      <a href="" ng-click="submit()">{{ r.name }}</a>
                   </li>
                 </ul>
               </li>
@@ -95,23 +97,25 @@
     </div> -->
   </nav>
 
+  <div class="container-fluid">
   <div class="row" ng-if="$storage.logged">
-  <div class="col-md-2" ng-controller="Rooms">
-    <nav class=" navbar navbar-default" role="navigation">
-      <!-- room bar -->
-      <ul class="nav nav-pills nav-stacked">
-        <li class="disabled"><a href="#">PVE</a></li>
-        <li ng-repeat="pve in pverooms"><a href="#">{{ pve.name }}</a></li>
-        <li class="divider"></li>
-        <li class="disabled"><a href="#">RELAX</a></li>
-        <li ng-repeat="relax in relaxrooms"><a href="#">{{ relax.name }}</a></li>
-      </ul>
-    </nav>
+    <div class="col-md-2" ng-controller="Rooms">
+      <nav class=" navbar navbar-default" role="navigation">
+        <!-- room bar -->
+        <ul class="nav nav-pills nav-stacked">
+          <li class="disabled"><a href="#">PVE</a></li>
+          <li ng-repeat="pve in pverooms"><a ui-sref="pveroom({room_name: pve.slug})">{{ pve.name }}</a></li>
+          <li class="divider"></li>
+          <li class="disabled"><a href="#">RELAX</a></li>
+          <li ng-repeat="relax in relaxrooms"><a ui-sref="relaxroom.posts({room_name: relax.slug})">{{ relax.name }}</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="col-md-10">
+      <div ui-view></div>
+    </div>
+  </div> 
   </div>
-  <div class="col-md-10">
-    <div ui-view></div>
-  </div>
-</div> 
 
   <div ui-view ng-if="!$storage.logged"></div>
 </body>

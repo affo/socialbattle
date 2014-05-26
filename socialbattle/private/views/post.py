@@ -15,12 +15,15 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 						mixins.ListModelMixin):
 	queryset = models.Post.objects
 	serializer_class = serializers.PostSerializer
+	paginate_by = 5
+	paginate_by_param = 'limit'
+	max_paginate_by = 30
 
 	def get_queryset(self):
 		queryset = models.Post.objects.all()
 		room_slug = self.kwargs.get('room_slug', None)
 		if room_slug:
-			queryset = queryset.filter(room__slug=room_slug).all()
+			queryset = queryset.filter(room__slug=room_slug).order_by('-time').all()
 		return queryset
 
 	def pre_save(self, obj):
@@ -40,7 +43,7 @@ class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 		queryset = models.Post.objects.all()
 		username = self.kwargs.get('username', None)
 		if username:
-			queryset = queryset.filter(author__username=username).all()
+			queryset = queryset.filter(author__username=username).order_by('-time').all()
 		return queryset	
 
 class PostViewset(viewsets.GenericViewSet,
@@ -66,7 +69,7 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 		queryset = models.Comment.objects.all()
 		post_pk = self.kwargs.get('pk')
 		if post_pk:
-			queryset = queryset.filter(post__pk=post_pk).all()
+			queryset = queryset.filter(post__pk=post_pk).order_by('-time').all()
 		return queryset
 
 	def pre_save(self, obj):

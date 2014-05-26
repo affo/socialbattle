@@ -31,7 +31,7 @@ angular.module('states', ['ui.router'])
 
       .state('user.posts', {
         url: '/posts',
-        templateUrl: 'html/partials/user.posts.html',
+        templateUrl: 'html/partials/posts.html',
         controller: 'UserPosts'
       })
 
@@ -39,6 +39,24 @@ angular.module('states', ['ui.router'])
         url: '/characters',
         templateUrl: 'html/partials/user.characters.html',
         controller: 'UserCharacters'
+      })
+
+    .state('pveroom', {
+      url: '/rooms/:room_name',
+      templateUrl: 'html/partials/pveroom.html',
+      controller: 'PVERoom'
+    })
+
+    .state('relaxroom', {
+      url: '/rooms/:room_name',
+      templateUrl: 'html/partials/relaxroom.html',
+      controller: 'RelaxRoom'
+    })
+
+      .state('relaxroom.posts', {
+        url: '/posts',
+        templateUrl: 'html/partials/posts.html',
+        controller: 'RelaxRoomPosts'
       })
 	}
 );

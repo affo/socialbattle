@@ -89,7 +89,7 @@ angular.module('post', ['restangular'])
         function(response){//success
           console.log(response);
           if($scope.showing){
-            $scope.comments.push(response);
+            $scope.comments.unshift(response);
           }
         },
         function(response){//fail

@@ -1,0 +1,31 @@
+<div class="jumbotron">
+  <h2 class="text-center">{{ init_msg }}</h2>
+  <div class="row">
+    <div class="col-md-2">
+      <ul class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="#">We sell</a></li>
+        <li ng-repeat="item in items"><a href="" ng-click="put_item(item.name)">{{ item.name }}</a></li>
+      </ul>
+    </div>
+    <div class="col-md-10">
+      <div id="merchant" style="overflow: auto; height: 150px">
+        <div ng-repeat="msg in messages">
+          <p class="text-info text-left" ng-if="msg.from_merchant">{{ msg.content }}</p>
+          <p class="text-success text-right" ng-if="msg.from_user">{{ msg.content }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <form class="form" ng-submit="send()">
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" ng-click="toggle_action()">{{ action }}</button>
+        </span>
+        <input autocomplete="off" type="text" class="form-control" typeahead="item for item in fake_items" ng-model="msgForm.content" name="content" autofocus/>
+      </div>
+    </div>
+  </form>  
+</div>
+
+<div ui-view></div>

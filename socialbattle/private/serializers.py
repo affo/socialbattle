@@ -70,7 +70,7 @@ class RelaxRoomSerializer(DynamicHyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.RelaxRoom
-		fields = ('url', 'name', 'sells', )
+		fields = ('url', 'name', 'slug', 'sells', )
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -182,7 +182,7 @@ class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.PVERoom
-		fields = ('url', 'name', 'mobs', )
+		fields = ('url', 'name', 'slug', 'mobs', )
 
 class AbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:

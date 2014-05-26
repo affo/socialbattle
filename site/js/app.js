@@ -7,6 +7,7 @@ var app = angular.module('socialBattle', [
   'restangular',
   'facebook',
   'ngStorage',
+  'ui.bootstrap',
   'auth',
   'main',
   'user',

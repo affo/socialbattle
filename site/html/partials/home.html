@@ -1,9 +1,9 @@
 <div class="container">
 <div class="jumbotron" ng-if="!$storage.logged">
   <div class="row">
-    <div class="col-md-12" style="text-align: center"><h1>Welcome to SocialBattle!</h1></div>
+    <div class="col-md-12"><h1 class="text-center">Welcome to SocialBattle!</h1></div>
     <div class="col-md-6">
-      <h3>Log In</h3>
+      <h3 class="text-center">Log In</h3>
       <div class="form-group">
       <button type="button" class="btn btn-primary" data-ng-click="fb_login()">Login with Facebook</button>
       </div>
@@ -18,13 +18,12 @@
           <input type="password" class="form-control" ng-model="signinForm.password" name="password" placeholder="Password"/>
           </div>
           <button type="submit" class="btn btn-default">Submit</button>
-          {{signinForm | json}}
         </div>
       </form>
     </div>
 
     <div class="col-md-6">
-      <h3>Sign Up</h3>
+      <h3 class="text-center">Sign Up</h3>
       <form ng-submit="signup()">
         <div class="form-group">
           <input type="text" class="form-control" ng-model="signupForm.username" name="username" placeholder="Username"  />
