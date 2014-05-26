@@ -59,7 +59,6 @@
           <form class="navbar-form navbar-left" role="search" ng-controller="Search">
             <div class="form-group">
               <input type="text"
-                id="searchbar"
                 class="form-control"
                 ng-model="searchForm.query"
                 ng-keyup="keypressed($event)"
@@ -84,8 +83,10 @@
           </form>
 
         <ul class="nav navbar-nav navbar-right" ng-show="$storage.logged">
-          <li><p class="navbar-text">Hi <a ui-sref="user.posts({ username: $storage.user.username})" class="navbar-link">
-            {{ $storage.user.username }}</a></p>
+          <li><p class="navbar-text"><a ui-sref="user.posts({ username: $storage.user.username})" class="navbar-link">
+            {{ $storage.user.username }}</a>#<a
+            ui-sref="character({ name: $storage.character.name})" class="navbar-link">{{ $storage.character.name }}</a>
+            </p>
           </li>
           <li><button type="button" class="btn btn-danger navbar-btn" data-ng-click="logout()">Log out</button></li>
         </ul>

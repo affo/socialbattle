@@ -17,6 +17,7 @@ angular.module('main', ['restangular', 'ngStorage', 'facebook'])
           delete $localStorage.token;
           delete $localStorage.logged;
           delete $localStorage.user;
+          delete $localStorage.character;
           $state.go('home');        
         };
     }else{

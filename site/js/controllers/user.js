@@ -72,7 +72,22 @@ angular.module('user', ['restangular'])
     $scope.followx = followx;
   })
 
-.controller('UserCharacters', function($scope, Restangular){
+.controller('UserCharacters', function($scope, Restangular, $localStorage){
   var characters = $scope.endpoint.getList('characters').$object;
   $scope.characters = characters;
+  $scope.characterForm = {};
+
+  $scope.select = function(character){
+    $localStorage.character = character;
+  }
+
+  $scope.create_character = function(){
+    console.log($scope.characterForm);
+    $scope.endpoint.all('characters').post($scope.characterForm)
+    .then(
+      function(character){
+        $scope.characters.push(character);
+      }
+    );
+  }
 });

@@ -22,7 +22,10 @@
         <span class="input-group-btn">
           <button class="btn btn-default" type="button" ng-click="toggle_action()">{{ action }}</button>
         </span>
-        <input autocomplete="off" type="text" class="form-control" typeahead="item for item in fake_items" ng-model="msgForm.content" name="content" autofocus/>
+        <input autocomplete="off" type="text" class="form-control"
+          typeahead="item.name for item in items | filter:$viewValue"
+          ng-model="msgForm.content"
+          name="content" autofocus/>
       </div>
     </div>
   </form>  

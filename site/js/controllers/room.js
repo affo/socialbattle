@@ -23,8 +23,6 @@ angular.module('room', ['restangular'])
 	};
 	$scope.messages = [];
 
-	$scope.fake_items = ["miao", "bao", "ciao", "foo", "bar"];
-
 	$scope.toggle_action = function(){
 		if($scope.action == 'BUY'){
 			$scope.action = 'SELL';
@@ -34,11 +32,36 @@ angular.module('room', ['restangular'])
 	}
 
 	$scope.send = function(){
+		var item_name = $scope.msgForm.content
 		var sent = {
-			content: $scope.msgForm.content,
+			content: item_name,
 			from_user: true,
 		};
 		$scope.messages.push(sent);
+
+		//find the item by name
+		var index = -1;
+		for(var i = 0; i < $scope.items.length; i++){
+			if(item_name == $scope.items[i].name){
+				index = i;
+				break;
+			}
+		}
+
+		if(index > -1){
+			$scope.selected_item = $scope.items[index];
+			var msg = {
+				content: 'So you want ' + item_name + '... How many?',
+				from_merchant: true,
+			};
+			$scope.messages.push(msg);
+		}else{
+			var msg = {
+				content: 'I do not sell ' + item_name + ', sorry...',
+				from_merchant: true,
+			};
+			$scope.messages.push(msg);
+		}
 		$scope.msgForm = {};
 	}
 
