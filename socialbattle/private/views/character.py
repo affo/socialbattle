@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from socialbattle.private import models
 from socialbattle.private import serializers
-from socialbattle.private.permissions import IsOwner
+from socialbattle.private.permissions import IsOwner, IsLoggedUser
 
 ### CHARACTER
 # GET, POST: /users/{username}/characters/
@@ -16,6 +16,7 @@ class UserCharacterViewSet(viewsets.GenericViewSet,
 		List of characters for the chosen user
 	'''
 	serializer_class = serializers.CharacterSerializer
+	permission_classes = [permissions.IsAuthenticated,  IsLoggedUser]
 
 	def get_queryset(self):
 		queryset = models.Character.objects.all()
@@ -29,12 +30,15 @@ class UserCharacterViewSet(viewsets.GenericViewSet,
 
 	def post_save(self, obj, created=False):
 		if created:
-			obj.physical_abilities.add(models.PhysicalAbility.objects.get(name='attack'))
-			obj.white_magic_abilities.add(models.WhiteMagicAbility.objects.get(name='cure'))
-			obj.black_magic_abilities.add(models.BlackMagicAbility.objects.get(name='fire'))
-			obj.black_magic_abilities.add(models.BlackMagicAbility.objects.get(name='thunder'))
+			abilities = []
+			abilities.append(models.Ability.objects.get(name='attack'))
+			abilities.append(models.Ability.objects.get(name='cure'))
+			abilities.append(models.Ability.objects.get(name='fire'))
+			abilities.append(models.Ability.objects.get(name='thunder'))
+			[models.LearntAbility.objects.create(character=obj, ability=ability) \
+				for ability in abilities]
 			potion = models.Item.objects.get(name='potion')
-			record = models.InventoryRecord.objects.create(owner=obj, item=potion, quantity=3)
+			record = models.InventoryRecord.objects.create(owner=obj, item=potion, quantity=5)
 
 from socialbattle.private.views.action import use_ability, use_item, end_battle
 from django.db import models as dj_models
@@ -91,7 +95,6 @@ class CharacterViewSet(viewsets.GenericViewSet,
 						mixins.ListModelMixin):
 	queryset = models.Character.objects.all()
 	serializer_class = serializers.CharacterSerializer
-	permission_classes = [permissions.IsAuthenticated, IsOwner]
 	lookup_field = 'name'
         
 	def list(self, request, *args, **kwargs):

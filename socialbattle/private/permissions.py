@@ -27,3 +27,9 @@ class IsOwnedByCharacter(permissions.BasePermission):
 		if request.method in permissions.SAFE_METHODS:
 			return True
 		return obj.owner.owner == request.user
+
+class IsLoggedUser(permissions.BasePermission):
+	def has_permission(self, request, view):
+		if request.method in permissions.SAFE_METHODS:
+			return True
+		return view.kwargs.get('username', None) == request.user.username

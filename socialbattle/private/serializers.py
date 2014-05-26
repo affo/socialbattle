@@ -127,6 +127,7 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			view_name='ability-detail',
 			lookup_field='slug',
 			many=True,
+			read_only=True,
 		)
 
 	img = serializers.Field(source='img')
@@ -140,7 +141,7 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			'abilities', 'img', 
 		)
 
-		read_only_fields = ('name', 'level', 'ap', 'guils', 'max_hp', 'max_mp', 'stre', 'vit', 'mag', 'spd',
+		read_only_fields = ('level', 'ap', 'guils', 'max_hp', 'max_mp', 'stre', 'vit', 'mag', 'spd',
 							'curr_hp', 'curr_mp', )
 
 class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
