@@ -124,13 +124,16 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 		)
 
 	img = serializers.Field(source='img')
+	defense = serializers.Field(source='defense')
+	mdefense = serializers.Field(source='mdefense')
+	atk = serializers.Field(source='atk')
 
 	class Meta:
 		model = models.Character
 		fields = (
 			'url', 'name', 'level', 'guils', 'owner',
 			'ap', 'max_hp', 'max_mp', 'curr_hp', 'curr_mp',
-			'stre', 'vit', 'mag', 'spd',
+			'stre', 'vit', 'mag', 'spd', 'defense', 'mdefense', 'atk',
 			'img', 
 		)
 
