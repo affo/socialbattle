@@ -80,7 +80,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 	author = UserSerializer(fields=['url', 'username', 'img'], read_only=True)
 
-	room = RelaxRoomSerializer(fields=['url', 'name'], read_only=True)
+	room = RelaxRoomSerializer(fields=['url', 'name', 'slug'], read_only=True)
 
 	class Meta:
 		model = models.Post
