@@ -170,7 +170,7 @@ angular.module('room', ['restangular', 'luegg.directives'])
 	$scope.transaction_ended = function(){
 		var modalInstance = $modal.open({
       templateUrl: 'transactionModal.html',
-      controller: 'transactionModalCtrl',
+      controller: 'TransactionModal',
       resolve: {
         user: function (){
           return $localStorage.user.username;
@@ -248,7 +248,7 @@ angular.module('room', ['restangular', 'luegg.directives'])
   };
 })
 
-.controller('transactionModalCtrl', function($scope, $modalInstance, user, action, character, shop, item){
+.controller('TransactionModal', function($scope, $modalInstance, user, action, character, shop, item){
 
 	  $scope.user = user;
 	  $scope.action = action;

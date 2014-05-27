@@ -1,7 +1,7 @@
 angular.module('user', ['restangular'])
 
 .controller('UserDetail',
-  function($scope, $stateParams, Restangular, $state, $localStorage, $http) {
+  function($scope, $stateParams, Restangular, $state, $localStorage) {
     $scope.endpoint = Restangular.one('users', $stateParams.username);
     $scope.endpoint.get().then(
       function(user){
@@ -67,7 +67,7 @@ angular.module('user', ['restangular'])
   })
 
 .controller('UserFollowers',
-  function($http, $scope) {
+  function($scope) {
     var followx = $scope.endpoint.getList('followers').$object;
     $scope.followx = followx;
   })

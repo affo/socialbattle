@@ -39,5 +39,9 @@ angular.module('settings', ['restangular', 'ngStorage', 'facebook'])
       });
     };
 
+    $scope.ass_twitter = function(){
+    	console.log('ass_twitter');
+    };
+
   }
 );
