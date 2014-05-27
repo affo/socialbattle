@@ -4,7 +4,7 @@ from django.http import Http404
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from socialbattle.private import models
 from socialbattle.private import serializers
 from socialbattle.private.permissions import IsFromUser, IsAuthor
@@ -14,7 +14,6 @@ from socialbattle.private.permissions import IsFromUser, IsAuthor
 # GET, PUT: /users/{username}/
 class UserViewSet(viewsets.GenericViewSet,
 					mixins.ListModelMixin,
-					mixins.CreateModelMixin,
 					mixins.UpdateModelMixin,
 					mixins.RetrieveModelMixin):
 	queryset = models.User.objects.all()
@@ -38,20 +37,6 @@ class UserViewSet(viewsets.GenericViewSet,
 
 		return Response(data=serializers.UserSerializer(users, context=self.get_serializer_context(), many=True).data,
 						status=status.HTTP_200_OK)
-
-	def create(self, request, *args, **kwargs):
-		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
-		if serializer.is_valid():
-			user = serializer.object
-			username = user.username
-			email = user.email
-			password = user.password
-			user = models.User.objects.create_user(username, email, password)
-			user = serializers.UserSerializer(user).data
-			return Response(user, status=status.HTTP_201_CREATED,
-							headers=self.get_success_headers(user))
-		
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	@action(methods=['POST'], serializer_class=serializers.FellowshipSerializer)
 	def isfollowing(self, request, *args, **kwargs):

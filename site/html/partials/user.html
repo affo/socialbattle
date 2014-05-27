@@ -8,19 +8,19 @@
 </div>
 <br/>
 <div class="row">
-	<ul class="nav nav-tabs nav-justified">
-		<li class="active">
-			<a class="active" ui-sref="user.posts">Posts</a>
-		</li>
-		<li>
+	<tabset justified="true">
+		<tab><tab-heading>
+			<a ui-sref="user.posts">Posts</a>
+		</tab-heading></tab>
+		<tab><tab-heading>
 			<a ui-sref="user.following">Following <span class="badge">{{user.no_following}}</span></a>
-		</li>
-	  	<li>
+		</tab-heading></tab>
+	  	<tab><tab-heading>
 	  		<a ui-sref="user.followers">Followers <span class="badge">{{user.no_followers}}</span></a>
-	  	</li>
-		<li>
+	  	</tab>
+		<tab><tab-heading>
 			<a ui-sref="user.characters">Characters</a>
-		</li>
+		</tab-heading></tab>
 	</ul>
 </div>
 </nav>

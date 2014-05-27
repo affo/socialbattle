@@ -4,6 +4,9 @@ angular.module('room', ['restangular', 'luegg.directives'])
 	function($scope, $state, $localStorage, Restangular){
 		$scope.pverooms = Restangular.all('rooms/pve').getList().$object;
 		$scope.relaxrooms = Restangular.all('rooms/relax').getList().$object;
+		$scope.go = function(string, data){
+			$state.go(string, data);
+		};
 })
 
 .controller('PVERoom', function($scope, Restangular, $stateParams){

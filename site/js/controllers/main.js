@@ -9,17 +9,6 @@ angular.module('main', ['restangular', 'ngStorage', 'facebook'])
     if($localStorage.logged){
       $scope.$storage = $localStorage;
       Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
-
-      $scope.logout = function(){ 
-          Restangular.setDefaultHeaders(
-              {'Authorization': ''}
-          );
-          delete $localStorage.token;
-          delete $localStorage.logged;
-          delete $localStorage.user;
-          delete $localStorage.character;
-          $state.go('home');        
-        };
     }else{
       //no user logged... redirected to home page
       $state.go('home');

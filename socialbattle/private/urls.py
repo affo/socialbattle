@@ -50,7 +50,8 @@ router.register(r'abilities', ability.AbilityViewSet)
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
 	url(r'^auth/', 'rest_framework.authtoken.views.obtain_auth_token'),
-	url(r'^sa/', include('social_auth.urls')),
-	url(r'^sa/register/(?P<backend>[a-z]+)', auth.register_by_access_token),
-	url(r'^sa/ass/(?P<backend>[a-z]+)', auth.associate_by_access_token),
+	url(r'^sa/default/', include('social_auth.urls')),
+	url(r'^sa/login/(?P<backend>[a-z]+)/', auth.register_by_access_token),
+	url(r'^sa/associate/(?P<backend>[a-z]+)/', auth.associate_by_access_token),
+	url(r'^signup/$', auth.signup),
 )
