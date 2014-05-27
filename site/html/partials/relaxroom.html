@@ -1,34 +1,69 @@
 <div class="jumbotron">
-  <h2 class="text-center">{{ init_msg }}</h2>
+<h2 class="text-center">The merchant</h2>
   <div class="row">
     <div class="col-md-2">
-      <ul class="nav nav-pills nav-stacked">
-        <li class="disabled"><a href="#">We sell</a></li>
-        <li ng-repeat="item in items"><a href="" ng-click="put_item(item.name)">{{ item.name }}</a></li>
+      <ul ng-if="action == 'BUY'" class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="#">We sell - {{ $storage.character.guils }}G</a></li>
+        <li ng-repeat="item in buy_items"><a href="" ng-click="put_item(item.name)"
+          popover="{{item.description}}" popover-trigger="mouseenter">
+          {{ item.name }}</a></li>
+      </ul>
+      <ul ng-if="action == 'SELL'" class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="#">You sell - {{ $storage.character.guils }}G</a></li>
+        <li ng-repeat="item in sell_items"><a href="" ng-click="put_item(item.item.name)"
+          popover="{{item.item.description}}" popover-trigger="mouseenter">
+          {{ item.item.name }} - {{ item.quantity }}</a>
+        </li>
       </ul>
     </div>
     <div class="col-md-10">
-      <div id="merchant" style="overflow: auto; height: 150px">
+      <div scroll-glue style="overflow: auto; height: 200px">
         <div ng-repeat="msg in messages">
           <p class="text-info text-left" ng-if="msg.from_merchant">{{ msg.content }}</p>
           <p class="text-success text-right" ng-if="msg.from_user">{{ msg.content }}</p>
         </div>
       </div>
     </div>
-  </div>
-  <form class="form" ng-submit="send()">
-    <div class="form-group">
-      <div class="input-group">
-        <span class="input-group-btn">
-          <button class="btn btn-default" type="button" ng-click="toggle_action()">{{ action }}</button>
-        </span>
-        <input autocomplete="off" type="text" class="form-control"
-          typeahead="item.name for item in items | filter:$viewValue"
-          ng-model="msgForm.content"
-          name="content" autofocus/>
+
+     <form class="form" ng-submit="send()">
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="toggle_action()">{{ action }}</button>
+          </span>
+          <input ng-if="action == 'BUY' && state == ai.INIT" autocomplete="off" type="text" class="form-control"
+            typeahead="item.name for item in buy_items | filter:$viewValue"
+            ng-model="msgForm.content"
+            name="content" autofocus/>
+          <input ng-if="action == 'SELL' && state == ai.INIT" autocomplete="off" type="text" class="form-control"
+            typeahead="item.item.name for item in sell_items | filter:$viewValue"
+            ng-model="msgForm.content"
+            name="content" autofocus/>
+          <input ng-if="state != ai.INIT" type="text" class="form-control"
+            ng-model="msgForm.content"
+            name="content" autofocus/>
+
+          <span class="input-group-btn" ng-if="state != ai.INIT">
+            <button class="btn btn-default" type="button" ng-click="ai.reset()">Cancel</button>
+          </span>
+        </div>
       </div>
-    </div>
-  </form>  
+    </form>  
+  </div>
 </div>
+
+<script type="text/ng-template" id="transactionModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Congrats, You performed a transaction!</h3>
+    </div>
+    <div class="modal-body">
+        The merchant says:
+        <div class="well">Well done! {{ user }} using {{ character }} {{ action }} some {{item}} @ {{ shop }}!</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary disabled" ng-click="share()">Share with Facebook</button>
+        <button class="btn btn-error" ng-click="close()">Close</button>
+    </div>
+</script>
 
 <div ui-view></div>

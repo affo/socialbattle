@@ -108,7 +108,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Item
-		fields = ('url', 'name', 'cost', 'item_type', 'power')
+		fields = ('url', 'name', 'cost', 'item_type', 'power', 'description')
 		lookup_field = 'slug'
 
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):
@@ -169,6 +169,27 @@ class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.InventoryRecord
 		fields = ('url', 'owner', 'item', 'quantity', 'equipped', )
 
+class InventoryRecordGetSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+		view_name='inventoryrecord-detail',
+		lookup_field='pk',
+	)
+
+	owner = serializers.HyperlinkedRelatedField(
+		view_name='character-detail',
+		lookup_field='name',
+		read_only=True,
+	)
+
+	item = ItemSerializer()
+
+	quantity = serializers.Field(source='quantity')
+	equipped = serializers.BooleanField(source='equipped')
+
+	class Meta:
+		model = models.InventoryRecord
+		fields = ('url', 'owner', 'item', 'quantity', 'equipped', )
+
 class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='pveroom-detail',
@@ -188,9 +209,9 @@ class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 class AbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Ability
-		fields = ('url', 'name', 'description', 'power', 'requires', 'element')
+		fields = ('url', 'name', 'description', 'power', 'requires', 'element', 'description')
 		lookup_field = 'slug'
-		read_only_fields = ('name', 'description', 'power', 'requires', 'element')
+		read_only_fields = ('name', 'description', 'power', 'requires', 'element', 'description')
 
 class LearntAbilitySerializer(serializers.HyperlinkedModelSerializer):
 	character = serializers.HyperlinkedRelatedField(

@@ -1,4 +1,4 @@
-angular.module('room', ['restangular'])
+angular.module('room', ['restangular', 'luegg.directives'])
 
 .controller('Rooms',
 	function($scope, $state, $localStorage, Restangular){
@@ -11,62 +11,196 @@ angular.module('room', ['restangular'])
 	$scope.room_name = $stateParams.room_name;
 })
 
-.controller('RelaxRoom', function($scope, Restangular, $stateParams){
+.controller('RelaxRoom', function($scope, Restangular, $stateParams, $localStorage, $modal){
 	$scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
+	$scope.character_endpoint = Restangular.one('characters', $localStorage.character.name);
 	$scope.init_msg = 'Welcome, I am the merchant at ' + $stateParams.room_name;
-	$scope.items = $scope.endpoint.all('items').getList().$object;
+	$scope.buy_items = $scope.endpoint.all('items').getList().$object;
 	$scope.msgForm = {};
 	$scope.action = 'BUY';
 	var init_msg = {
-		content: 'Welcome, I am the merchant at ' + $scope.room_name,
+		content: 'Welcome, I am the merchant at ' + $stateParams.room_name,
 		from_merchant: true
 	};
-	$scope.messages = [];
+	$scope.messages = [init_msg, ];
 
 	$scope.toggle_action = function(){
 		if($scope.action == 'BUY'){
 			$scope.action = 'SELL';
+			$scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
 		}else{
 			$scope.action = 'BUY';
 		}
+		ai.reset();
 	}
 
+	var ai = {
+		find_item: function(item_name){
+			//find the item by name
+			if($scope.action == 'BUY'){
+				for(var i = 0; i < $scope.buy_items.length; i++){
+					if(item_name == $scope.buy_items[i].name){
+						return $scope.buy_items[i];
+					}
+				}
+				return undefined;
+			}else if($scope.action == 'SELL'){
+				for(var i = 0; i < $scope.sell_items.length; i++){
+					if(item_name == $scope.sell_items[i].item.name){
+						return $scope.sell_items[i].item;
+					}
+				}
+				return undefined;
+			}
+		},
+
+		reset: function(){
+			var msg = {
+					content: 'Please type the item you want to ' + $scope.action,
+					from_merchant: true,
+			};
+			$scope.messages.push(msg);
+			$scope.state = ai.INIT;
+		},
+
+		INIT: function(item_name){
+			item = ai.find_item(item_name);
+
+			if(item){
+				$scope.selected_item = item;
+				var msg = {
+					content: 'So you want to ' + $scope.action + ' ' + item_name + '... How many?',
+					from_merchant: true,
+				};
+				$scope.messages.push(msg);
+				$scope.state = ai.HOW_MANY;
+			}else{
+				var content = '';
+				if($scope.action == 'BUY'){
+					content = 'I do not sell ' + item_name + ', sorry...';
+				}else{
+					content = 'You do not have ' + item_name + ' in your inventory';
+				}
+				var msg = {
+					content: content,
+					from_merchant: true,
+				};
+				$scope.messages.push(msg);
+			}
+		},
+
+		HOW_MANY: function(quantity){
+			if(isNaN(quantity)){
+				var msg = {
+					content: 'Please give me a valid number',
+					from_merchant: true,
+				};
+			}else{
+				var msg = {
+						content: 'So you want to ' + $scope.action + ' ' + quantity + " of " + $scope.selected_item.name,
+						from_merchant: true,
+					};
+				$scope.messages.push(msg);
+
+				var data = {
+					item: $scope.selected_item.url,
+					quantity: quantity,
+					operation: $scope.action[0]
+				};
+
+				$scope.character_endpoint.all('transactions').post(data)
+				.then(
+					function(response){
+						ai.OK(response);
+					},
+					function(response){
+						console.log(response);
+						ai.KO(response);
+					}
+				);
+			}
+		},
+
+		OK: function(resp){
+			var msg = {
+					content: "Well done",
+					from_merchant: true,
+			};
+			$localStorage.character.guils = resp.guils_left;
+			$scope.messages.push(msg);
+			$scope.transaction_ended(msg.content);
+
+			if($scope.action == 'SELL'){
+				$scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
+			}
+		},
+
+		KO: function(resp){
+			var msg = {
+					content: resp.data.msg,
+					from_merchant: true,
+			};
+			$scope.messages.push(msg);
+			ai.reset();
+		},
+	}
+
+	$scope.ai = ai;
+	$scope.state = ai.INIT;
+	ai.reset();
+
 	$scope.send = function(){
-		var item_name = $scope.msgForm.content
+		var msg = $scope.msgForm.content
 		var sent = {
-			content: item_name,
+			content: msg,
 			from_user: true,
 		};
 		$scope.messages.push(sent);
-
-		//find the item by name
-		var index = -1;
-		for(var i = 0; i < $scope.items.length; i++){
-			if(item_name == $scope.items[i].name){
-				index = i;
-				break;
-			}
-		}
-
-		if(index > -1){
-			$scope.selected_item = $scope.items[index];
-			var msg = {
-				content: 'So you want ' + item_name + '... How many?',
-				from_merchant: true,
-			};
-			$scope.messages.push(msg);
-		}else{
-			var msg = {
-				content: 'I do not sell ' + item_name + ', sorry...',
-				from_merchant: true,
-			};
-			$scope.messages.push(msg);
-		}
+		$scope.state(msg);
 		$scope.msgForm = {};
-	}
+	};
 
 	$scope.put_item = function(name){
 		$scope.msgForm.content = name;
+	};
+
+	$scope.transaction_ended = function(){
+		var modalInstance = $modal.open({
+      templateUrl: 'transactionModal.html',
+      controller: 'transactionModalCtrl',
+      resolve: {
+        user: function (){
+          return $localStorage.user.username;
+        },
+
+        character: function(){
+        	return $localStorage.character.name;
+        },
+
+        item: function(){
+        	return $scope.selected_item.name;
+        },
+
+        shop: function(){
+        	return $stateParams.room_name;
+        },
+
+        action: function(){
+        	if($scope.action == 'BUY'){
+        		return 'bought';
+        	}
+        	return 'sold';
+        },
+      }
+    });
+
+    modalInstance.result
+    .then(
+    	function() {
+      	ai.reset();
+    	}
+    );
+
 	};
 
 })
@@ -79,6 +213,7 @@ angular.module('room', ['restangular'])
 		$scope.endpoint.all('posts').post($scope.postForm).then(
 			function(post){
 				$scope.posts.unshift(post);
+				$scope.postForm = {};
 			}
 		);
 	};
@@ -109,3 +244,19 @@ angular.module('room', ['restangular'])
 
   };
 })
+
+.controller('transactionModalCtrl', function($scope, $modalInstance, user, action, character, shop, item){
+
+	  $scope.user = user;
+	  $scope.action = action;
+	  $scope.character = character;
+	  $scope.shop = shop;
+	  $scope.item = item;
+
+	  $scope.share = function(){console.log('share')};
+
+	  $scope.close = function () {
+	    $modalInstance.close();
+	  };
+	}
+);

@@ -54,6 +54,7 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 			if transaction.item.cost * transaction.quantity > character.guils and transaction.operation:
 				return Response(
 							data={'msg': 'Not enough money to buy this item'},
+							status=status.HTTP_400_BAD_REQUEST
 						)
 
 			try:
@@ -95,7 +96,7 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 		record = serializers.InventoryRecordSerializer(record, context=self.get_serializer_context()).data
 		data = {
 			'inventory_record': record,
-			'guils left': character.guils,
+			'guils_left': character.guils,
 		}
 
 		return Response(data=data, status=status.HTTP_201_CREATED, headers=self.get_success_headers(data))

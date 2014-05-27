@@ -1,3 +1,4 @@
+from rest_framework.generics import get_object_or_404
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
@@ -34,13 +35,14 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		The inventory of the selected character.  
 	'''
-	serializer_class = serializers.InventoryRecordSerializer
+	serializer_class = serializers.InventoryRecordGetSerializer
 
 	def get_queryset(self):
 		queryset = models.InventoryRecord.objects.all()
 		name = self.kwargs.get('character_name')
 		if name:
-			queryset = queryset.filter(owner__name=name)
+			character = get_object_or_404(models.Character.objects.all(), name=name)
+			queryset = queryset.filter(owner=character)
 		return queryset
 
 class InventoryRecordViewSet(viewsets.GenericViewSet,

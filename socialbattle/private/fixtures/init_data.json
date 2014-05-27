@@ -366,7 +366,8 @@
 			"name": "potion",
 			"slug": "potion",
 			"item_type": "R",
-			"power": 20
+			"power": 20,
+			"description": "Restores minor HP"
 		}
 	},
 	{
@@ -395,7 +396,8 @@
 			"slug": "mythril-sword",
 			"item_type": "W",
 			"ctf": 21,
-			"power": 25
+			"power": 25,
+			"description": "The equipment of this type are usually of weak or mediocre power."
 		}
 	},
 	{
@@ -415,7 +417,8 @@
 		"fields": {
 			"name": "hi potion",
 			"slug": "hi-potion",
-			"item_type": "R"
+			"item_type": "R",
+			"description": "Restores moderate HP"
 		}
 	},
 	{
@@ -608,7 +611,8 @@
 		"fields": {
 			"name": "attack",
 			"slug": "attack",
-			"ctf": 0
+			"ctf": 0,
+			"description": "Attack ability"
 		}
 	},
 	{
@@ -627,7 +631,8 @@
 		"fields": {
 			"name": "fire",
 			"slug": "fire",
-			"element": "F" 
+			"element": "F",
+			"description": "Fire black magic of level 1"
 		}
 	},
 	{
