@@ -14,6 +14,7 @@ var app = angular.module('socialBattle', [
   'room',
   'post',
   'search',
+  'settings',
 ]);
 
 app.run(

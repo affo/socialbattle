@@ -30,6 +30,7 @@
   <script src="/js/controllers/room.js"></script>
   <script src="/js/controllers/post.js"></script>
   <script src="/js/controllers/search.js"></script>
+  <script src="/js/controllers/settings.js"></script>
   
   <!-- <script type="text/javascript">
     // use .on() to add a listener. you can add as many listeners as you want.
@@ -43,95 +44,7 @@
 </head>
 <body ng-app="socialBattle" ng-controller="Main">
 
-  <nav class="navbar navbar-default" role="navigation" ng-if="$storage.logged">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" ui-sref="home">SocialBattle</a>
-      </div>
+  <div ui-view></div>
 
-      <div class="collapse navbar-collapse">
-          <form class="navbar-form navbar-left" role="search" ng-controller="Search">
-            <div class="form-group">
-              <input type="text"
-                class="form-control"
-                ng-model="searchForm.query"
-                ng-keyup="keypressed($event)"
-                name="query"
-                autocomplete="off"
-                placeholder="Search">
-            </div>
-            <ul class="nav navbar-nav"
-                ng-if="searching && (results.rooms.length > 0 || results.users.length > 0)">
-              <li class="dropdown open">
-                <ul class="dropdown-menu">
-                  <li ng-repeat="u in results.users">
-                      <a ui-sref="user({username: u.username})" ng-click="submit()">{{ u.username }}</a>
-                  </li>
-                  <li class="divider" ng-if="results.rooms.length > 0 && results.users.length > 0">Rooms</li>
-                  <li ng-repeat="r in results.rooms">
-                      <a href="" ng-click="submit()">{{ r.name }}</a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </form>
-
-        <ul class="nav navbar-nav navbar-right" ng-show="$storage.logged">
-          <li><p class="navbar-text"><a ui-sref="user.posts({ username: $storage.user.username})" class="navbar-link">
-            {{ $storage.user.username }}</a>#<a
-            ui-sref="character({ name: $storage.character.name})" class="navbar-link">{{ $storage.character.name }}</a>
-            </p>
-          </li>
-          <li class="dropdown" ng-controller="Auth">
-            <a href="" class="dropdown-toggle" data-toggle="dropdown">
-              Settings <span class="glyphicon glyphicon-wrench"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li ng-if="!$storage.facebook"><a href="" class="text-primary disabled" data-ng-click="ass_facebook()">Connect with Facebook</a>
-              <li nf-if="!$storage.twitter"><a href="" class="text-info disabled" data-ng-click="ass_twitter()">Connect with Twitter</a>
-              <li><a href="" class="text-danger" data-ng-click="logout()">Log out</a>
-            </ul>
-          </li>
-         </ul>
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-
-    <!--- <div class="row show-grid">
-      <div class="col-md-12" style="height: 50px, background-image: {{triang}}"></div>
-    </div> -->
-  </nav>
-
-  <div class="container-fluid" ng-if="$storage.logged">
-  <div class="row">
-    <div class="col-md-2" ng-controller="Rooms">
-      <nav class=" navbar navbar-default" role="navigation">
-        <!-- room bar -->
-        <tabset type="pills" vertical="true">
-          <tab class="disabled" active="tab.disabled"><tab-heading>PVE</tab-heading></tab>
-          <tab ng-repeat="pve in pverooms" select="go('pveroom', {room_name: pve.slug})">
-            <tab-heading>{{ pve.name }}</tab-heading>
-          </tab>
-          <tab class="divider"></tab>
-          <tab class="disabled" active="tab.disabled"><tab-heading>RELAX</tab-heading></tab>
-          <tab ng-repeat="relax in relaxrooms" select="go('relaxroom.posts', {room_name: relax.slug})">
-            <tab-heading>{{ relax.name }}</a></tab-heading>
-          </tab>
-        </ul>
-      </nav>
-    </div>
-    <div class="col-md-10">
-      <div ui-view></div>
-    </div>
-  </div> 
-  </div>
-
-  <div ui-view ng-if="!$storage.logged"></div>
 </body>
 </html>

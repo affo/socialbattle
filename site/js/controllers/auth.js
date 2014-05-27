@@ -10,12 +10,6 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     $scope.$storage = $localStorage;
     $scope.signinForm = {};
     $scope.signupForm = {};
-    // Here, usually you should watch for when Facebook is ready and loaded
-    $scope.$watch(function() {
-      return Facebook.isReady(); // This is for convenience, to notify if Facebook is loaded and ready to go.
-    }, function(newVal) {
-      $scope.facebookReady = true; // You might want to use this to disable/show/hide buttons and else
-    });
 
     var login = function(username, token, social){
       $localStorage.token = token;
@@ -94,39 +88,4 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
                 console.log(response);
             });
     };
-
-    $scope.logout = function(){ 
-      Restangular.setDefaultHeaders(
-          {'Authorization': ''}
-      );
-      delete $localStorage.token;
-      delete $localStorage.logged;
-      delete $localStorage.user;
-      delete $localStorage.character;
-      delete $localStorage.facebook;
-      delete $localStorage.twitter;
-      $state.go('home');        
-    };
-
-    $scope.ass_facebook = function(){
-      console.log('getLoginStatus');
-      Facebook.getLoginStatus(function(response){
-        $scope.$apply(function(){
-          if(response.status == 'connected') {
-              var data = {access_token: response.authResponse.accessToken};
-
-              Restangular.all('sa/associate/').customGET('facebook', data).then(
-                function(user){
-                  $localStorage.user = user;
-                  $localStorage.facebook = true;
-                }, function(response){
-                  //error
-                  console.log(response);
-                });
-          } else {
-            //not logged to facebook
-          };
-        });
-      });
-    }
 });

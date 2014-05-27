@@ -1,0 +1,48 @@
+<div class="container">
+<div class="jumbotron" style="margin-top: 20px">
+  <div class="row">
+    <div class="col-md-12"><h1 class="text-center">Welcome to SocialBattle!</h1></div>
+    <div class="col-md-6">
+      <h3 class="text-center">Log In</h3>
+      <div class="form-group">
+      <button type="button" class="btn btn-primary" data-ng-click="fb_login()">Login with Facebook</button>
+      </div>
+
+      <form ng-submit="sb_login()">
+        <div class="form-group">
+          <div class="form-group">
+          <input type="text" class="form-control" ng-model="signinForm.username" name="username" placeholder="Username"/>
+          </div>
+
+          <div class="form-group">
+          <input type="password" class="form-control" ng-model="signinForm.password" name="password" placeholder="Password"/>
+          </div>
+          <button type="submit" class="btn btn-default">Submit</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-md-6">
+      <h3 class="text-center">Sign Up</h3>
+      <form ng-submit="signup()">
+        <div class="form-group">
+          <input type="text" class="form-control" ng-model="signupForm.username" name="username" placeholder="Username"  />
+        </div>
+
+        <div class="form-group">
+          <div class="input-group">
+            <span class="input-group-addon">@</span>
+            <input type="text" class="form-control" ng-model="signupForm.email" name="email" placeholder="E-mail" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-control" ng-model="signupForm.password" name="password" placeholder="Password" />
+        </div>
+          <button type="submit" class="btn btn-default">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
