@@ -123,13 +123,6 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			read_only=True,
 		)
 
-	abilities = serializers.HyperlinkedRelatedField(
-			view_name='ability-detail',
-			lookup_field='slug',
-			many=True,
-			read_only=True,
-		)
-
 	img = serializers.Field(source='img')
 
 	class Meta:
@@ -138,7 +131,7 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			'url', 'name', 'level', 'guils', 'owner',
 			'ap', 'max_hp', 'max_mp', 'curr_hp', 'curr_mp',
 			'stre', 'vit', 'mag', 'spd',
-			'abilities', 'img', 
+			'img', 
 		)
 
 		read_only_fields = ('level', 'ap', 'guils', 'max_hp', 'max_mp', 'stre', 'vit', 'mag', 'spd',

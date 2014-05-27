@@ -1,0 +1,19 @@
+<nav class="navbar">
+<div class="row">
+	<div class="col-md-2"><img class="img-thumbnail" ng-src="{{character.img}}"></div>
+	<div class="col-md-10"><h3>{{ character.name }}</h3></div>
+</div>
+<br/>
+<div class="row">
+	<tabset justified="true">
+		<tab><tab-heading>
+			<a ui-sref="character.abilities">Abilities</a>
+		</tab-heading></tab>
+		<tab><tab-heading>
+			<a ui-sref="character.inventory">Inventory</a>
+		</tab-heading></tab>
+	</ul>
+</div>
+</nav>
+
+<div ui-view></div>

@@ -68,5 +68,25 @@ angular.module('states', ['ui.router'])
         templateUrl: 'html/partials/posts.html',
         controller: 'RelaxRoomPosts'
       })
+
+    .state('character', {
+      parent: 'logged',
+
+      url: '/characters/:name',
+      templateUrl: 'html/partials/character.html',
+      controller: 'CharacterDetail'
+    })
+
+      .state('character.abilities', {
+        url: '/abilities',
+        templateUrl: 'html/partials/character.abilities.html',
+        controller: 'CharacterAbilities'
+      })
+
+      .state('character.inventory', {
+        url: '/inventory',
+        templateUrl: 'html/partials/character.inventory.html',
+        controller: 'CharacterInventory'
+      })
 	}
 );
