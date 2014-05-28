@@ -58,7 +58,7 @@ class Ability(models.Model):
 		('W', 'water'),
 		('F', 'fire'),
 		('B', 'blizzard'),
-		('W', 'white magic'),
+		('H', 'white magic'),
 	)
 
 	name = models.CharField(max_length=200, unique=True)
@@ -94,7 +94,7 @@ class Character(models.Model, TargetMixin):
 	name = models.CharField(max_length=200, unique=True)
 	level = models.IntegerField(default=1)
 	exp = models.IntegerField(default=0)
-	ap = models.IntegerField(default=0)
+	ap = models.IntegerField(default=10)
 	guils = models.IntegerField(default=1000)
 	#stats
 	max_hp = models.IntegerField(default=BASE_STATS['HP'][0])
@@ -121,25 +121,6 @@ class Character(models.Model, TargetMixin):
 
 		return list(set(filter(filter_function, abilities)) - set(learnt_abilities))
 
-	def get_weapon(self):
-		try:
-			weapon = self.items.filter(inventoryrecord__equipped=True,
-										inventoryrecord__item__item_type=Item.ITEM_TYPE[1][0]).get()
-		except ObjectDoesNotExist:
-			return None
-
-		return weapon
-
-
-	def get_armor(self):
-		try:
-			armor = self.items.filter(inventoryrecord__equipped=True,
-										inventoryrecord__item__item_type=Item.ITEM_TYPE[2][0]).get()
-		except ObjectDoesNotExist:
-			return None
-
-		return armor
-
 	def update_hp(self, damage):
 		self.curr_hp -= damage
 		if self.curr_hp > self.max_hp:
@@ -159,10 +140,46 @@ class Character(models.Model, TargetMixin):
 		self.save()
 
 	@property
+	def weapon(self):
+		try:
+			weapon = InventoryRecord.objects.filter(owner=self, equipped=True,
+										item__item_type=Item.ITEM_TYPE[1][0]).get()
+		except ObjectDoesNotExist:
+			return None
+
+		return weapon
+
+	@property
+	def armor(self):
+		try:
+			armor = InventoryRecord.objects.filter(owner=self, equipped=True,
+										item__item_type=Item.ITEM_TYPE[2][0]).get()
+		except ObjectDoesNotExist:
+			return None
+
+		return armor
+
+	@property
+	def weapons(self):
+		try:
+			weapons = InventoryRecord.objects.filter(owner=self, item__item_type=Item.ITEM_TYPE[1][0]).all()
+		except ObjectDoesNotExist:
+			return None
+		return weapons
+
+	@property
+	def armors(self):
+		try:
+			armors = InventoryRecord.objects.filter(owner=self, item__item_type=Item.ITEM_TYPE[2][0]).all()
+		except ObjectDoesNotExist:
+			return None
+		return armors
+	
+
+	@property
 	def defense(self):
-		armor = self.get_armor()
-		if armor:
-			return armor.power
+		if self.armor:
+			return self.armor.item.power
 		else:
 			return 0
 
@@ -176,9 +193,8 @@ class Character(models.Model, TargetMixin):
 
 	@property
 	def atk(self):
-		weapon = self.get_weapon()
-		if weapon:
-			return weapon.power
+		if self.weapon:
+			return self.weapon.item.power
 		else:
 			return 11 #as ffxii does
 

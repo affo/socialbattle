@@ -16,7 +16,8 @@ angular.module('room', ['restangular', 'luegg.directives'])
 
 .controller('RelaxRoom', function($scope, Restangular, $stateParams, $localStorage, $modal){
 	$scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
-	$scope.character_endpoint = Restangular.one('characters', $localStorage.character.name);
+	$scope.character_endpoint = Restangular.one('characters', $localStorage.character);
+	$scope.character = $scope.character_endpoint.get().$object;
 	$scope.init_msg = 'Welcome, I am the merchant at ' + $stateParams.room_name;
 	$scope.buy_items = $scope.endpoint.all('items').getList().$object;
 	$scope.msgForm = {};
@@ -59,8 +60,8 @@ angular.module('room', ['restangular', 'luegg.directives'])
 
 		reset: function(){
 			var msg = {
-					content: 'Please type the item you want to ' + $scope.action,
-					from_merchant: true,
+				content: 'Please type the item you want to ' + $scope.action,
+				from_merchant: true,
 			};
 			$scope.messages.push(msg);
 			$scope.state = ai.INIT;
@@ -129,7 +130,7 @@ angular.module('room', ['restangular', 'luegg.directives'])
 					content: "Well done",
 					from_merchant: true,
 			};
-			$localStorage.character.guils = resp.guils_left;
+			$scope.character.guils = resp.guils_left;
 			$scope.messages.push(msg);
 			$scope.transaction_ended(msg.content);
 
@@ -173,11 +174,11 @@ angular.module('room', ['restangular', 'luegg.directives'])
       controller: 'TransactionModal',
       resolve: {
         user: function (){
-          return $localStorage.user.username;
+          return $localStorage.user;
         },
 
         character: function(){
-        	return $localStorage.character.name;
+        	return $localStorage.character;
         },
 
         item: function(){

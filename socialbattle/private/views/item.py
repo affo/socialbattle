@@ -5,6 +5,7 @@ from rest_framework import status
 from socialbattle.private import models
 from socialbattle.private import serializers
 from socialbattle.private.permissions import IsOwnedByCharacter
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 ### ITEM
 # GET: /room/relax/{room_slug}/items/
@@ -35,7 +36,7 @@ class CharacterInventoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''
 		The inventory of the selected character.  
 	'''
-	serializer_class = serializers.InventoryRecordGetSerializer
+	serializer_class = serializers.InventoryRecordSerializer
 
 	def get_queryset(self):
 		queryset = models.InventoryRecord.objects.all()
@@ -59,7 +60,6 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 	permission_classes = [permissions.IsAuthenticated, IsOwnedByCharacter]
 
 	def pre_save(self, obj):
-		print obj.equipped
 		RESTORATIVE = models.Item.ITEM_TYPE[0][0]
 		ARMOR = models.Item.ITEM_TYPE[2][0]
 		WEAPON = models.Item.ITEM_TYPE[1][0]
@@ -69,14 +69,18 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 		if obj.item.item_type == RESTORATIVE and obj.equipped == True:
 			raise ValidationError({"msg": ["Cannot equip a restorative time"]})
 
-		n_armor = records.filter(item__item_type=ARMOR).filter(equipped=True).count()
-		if n_armor == 1 and obj.item.item_type == ARMOR and obj.equipped == True:
-			raise ValidationError({"msg": ["Cannot equip two armors at the same time"]})
+		#automatically unequip the previous item
+		if obj.item.item_type == ARMOR and obj.equipped == True:
+			eq_armor = obj.owner.armor
+			if eq_armor:
+				eq_armor.equipped = False
+				eq_armor.save()
 
-		n_weapon = records.filter(item__item_type=WEAPON).filter(equipped=True).count()
-		print 'weapon: %s, armor %s' % (n_weapon, n_armor)
-		if n_weapon == 1 and obj.item.item_type == WEAPON and obj.equipped == True:
-			raise ValidationError({"msg": ["Cannot equip two weapons at the same time"]})
+		if obj.item.item_type == WEAPON and obj.equipped == True:
+			eq_weapon = obj.owner.weapon
+			if eq_weapon:
+				eq_weapon.equipped = False
+				eq_weapon.save()
 
 	def destroy(self, request, *args, **kwargs):
 		record = self.get_object()

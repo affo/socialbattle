@@ -758,7 +758,7 @@
 		"fields": {
 			"name": "cure",
 			"slug": "cure",
-			"element": "W"
+			"element": "H"
 		}
 	},
 	{
@@ -767,7 +767,7 @@
 		"fields": {
 			"name": "cura",
 			"slug": "cura",
-			"element": "W",
+			"element": "H",
 			"requires": [16]
 		}
 	},
@@ -777,7 +777,7 @@
 		"fields": {
 			"name": "curaga",
 			"slug": "curaga",
-			"element": "W",
+			"element": "H",
 			"requires": [17]
 		}
 	},

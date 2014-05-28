@@ -3,13 +3,13 @@
   <div class="row">
     <div class="col-md-2">
       <ul ng-if="action == 'BUY'" class="nav nav-pills nav-stacked">
-        <li class="disabled"><a href="#">We sell - {{ $storage.character.guils }}G</a></li>
+        <li class="disabled"><a href="#">We sell - {{ character.guils }}G</a></li>
         <li ng-repeat="item in buy_items"><a href="" ng-click="put_item(item.name)"
           popover="{{item.description}}" popover-trigger="mouseenter">
           {{ item.name }}</a></li>
       </ul>
       <ul ng-if="action == 'SELL'" class="nav nav-pills nav-stacked">
-        <li class="disabled"><a href="#">You sell - {{ $storage.character.guils }}G</a></li>
+        <li class="disabled"><a href="#">You sell - {{ character.guils }}G</a></li>
         <li ng-repeat="item in sell_items"><a href="" ng-click="put_item(item.item.name)"
           popover="{{item.item.description}}" popover-trigger="mouseenter">
           {{ item.item.name }} - {{ item.quantity }}</a>

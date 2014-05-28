@@ -1,3 +1,52 @@
-<ul>
-	<li ng-repeat="record in inventory">{{ record.item.name }} - {{ record.quantity }}</li>
+<alert ng-if="alert" type="{{alert.type}}" close="close_alert()">{{alert.msg}}</alert>
+
+<div class="row" ng-if="is_me">
+  <div class="col-md-2"><input class="form-control" ng-model="query" placeholder="Search Item..."></div>
+  <div class="col-md-4">Equipped weapon: 
+    <div class="btn-group" dropdown>
+      <button type="button" class="btn btn-primary dropdown-toggle">
+        {{ eq_weapon.item.name }} <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li ng-repeat="record in weapon_records"><a href="" ng-click="equip_weapon(record)"
+          popover="{{ record.item.description }}" popover-trigger="mouseenter" popover-placement="left">
+          {{ record.item.name }}</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="col-md-4">Equipped armor: 
+    <div class="btn-group" dropdown>
+      <button type="button" class="btn btn-primary dropdown-toggle">
+        {{ eq_armor.item.name }} <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li ng-repeat="record in armor_records"><a href="" ng-click="equip_armor(record)"
+        popover="{{ record.item.description }}" popover-trigger="mouseenter" popover-placement="right">
+        {{ record.item.name }}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-2"></div>
+</div>
+
+<div class="row" style="margin-top: 20px">
+<ul class="list-group">
+  <div class="col-md-4" ng-repeat="record in inventory | filter:query" style="margin-top: 10px">
+      <li class="list-group-item list-group-item-success" ng-if="record.item.item_type == 'R'">
+        {{ record.item.name }} x{{ record.quantity }}
+        <a href="" ng-if="is_me" ng-click="use_item(record)"  tooltip-placement="top" tooltip="Use item">
+          <span class="glyphicon glyphicon-heart"></span>
+        </a>
+      </li>
+
+       <li class="list-group-item list-group-item-warning" ng-if="record.item.item_type == 'A'">
+        {{ record.item.name }} x{{ record.quantity }}
+      </li>
+
+       <li class="list-group-item list-group-item-danger" ng-if="record.item.item_type == 'W'">
+        {{ record.item.name }} x{{ record.quantity }}
+      </li>
+  </div>
 </ul>
+</div>

@@ -62,9 +62,9 @@
         </form>
 
       <ul class="nav navbar-nav navbar-right">
-        <li><p class="navbar-text"><a ui-sref="user.posts({ username: $storage.user.username})" class="navbar-link">
-          {{ $storage.user.username }}</a>#<a
-          ui-sref="character({ name: $storage.character.name})" class="navbar-link">{{ $storage.character.name }}</a>
+        <li><p class="navbar-text"><a ui-sref="user.posts({ username: $storage.user})" class="navbar-link">
+          {{ $storage.user }}</a>#<a
+          ui-sref="character.inventory({ name: $storage.character})" class="navbar-link">{{ $storage.character }}</a>
           </p>
         </li>
         <li class="dropdown">

@@ -152,32 +152,7 @@ class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 		read_only=True,
 	)
 
-	item = serializers.HyperlinkedRelatedField(
-		view_name='item-detail',
-		lookup_field='slug',
-		read_only = True
-	)
-
-	quantity = serializers.Field(source='quantity')
-	equipped = serializers.BooleanField(source='equipped')
-
-	class Meta:
-		model = models.InventoryRecord
-		fields = ('url', 'owner', 'item', 'quantity', 'equipped', )
-
-class InventoryRecordGetSerializer(serializers.HyperlinkedModelSerializer):
-	url = serializers.HyperlinkedIdentityField(
-		view_name='inventoryrecord-detail',
-		lookup_field='pk',
-	)
-
-	owner = serializers.HyperlinkedRelatedField(
-		view_name='character-detail',
-		lookup_field='name',
-		read_only=True,
-	)
-
-	item = ItemSerializer()
+	item = ItemSerializer(read_only=True)
 
 	quantity = serializers.Field(source='quantity')
 	equipped = serializers.BooleanField(source='equipped')
@@ -205,9 +180,9 @@ class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 class AbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Ability
-		fields = ('url', 'name', 'description', 'power', 'requires', 'element', 'description')
+		fields = ('url', 'name', 'description', 'power', 'requires', 'element', 'description', 'ap_required')
 		lookup_field = 'slug'
-		read_only_fields = ('name', 'description', 'power', 'requires', 'element', 'description')
+		read_only_fields = ('name', 'description', 'power', 'requires', 'element', 'description', 'ap_required')
 
 class LearntAbilitySerializer(serializers.HyperlinkedModelSerializer):
 	character = serializers.HyperlinkedRelatedField(

@@ -6,11 +6,11 @@ angular.module('user', ['restangular'])
     $scope.endpoint.get().then(
       function(user){
         $scope.user = user;
-        if(user.url == $localStorage.user.url){
+        if(user.username == $localStorage.user){
           $scope.isMe = true;
         }
 
-        Restangular.one('users', $localStorage.user.username)
+        Restangular.one('users', $localStorage.user)
           .post('isfollowing', {to_user: user.url}).then(
             function(response){
               $scope.alreadyFollowing = response.is_following;
@@ -23,10 +23,6 @@ angular.module('user', ['restangular'])
       }
     );
 
-    var update_user = function(){
-      $localStorage.user = Restangular.one('users', $localStorage.user.username).get().$object;
-    }
-
     $scope.follow = function(){
       data = {
         to_user: $scope.user.url,
@@ -36,8 +32,6 @@ angular.module('user', ['restangular'])
           console.log(response);
           $scope.alreadyFollowing = true;
           $scope.fellowship = response.url;
-          //update the stored user
-          update_user();
         },
         function(response){
           console.log(response);
@@ -49,8 +43,6 @@ angular.module('user', ['restangular'])
       Restangular.oneUrl('fellowships', $scope.fellowship).remove().then(
         function(response){
           $scope.alreadyFollowing = false;
-          //update the stored user
-          update_user();
         },
         function(response){
           console.log(response);
@@ -78,7 +70,7 @@ angular.module('user', ['restangular'])
   $scope.characterForm = {};
 
   $scope.select = function(character){
-    $localStorage.character = character;
+    $localStorage.character = character.name;
   }
 
   $scope.create_character = function(){

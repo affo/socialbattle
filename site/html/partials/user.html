@@ -1,6 +1,6 @@
 <nav class="navbar">
 <div class="row">
-	<div class="col-md-2"><img class="img-thumbnail" ng-src="{{user.img}}"></div>
+	<div class="col-md-2"><img class="img-thumbnail" ng-src="{{ user.img }}"></div>
 	<div class="col-md-10"><h3>{{ user.first_name }} {{ user.last_name }} ({{user.username}})</h3>
 		<button type="button" class="btn btn-default" ng-click="follow()" ng-if="!alreadyFollowing && !isMe">follow</button>
 		<button type="button" class="btn btn-default" ng-click="unfollow()" ng-if="alreadyFollowing && !isMe">unfollow</button>

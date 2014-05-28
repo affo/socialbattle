@@ -6,24 +6,26 @@
       <h3 style="margin-top: 0">{{ character.name }} <small>level {{ character.level }}</small></h3>
     </div>
     <div class="row">
-      HP: {{ character.curr_hp }}/{{ character.max_hp }}
+      <strong>HP</strong>: {{ character.curr_hp }}/{{ character.max_hp }}
     </div>
     <div class="row">
-      MP: {{ character.curr_mp }}/{{ character.max_mp }}
+      <strong>MP</strong>: {{ character.curr_mp }}/{{ character.max_mp }}
     </div>
   </div>
   <div class="col-md-3">
     <ul>
-      <li popover="Your physical attack, calculated from your equipped weapon" popover-trigger="mouseenter" popover-placement="left">ATK: {{ character.atk }}</li>
-      <li popover="Your physical strength" popover-trigger="mouseenter" popover-placement="left">STR: {{ character.stre }}</li>
-      <li popover="Your magical strength" popover-trigger="mouseenter" popover-placement="left">MAG: {{ character.mag }}</li>
+      <li popover="Your physical attack, calculated from your equipped weapon" popover-trigger="mouseenter" popover-placement="left"><strong>ATK</strong>: {{ character.atk }}</li>
+      <li popover="Your physical strength" popover-trigger="mouseenter" popover-placement="left">
+        <strong>STR</strong>: {{ character.stre }}</li>
+      <li popover="Your magical strength" popover-trigger="mouseenter" popover-placement="left">
+        <strong>MAG</strong>: {{ character.mag }}</li>
     </ul>
   </div>
   <div class="col-md-3">
     <ul>
-      <li popover="Your physical defense, calculated from your equipped armor" popover-trigger="mouseenter" popover-placement="left">DEF: {{ character.defense }}</li>
-      <li popover="Your magical defense, calculated from your equipped armor" popover-trigger="mouseenter" popover-placement="left">MDEF: {{ character.mdefense }}</li>
-      <li popover="Your speed, the time spent to use an ability depends on it" popover-trigger="mouseenter" popover-placement="left">SPD: {{ character.spd }}</li>
+      <li popover="Your physical defense, calculated from your equipped armor" popover-trigger="mouseenter" popover-placement="left"><strong>DEF</strong>: {{ character.defense }}</li>
+      <li popover="Your magical defense, calculated from your equipped armor" popover-trigger="mouseenter" popover-placement="left"><strong>MDEF</strong>: {{ character.mdefense }}</li>
+      <li popover="Your speed, the time spent to use an ability depends on it" popover-trigger="mouseenter" popover-placement="left"><strong>SPD</strong>: {{ character.spd }}</li>
     </ul>
   </div>
 </div>

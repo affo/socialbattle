@@ -16,7 +16,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
       Restangular.one('users', username).get().then(
         function(user){
-          $localStorage.user = user;
+          $localStorage.user = user.username;
           $localStorage.logged = true;
 
           if(social == 'fb'){

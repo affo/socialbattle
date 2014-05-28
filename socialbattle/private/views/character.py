@@ -105,21 +105,41 @@ class CharacterViewSet(viewsets.GenericViewSet,
 							status=status.HTTP_400_BAD_REQUEST)
 
 		characters = models.Character.objects.filter(name__icontains=query)
-		return Response(serializers.CharacterSerializer(characters, context=self.get_serializer_context(), many=True).data,
+		return Response(self.get_serializer(characters, many=True).data,
 						status=status.HTTP_200_OK)
 
-	@action(methods=['GET', ], serializer_class=serializers.ItemSerializer)
+	@action(methods=['GET', ], serializer_class=serializers.InventoryRecordSerializer)
 	def weapon(self, request, *args, **kwargs):
 		character = self.get_object()
-		weapon = character.get_weapon()
-		serializer = self.get_serializer(weapon)
-		return Response(serializer.data, status=status.HTTP_200_OK)
+		weapon = character.weapon
+		if weapon:
+			data = self.get_serializer(weapon).data
+		else:
+			data = {} 
+		return Response(data, status=status.HTTP_200_OK)
 
-	@action(methods=['GET', ], serializer_class=serializers.ItemSerializer)
+	@action(methods=['GET', ], serializer_class=serializers.InventoryRecordSerializer)
 	def armor(self, request, *args, **kwargs):
 		character = self.get_object()
-		armor = character.get_armor()
-		serializer = self.get_serializer(armor)
+		armor = character.armor
+		if armor:
+			data = self.get_serializer(armor).data
+		else:
+			data = {} 
+		return Response(data, status=status.HTTP_200_OK)
+
+	@action(methods=['GET', ], serializer_class=serializers.InventoryRecordSerializer)
+	def weapons(self, request, *args, **kwargs):
+		character = self.get_object()
+		weapons = character.weapons
+		serializer = self.get_serializer(weapons, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+	@action(methods=['GET', ], serializer_class=serializers.InventoryRecordSerializer)
+	def armors(self, request, *args, **kwargs):
+		character = self.get_object()
+		armors = character.armors
+		serializer = self.get_serializer(armors, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 	@action(methods=['POST'], serializer_class=AbilityUsageSerializer)

@@ -8,11 +8,11 @@ angular.module('logged', ['restangular'])
         controller: 'SelectCharacterModal',
         resolve: {
           characters: function(){
-            return Restangular.one('users', $localStorage.user.username).getList('characters').$object;
+            return Restangular.one('users', $localStorage.user).getList('characters').$object;
           },
 
           endpoint: function(){
-            return Restangular.one('users', $localStorage.user.username).all('characters');
+            return Restangular.one('users', $localStorage.user).all('characters');
           }
         }
       });
@@ -36,7 +36,7 @@ angular.module('logged', ['restangular'])
     }
 
     $scope.select = function(character){
-      $localStorage.character = character;
+      $localStorage.character = character.name;
       $modalInstance.close();
     };
   }
