@@ -32,7 +32,7 @@
 
 <div class="row" style="margin-top: 20px">
 <ul class="list-group">
-  <div class="col-md-4" ng-repeat="record in inventory | filter:query" style="margin-top: 10px">
+  <div class="col-md-4" ng-repeat="record in inventory" style="margin-top: 10px">
       <li class="list-group-item list-group-item-success" ng-if="record.item.item_type == 'R'">
         {{ record.item.name }} x{{ record.quantity }}
         <a href="" ng-if="is_me" ng-click="use_item(record)"  tooltip-placement="top" tooltip="Use item">

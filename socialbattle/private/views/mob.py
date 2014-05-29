@@ -63,3 +63,9 @@ class MobViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 			attacked = attacker
 
 		return use_ability(attacker, attacked, ability)
+
+	@action(methods=['GET'], serializer_class=serializers.AbilitySerializer)
+	def abilities(self, request, *args, **kwargs):
+		mob = self.get_object()
+		abilities = mob.abilities.all()
+		return Response(self.get_serializer(abilities, many=True).data, status=status.HTTP_200_OK)

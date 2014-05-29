@@ -52,8 +52,67 @@ angular.module('states', ['ui.router'])
 
       url: '/rooms/:room_name',
       templateUrl: 'html/partials/pveroom.html',
-      controller: 'PVERoom'
-    })
+
+      resolve: {
+        character: function($localStorage, Restangular){
+          console.log('RESOLVING');
+          return Restangular.all('characters', $localStorage.character).get()
+          .then(
+            function(response){
+              var obj = Restangular.stripRestangular(reponse);
+              return obj;
+            },
+            function(response){
+              console.log(response);
+            }
+          );
+        },
+
+        character_abilities: function($localStorage, Restangular){
+          console.log('RESOLVING');
+          return Restangular.all('characters', $localStorage.character).getList('abilities')
+          .then(
+            function(response){
+              var obj = Restangular.stripRestangular(reponse);
+              return obj;
+            }
+          );
+        },
+
+        character_inventory: function($localStorage, Restangular){
+          return Restangular.all('characters', $localStorage.character).getList('inventory')
+          .then(
+            function(response){
+              var obj = Restangular.stripRestangular(reponse);
+              return obj;
+            }
+          );
+        },
+
+        mobs: function($stateParams, Restangular){
+          return Restangular.one('rooms/pve', $stateParams.room_name).getList('mobs')
+          .then(
+            function(response){
+              var obj = Restangular.stripRestangular(reponse);
+              return obj;
+            }
+          );
+        },
+
+        room: function($stateParams, Restangular){
+          return Restangular.one('rooms/pve', $stateParams.room_name).get()
+          .then(
+            function(response){
+              var obj = Restangular.stripRestangular(reponse);
+              return obj;
+            }
+          );
+        },
+      },
+
+      controller: 'PVERoom',
+    }
+    )
 
     .state('relaxroom', {
       parent: 'logged',

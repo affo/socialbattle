@@ -35,7 +35,6 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       Facebook.getLoginStatus(function(response){
         $scope.$apply(function(){
           if(response.status == 'connected') {
-              console.log(response.authResponse.accessToken);
               var data = {access_token: response.authResponse.accessToken};
 
               Restangular.all('sa/login/').customGET('facebook', data).then(
@@ -43,7 +42,6 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
                   login(response.username, response.token, 'fb');
                 }, function(response){
                   //error
-                  console.log(response);
                 });
           } else {
             //not logged to facebook
@@ -58,8 +56,6 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
             username: $scope.signinForm.username,
             password: $scope.signinForm.password,
         };
-
-        console.log(data);
 
         Restangular.all('auth').post(data).then(
             function(response){

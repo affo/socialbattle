@@ -179,7 +179,7 @@ angular.module('character', ['restangular'])
     $scope.alert = undefined;
     $scope.close_alert = function(){
       $scope.alert = undefined;
-    }
+    };
 
   }
 );

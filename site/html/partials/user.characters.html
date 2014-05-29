@@ -13,9 +13,9 @@
     <div class="thumbnail">
       <img ng-src="{{ character.img }}">
       <div class="caption text-center">
-        <div ng-if="$storage.user.username == user.username">
-          <input type="radio" name="character" ng-click="select(character)" ng-if="$storage.character.name == character.name" checked>
-          <input type="radio" name="character" ng-click="select(character)"  ng-if="$storage.character.name != character.name">
+        <div ng-if="$storage.user == user.username">
+          <input type="radio" name="character" ng-click="select(character)" ng-if="$storage.character == character.name" checked>
+          <input type="radio" name="character" ng-click="select(character)"  ng-if="$storage.character != character.name">
         </div>
         <a ui-sref="character({ name: character.name})">
         	{{ character.name }}

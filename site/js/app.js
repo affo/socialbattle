@@ -8,6 +8,8 @@ var app = angular.module('socialBattle', [
   'facebook',
   'ngStorage',
   'ui.bootstrap',
+
+  'services',
   'auth',
   'main',
   'user',
