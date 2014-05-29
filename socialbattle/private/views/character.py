@@ -142,6 +142,14 @@ class CharacterViewSet(viewsets.GenericViewSet,
 		serializer = self.get_serializer(armors, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+	@action(methods=['GET', ], serializer_class=serializers.InventoryRecordSerializer)
+	def items(self, request, *args, **kwargs):
+		character = self.get_object()
+		items = character.items
+		serializer = self.get_serializer(items, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
 	@action(methods=['POST'], serializer_class=AbilityUsageSerializer)
 	def use_ability(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.DATA)

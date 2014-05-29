@@ -55,11 +55,10 @@ angular.module('states', ['ui.router'])
 
       resolve: {
         character: function($localStorage, Restangular){
-          console.log('RESOLVING');
-          return Restangular.all('characters', $localStorage.character).get()
+          return Restangular.one('characters', $localStorage.character).get()
           .then(
             function(response){
-              var obj = Restangular.stripRestangular(reponse);
+              var obj = Restangular.stripRestangular(response);
               return obj;
             },
             function(response){
@@ -69,21 +68,40 @@ angular.module('states', ['ui.router'])
         },
 
         character_abilities: function($localStorage, Restangular){
-          console.log('RESOLVING');
-          return Restangular.all('characters', $localStorage.character).getList('abilities')
+          return Restangular.one('characters', $localStorage.character).getList('abilities')
           .then(
             function(response){
-              var obj = Restangular.stripRestangular(reponse);
+              var obj = Restangular.stripRestangular(response);
               return obj;
             }
           );
         },
 
-        character_inventory: function($localStorage, Restangular){
-          return Restangular.all('characters', $localStorage.character).getList('inventory')
+        weapons: function($localStorage, Restangular){
+          return Restangular.one('characters', $localStorage.character).getList('weapons')
           .then(
             function(response){
-              var obj = Restangular.stripRestangular(reponse);
+              var obj = Restangular.stripRestangular(response);
+              return obj;
+            }
+          );
+        },
+
+        armors: function($localStorage, Restangular){
+          return Restangular.one('characters', $localStorage.character).getList('armors')
+          .then(
+            function(response){
+              var obj = Restangular.stripRestangular(response);
+              return obj;
+            }
+          );
+        },
+
+        items: function($localStorage, Restangular){
+          return Restangular.one('characters', $localStorage.character).getList('items')
+          .then(
+            function(response){
+              var obj = Restangular.stripRestangular(response);
               return obj;
             }
           );
@@ -93,7 +111,7 @@ angular.module('states', ['ui.router'])
           return Restangular.one('rooms/pve', $stateParams.room_name).getList('mobs')
           .then(
             function(response){
-              var obj = Restangular.stripRestangular(reponse);
+              var obj = Restangular.stripRestangular(response);
               return obj;
             }
           );
@@ -103,7 +121,7 @@ angular.module('states', ['ui.router'])
           return Restangular.one('rooms/pve', $stateParams.room_name).get()
           .then(
             function(response){
-              var obj = Restangular.stripRestangular(reponse);
+              var obj = Restangular.stripRestangular(response);
               return obj;
             }
           );

@@ -40,16 +40,16 @@ angular.module('services', [])
     //attacks using the endpoint which could be:
     // - /characters/{character_name}/use_ability
     // - /mobs/{mob_slug}/use_ability
-    //the attacked_id and the ability_id.
+    //the attacked_id and the ability.
     //returns a promise of the result of the attack, which, in turn, contains
     // - the charge time
     // - the promise of the damage, postponed by the ct
-    factory.attack = function(endpoint, attacked_id, ability_id){
+    factory.attack = function(endpoint, attacked_id, ability){
       var deferred = $q.defer();
       var data = {
         attacked: attacked_id,
-        ability: ability_id,
-      }
+        ability: ability.url,
+      };
       if(!attacked_id){
         delete data.attacked;
       }
@@ -57,17 +57,22 @@ angular.module('services', [])
       endpoint.post(data)
       .then(
         function(response){
-          var dmg = $q.defer();
+          var attack = $q.defer();
           var r = {
             ct: response.ct,
             dmg: response.dmg,
           }
 
           $timeout(function(){
-            dmg.resolve(r.dmg);
-          }, ct, true);
+            attack.resolve(
+              {
+                ability: ability,
+                dmg: r.dmg,
+              }
+            );
+          }, r.ct, true);
 
-          deferred.resolve({ct: r.ct, dmg: dmg.promise});
+          deferred.resolve({ct: r.ct, attack: attack.promise});
         }
       );
       return deferred.promise;
@@ -87,8 +92,8 @@ angular.module('services', [])
       if(ability.element == 'H'){ // white magic
         attacked_id = undefined;
       }
-      var endpoint = Restangular.one('mobs', mob.slug).all('use_ability');
-      return AttackService.attack(endpoint, attacked_id, ability.url);
+      var endpoint = Restangular.one('mobs', mob_slug).all('use_ability');
+      return AttackService.attack(endpoint, attacked_id, ability);
     }
 
     return factory;
@@ -99,11 +104,16 @@ angular.module('services', [])
   function(Restangular, AttackService){
     var factory = {};
 
-    factory.attack = function(character_name, target, ability_url){
+    factory.attack = function(character_name, target, ability){
       var endpoint = Restangular.one('character', character_name).all('use_ability');
       var attacked_id = target;
-      return AttackService.attack(endpoint, attacked_id, ability_url);
-    }
+      return AttackService.attack(endpoint, attacked_id, ability);
+    };
+
+    factory.use_item = function(item){
+      var data = {item: item.url};
+      return Restangular.one('character', character_name).all('use_item').post(data);
+    };
 
     return factory;
   }

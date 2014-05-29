@@ -11,31 +11,96 @@ angular.module('room', ['luegg.directives'])
 
 .controller('PVERoom',
   function($scope, Restangular, $stateParams, $localStorage, SpawnService, MobService, CharacterService,
-            character, character_abilities, character_inventory, mobs){
+            character, character_abilities, weapons, armors, items,
+            mobs, room, $timeout, $state){
+
+    console.log($state.current);
+    var TIMEOUT_RANGE = [5, 10].map(function(x){ return x * 1000;}); //timeout range in ms
     $scope.messages = [];
     $scope.character = character;
-    //$scope.character.abilities = character_abilities;
-    //$scope.character.inventory = character_inventory;
+    $scope.character.abilities = character_abilities;
+    $scope.character.weapons = weapons;
+    $scope.character.armors = armors;
+    $scope.character.armors = armors;
+    $scope.character.items = items;
     $scope.room = room;
 
-    var mob_attack = function(){
-      return $scope.mob_abilities_promise
-      .then(
-        function(response){
-          var abilities = Restangular.stripRestangular(response);
-          return MobService.attack($scope.mob.slug, $scope.character.url, abilities);
+    var spawn = function(){
+      SpawnService.spawn(mobs).then(
+        function(mob){
+          $scope.mob = mob;
+          $scope.messages.push(mob.name);
+          Restangular.one('mobs', mob.slug).getList('abilities')
+          .then(
+            function(response){
+              var abilities = Restangular.stripRestangular(response);
+              // START MOB
+              mob_ai(abilities, 0);
+            }
+          );
         }
       );
+    };
+
+    var mob_ai = function(abilities, ct){
+      var timeout = Math.floor(TIMEOUT_RANGE[0] + Math.random()*(TIMEOUT_RANGE[1] - TIMEOUT_RANGE[0])) + ct;
+      console.log('Next attack in: ' + timeout);
+
+      $timeout(function(){
+        MobService.attack($scope.mob.slug, $scope.character.url, abilities)
+        .then(
+          function(response){
+            response.attack.then(
+              function(attack){
+                $scope.messages.push('MOB: uses ' + attack.ability.name + ' DMG: ' + attack.dmg);
+
+                //recursive call if we are still in the room
+                //NOT GOOD SOLUTION
+                if(!go_on()) return;
+                mob_ai(abilities, response.ct);
+              }
+            );
+          }
+        );
+      }, timeout, true);
+    };
+
+    var go_on = function(){
+      //add other conditions...
+      //character_hp + mob_hp
+      return $state.current.name != 'pveroom';
     }
 
-    SpawnService.spawn(mobs).then(
-      function(mob){
-        $scope.mob = mob;
-        $scope.mob_abilities_promise = Restangular.one('mobs', mob.slug).getList('abilities');
-        $scope.messages.push(mob.name);
-        return mob;
-      }
-    );
+    $scope.attack = function(target_url, ability){
+      CharacterService.attack($scope.character.name, target_url, ability)
+      .then(
+        function(response){
+          var ct = response.ct; //use charge time
+          response.attack.then(
+            function(response){
+              //now we have the dmg to display
+              var dmg = response.dmg;
+            }
+          );
+        }
+      );
+    };
+
+    $scope.use_item = function(item){
+      CharacterService.use_item(item).then(
+        function(response){
+          //do awesome things
+        }
+      );
+    };
+
+    $scope.battle_ended = function(){
+      //end the battle with REST call
+      if(go_on()) spawn();
+    };
+
+    ///////////START SPAWNING
+    spawn();
 })
 
 .controller('RelaxRoom', function($scope, Restangular, $stateParams, $localStorage, $modal){

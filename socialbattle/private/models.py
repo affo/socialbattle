@@ -174,6 +174,14 @@ class Character(models.Model, TargetMixin):
 		except ObjectDoesNotExist:
 			return None
 		return armors
+
+	@property
+	def items(self):
+		try:
+			items = InventoryRecord.objects.filter(owner=self, item__item_type=Item.ITEM_TYPE[0][0]).all()
+		except ObjectDoesNotExist:
+			return None
+		return items
 	
 
 	@property
