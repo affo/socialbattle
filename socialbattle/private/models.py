@@ -59,6 +59,7 @@ class Ability(models.Model):
 		('F', 'fire'),
 		('B', 'blizzard'),
 		('H', 'white magic'),
+		('P', 'physical'),
 	)
 
 	name = models.CharField(max_length=200, unique=True)
@@ -108,7 +109,7 @@ class Character(models.Model, TargetMixin):
 	#relations
 	owner = models.ForeignKey(User)
 	abilities = models.ManyToManyField(Ability, through='LearntAbility')
-	items = models.ManyToManyField('Item', through='InventoryRecord')
+	inventory = models.ManyToManyField('Item', through='InventoryRecord')
 
 	def get_next_abilities(self):
 		abilities = list(Ability.objects.all())
@@ -250,6 +251,10 @@ class Mob(models.Model, TargetMixin):
 	@property
 	def curr_mp(self):
 	    return self.mp
+
+	@property
+	def weapon(self):
+		return None
 
 	@property
 	def img(self):

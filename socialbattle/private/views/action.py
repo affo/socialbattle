@@ -4,6 +4,7 @@ from socialbattle.private import models
 from socialbattle.private import serializers
 from socialbattle.private.tasks import update_status
 from socialbattle.private import mechanics
+from socialbattle.private.models import Ability
 
 def use_ability(attacker, attacked, ability):
 	if ability not in attacker.abilities.all():
@@ -12,8 +13,12 @@ def use_ability(attacker, attacked, ability):
 	if ability.mp_required > attacker.curr_mp:
 		return Response({'msg': 'The ability requires too much MPs'}, status=status.HTTP_400_BAD_REQUEST)
 
-	#ct = mechanics.get_charge_time(attacker, ability)	
-	ct = 10	
+	item_or_ability = ability
+	if ability.element == Ability.ELEMENTS[6][0]:
+		#physical ability
+		item_or_ability = attacker.weapon
+
+	ct = mechanics.get_charge_time(attacker, item_or_ability)	
 	dmg = mechanics.calculate_damage(attacker, attacked, ability)
 	
 	try:
@@ -41,7 +46,7 @@ def end_battle(character, mob, context):
 	return Response(data, status=status.HTTP_200_OK)
 
 def use_item(character, item):
-	if item not in character.items.all():
+	if item not in character.inventory.all():
 		return Response({'msg': 'You do not have the specified item'}, status=status.HTTP_400_BAD_REQUEST)
 
 	if item.item_type != models.Item.ITEM_TYPE[0][0]:

@@ -216,7 +216,7 @@ CS_MOD = {
 	99: 0.107,
 }
 from socialbattle.private.models import Ability
-PHYSICAL = Ability.ELEMENTS[0][0]
+PHYSICAL = Ability.ELEMENTS[6][0]
 WHITE = Ability.ELEMENTS[5][0]
 
 import random
@@ -267,6 +267,9 @@ def calculate_damage(attacker, attacked, ability):
 # Charge Time = [CT x CS-MOD + RAN0.5] x L-MOD x B-MOD x ST-MOD
 # We will ignore L-MOB, B-MOD and ST-MOD
 def get_charge_time(attacker, item_or_ability):
-	ctf = item_or_ability.ctf
+	if not item_or_ability:
+		ctf = 26 #means 'unarmed'... as ffxii does
+	else:
+		ctf = item_or_ability.ctf
 	cs_mod = CS_MOD[attacker.spd]
 	return ctf * cs_mod * random.uniform(0, 0.5)

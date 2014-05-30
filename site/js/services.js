@@ -14,7 +14,10 @@ angular.module('services', [])
       if(mobs.length == 0) return {};
       var deferred = $q.defer();
       //randomly selected mob
-      var mob = mobs[Math.floor(Math.random()*mobs.length)];
+      var obj = mobs[Math.floor(Math.random()*mobs.length)];
+      //cloning the mob as suggested by
+      //http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-an-object/5344074#5344074
+      var mob = JSON.parse(JSON.stringify(obj));
 
       var timeout = Math.floor(TIMEOUT_RANGE[0] + Math.random()*(TIMEOUT_RANGE[1] - TIMEOUT_RANGE[0]));
       console.log('TO: ' + timeout);
@@ -22,8 +25,8 @@ angular.module('services', [])
       $timeout(function(){
         if(mob){
           mob.max_hp = mob.hp;
+          mob.curr_hp = mob.hp;
           delete mob.hp;
-          mob.curr_hp = mob.max_hp;
           deferred.resolve(mob);
         } else {
           deferred.reject('No mob found');
@@ -63,7 +66,7 @@ angular.module('services', [])
         function(response){
           var attack = $q.defer();
           var r = {
-            ct: response.ct,
+            ct: response.ct * 1000, //it comes in seconds from the server
             dmg: response.dmg,
           }
 
@@ -108,13 +111,16 @@ angular.module('services', [])
   function(Restangular, AttackService){
     var factory = {};
 
-    factory.attack = function(character_name, target, ability){
-      var endpoint = Restangular.one('characters', character_name).all('use_ability');
+    factory.attack = function(character, target, ability){
+      var endpoint = Restangular.one('characters', character.name).all('use_ability');
       var attacked_id = target;
+      if(character.url == target){
+        attacked_id = undefined;
+      }
       return AttackService.attack(endpoint, attacked_id, ability);
     };
 
-    factory.use_item = function(item){
+    factory.use_item = function(character_name, item){
       var data = {item: item.url};
       return Restangular.one('characters', character_name).all('use_item').post(data);
     };

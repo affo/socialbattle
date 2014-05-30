@@ -611,6 +611,7 @@
 		"fields": {
 			"name": "attack",
 			"slug": "attack",
+			"element": "P",
 			"ctf": 0,
 			"description": "Attack ability"
 		}
@@ -621,6 +622,7 @@
 		"fields": {
 			"name": "tokkata",
 			"slug": "tokkata",
+			"element": "P",
 			"requires": [1],
 			"ctf": 0
 		}

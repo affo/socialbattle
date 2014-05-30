@@ -33,6 +33,20 @@ angular.module('room', ['luegg.directives'])
     var spawn_promise = undefined;
     var mob_promise = undefined;
 
+    $scope.$on('$destroy', function(){
+      if(mob_promise){
+        console.info('mob stopped');
+        $timeout.cancel(mob_promise);
+      }
+
+      if(spawn_promise){
+        console.info('spawn stopped');
+        $timeout.cancel(spawn_promise);
+      }
+    });
+
+
+
     var push_mob = function(attacker, attacked, ability, dmg){
       var data = {
         attacked: attacked,
@@ -40,9 +54,9 @@ angular.module('room', ['luegg.directives'])
         ability: ability,
         dmg: dmg,
         from_mob: true,
-      }
+      };
       $scope.messages.push(data);
-    }
+    };
 
     var push_character = function(attacker, attacked, ability, dmg){
       var data = {
@@ -51,15 +65,23 @@ angular.module('room', ['luegg.directives'])
         ability: ability,
         dmg: dmg,
         from_character: true,
-      }
+      };
       $scope.messages.push(data);
-    }
+    };
+
+    var push_info = function(msg){
+      var data = {
+        content: msg,
+        info: true,
+      };
+      $scope.messages.push(data);
+    };
 
     var find_item = function(item_name){
       //find the item by name
       for(var i = 0; i < $scope.items.length; i++){
         if(item_name == $scope.items[i].item.name){
-          return $scope.items[i].item;
+          return $scope.items[i];
         }
       }
       return undefined;
@@ -103,6 +125,30 @@ angular.module('room', ['luegg.directives'])
       }
     }
 
+    $scope.equip = function(item, is_weapon){
+      if(item.equipped){ //already equipped
+        return;
+      }
+      var rec = Restangular.oneUrl('inventory', item.url);
+      rec.equipped = true;
+      rec.put().then(
+        function(response){
+          var iter = armors;
+          if(is_weapon){
+            iter = weapons;
+          }
+
+          for(var i = 0; i < iter.length; i++){
+            if(iter[i].equipped){
+              iter[i].equipped = false;
+            }
+          }
+
+          item.equipped = true;
+        }
+      );
+    };
+
     var spawn = function(){
       return SpawnService.spawn(mobs).then(
         function(mob){
@@ -112,7 +158,6 @@ angular.module('room', ['luegg.directives'])
             function(response){
               var abilities = Restangular.stripRestangular(response);
               $scope.fighting = true;
-              //REMOVE
               $scope.target = mob;
               // START MOB
               mob_promise = mob_ai(abilities, 0);
@@ -123,6 +168,10 @@ angular.module('room', ['luegg.directives'])
     };
 
     var mob_ai = function(abilities, ct){
+      if($scope.mob.curr_hp == 0 || !is_character_alive()){ //if the battle id ended, the mob stops
+          return;
+      }
+
       var timeout = Math.floor(TIMEOUT_RANGE[0] + Math.random()*(TIMEOUT_RANGE[1] - TIMEOUT_RANGE[0])) + ct;
       console.log('Next attack in: ' + timeout);
 
@@ -145,12 +194,6 @@ angular.module('room', ['luegg.directives'])
                 }
 
                 push_mob($scope.mob.name, target, attack.ability.name, attack.dmg);
-
-                if(!go_on()){ //if the battle is ended the mob stops
-                  $scope.fighting = false;
-                  $scope.messages.push({info:true, content: "Battle ended"});
-                  return;
-                }
                 mob_promise = mob_ai(abilities, response.ct); //recursive call
               }
             );
@@ -159,36 +202,74 @@ angular.module('room', ['luegg.directives'])
       }, timeout, true);
     };
 
-    var go_on = function(){
-      //if everyone is still alive
-      return $scope.character.curr_hp > 0 && $scope.mob.curr_hp > 0;
-    };
-
-    $scope.$on('$destroy', function(){
+    var end_battle = function(){
       if(mob_promise){
         console.info('mob stopped');
         $timeout.cancel(mob_promise);
       }
+      $scope.fighting = false;
+      push_info('Battle ended');
+      //TODO end the battle with REST call
+      if(is_character_alive()) spawn_promise = spawn();
+    };
 
-      if(spawn_promise){
-        console.info('spawn stopped');
-        $timeout.cancel(spawn_promise);
+    var is_character_alive = function(){
+      return $scope.character.curr_hp > 0;
+    };
+
+    var MAX = 100;
+    var FACTOR = 32;
+    $scope.max = MAX;
+    $scope.progr = 0;
+    var atb_bar = function(time){
+      console.log('CT ' + time);
+      //if the time is too short only charge the bar and descharge
+      if(time < 1500){
+        $scope.progr = MAX;
+        $timeout(function(){
+          $scope.progr = 0;
+        }, 1500, true)
+        
+        return;
       }
-    });
+
+
+      var slice = (time - 500) / FACTOR;
+
+      var rec = function(slice, i){
+        if(i > FACTOR + 1){
+          $scope.progr = 0;
+          return;
+        }
+
+        $timeout(function(){
+          $scope.progr = MAX * (i / FACTOR);
+        }, slice, true)
+        .then(
+          function(){
+            rec(slice, i + 1);
+          }
+        );
+      };
+
+      rec(slice, 1);
+
+    };
 
     $scope.attack = function(){
       var target_url = $scope.target.url;
       var ability = find_ability($scope.abilityForm.ability);
       $scope.abilityForm = {};
       if(!ability){
-        //ability not found
+        push_info('Ability not found');
         return;
       }
 
-      CharacterService.attack($scope.character.name, target_url, ability)
+      CharacterService.attack($scope.character, target_url, ability)
       .then(
         function(response){
           var ct = response.ct; //use charge time
+          atb_bar(ct); //handles atb bar
           response.attack.then(
             function(response){
               //now we have the dmg to display
@@ -207,14 +288,9 @@ angular.module('room', ['luegg.directives'])
 
               push_character($scope.character.name, $scope.target.name, ability.name, dmg);
 
-              //stop the battle
-              if(hp < 0){
-                if(mob_promise){
-                  console.info('mob stopped');
-                  $timeout.cancel(mob_promise);
-                }
-                $scope.fighting = false;
-                $scope.messages.push({info:true, content: "Battle ended"});
+              //stop the battle, the mob (we hope) is dead
+              if(hp == 0){
+                end_battle();
               }
             }
           );
@@ -226,19 +302,18 @@ angular.module('room', ['luegg.directives'])
       var item = find_item($scope.itemForm.item);
       $scope.itemForm = {};
       if(!item){
-        //item not found
+        push_info('Item not found');
         return;
       }
-      CharacterService.use_item(item).then(
+      CharacterService.use_item($scope.character.name, item.item).then(
         function(response){
-          //do awesome things
+          $scope.character.curr_hp = response.curr_hp;
+          item.quantity -= 1;
+        },
+        function(response){
+          push_info(response.data.msg);
         }
       );
-    };
-
-    $scope.battle_ended = function(){
-      //end the battle with REST call
-      if(go_on()) spawn_promise = spawn();
     };
 
     ///////////START SPAWNING

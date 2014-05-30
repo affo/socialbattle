@@ -20,6 +20,9 @@
       </div>
     </div>
   </div>
+
+  <progressbar max="max" value="progr" type="warning"><strong>ATB</strong></progressbar>
+
   <div class="row">
     <div class="col-md-2" style="height: 300px">
       <img ng-if="fighting" class="img-thumbnail" ng-src="{{ mob.img }}">
@@ -50,7 +53,7 @@
 
             <div ng-if="msg.info"> <!-- INFO -->
               <div class="col-md-12">
-                <div class="alert alert-info text-center">
+                <div class="alert alert-warning text-center">
                   {{ msg.content }}
                 </div>
               </div>
@@ -63,15 +66,47 @@
 
     <div class="col-md-2" style="overflow:auto; height: 300px">
       <img class="img-thumbnail" ng-src="{{ character.img }}">
-      <ul ng-if="action == 'ABILITY'">abilities:<li ng-repeat="ability in abilities">{{ability.name}}</li></ul>
-      <ul ng-if="action == 'ITEM'">items:<li ng-repeat="item in items">{{item.item.name}}</li></ul>
-      <ul>weapons:<li ng-repeat="weapon in weapons">{{weapon.item.name}}</li></ul>
-      <ul>armors:<li ng-repeat="armor in armors">{{armor.item.name}}</li></ul>      
+      <ul ng-if="action == 'ABILITY'" class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="">ABILITIES</a></li>
+        <li ng-repeat="ability in abilities">
+          <a href="" ng-click="abilityForm.ability = ability.name"
+            popover="{{ability.description}}" popover-trigger="mouseenter">
+            {{ ability.name }}</a>
+        </li>
+      </ul>
+
+      <ul ng-if="action == 'ITEM'" class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="">ITEMS</a></li>
+        <li ng-repeat="item in items">
+          <a href="" ng-click="itemForm.item = item.item.name"
+            popover="{{item.item.description}}" popover-trigger="mouseenter">
+            {{ item.item.name }} x{{ item.quantity }}</a>
+        </li>
+      </ul>
+
+      <ul class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="">WEAPONS</a></li>
+        <li ng-repeat="weapon in weapons">
+          <a href="" ng-click="equip(weapon, true)"
+            popover="{{weapon.item.description}}" popover-trigger="mouseenter">
+            {{ weapon.item.name }} <span ng-if="weapon.equipped" class="glyphicon glyphicon-ok"></span></a>
+        </li>
+      </ul>
+
+      <ul class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="">ARMORS</a></li>
+        <li ng-repeat="armor in armors">
+          <a href="" ng-click="equip(armor, false)"
+            popover="{{armor.item.description}}" popover-trigger="mouseenter">
+            {{ armor.item.name }} <span ng-if="armor.equipped" class="glyphicon glyphicon-ok"></span></a>
+        </li>
+      </ul>
+
     </div>
 
   </div>
 
-  <form ng-if="fighting" class="form" ng-if="action == 'ABILITY' && fighting" ng-submit="attack()">
+  <form class="form" ng-if="action == 'ABILITY' && fighting" ng-submit="attack()">
     <div class="form-group">
       <div class="input-group">
         <span class="input-group-btn">
@@ -92,7 +127,7 @@
     </div>
   </form>
 
-  <form class="form" ng-if="action == 'ITEM'" ng-submit="use_item()">
+  <form class="form" ng-if="action == 'ITEM' && fighting" ng-submit="use_item()">
     <div class="form-group">
       <div class="input-group">
         <span class="input-group-btn">

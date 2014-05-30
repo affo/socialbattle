@@ -1,7 +1,7 @@
 <div class="jumbotron">
 <h2 class="text-center">The merchant</h2>
   <div class="row">
-    <div class="col-md-2">
+    <div class="col-md-2" style="overflow:auto">
       <ul ng-if="action == 'BUY'" class="nav nav-pills nav-stacked">
         <li class="disabled"><a href="#">We sell - {{ character.guils }}G</a></li>
         <li ng-repeat="item in buy_items"><a href="" ng-click="put_item(item.name)"
