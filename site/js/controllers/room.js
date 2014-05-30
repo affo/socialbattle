@@ -14,7 +14,6 @@ angular.module('room', ['luegg.directives'])
             character, character_abilities, weapons, armors, items,
             mobs, room, $timeout, $state){
 
-    console.log($state.current);
     var TIMEOUT_RANGE = [5, 10].map(function(x){ return x * 1000;}); //timeout range in ms
     $scope.messages = [];
     $scope.character = character;
@@ -25,8 +24,11 @@ angular.module('room', ['luegg.directives'])
     $scope.character.items = items;
     $scope.room = room;
 
+    var spawn_promise = undefined;
+    var mob_promise = undefined;
+
     var spawn = function(){
-      SpawnService.spawn(mobs).then(
+      return SpawnService.spawn(mobs).then(
         function(mob){
           $scope.mob = mob;
           $scope.messages.push(mob.name);
@@ -35,7 +37,7 @@ angular.module('room', ['luegg.directives'])
             function(response){
               var abilities = Restangular.stripRestangular(response);
               // START MOB
-              mob_ai(abilities, 0);
+              mob_promise = mob_ai(abilities, 0);
             }
           );
         }
@@ -46,7 +48,7 @@ angular.module('room', ['luegg.directives'])
       var timeout = Math.floor(TIMEOUT_RANGE[0] + Math.random()*(TIMEOUT_RANGE[1] - TIMEOUT_RANGE[0])) + ct;
       console.log('Next attack in: ' + timeout);
 
-      $timeout(function(){
+      return $timeout(function(){
         MobService.attack($scope.mob.slug, $scope.character.url, abilities)
         .then(
           function(response){
@@ -57,7 +59,7 @@ angular.module('room', ['luegg.directives'])
                 //recursive call if we are still in the room
                 //NOT GOOD SOLUTION
                 if(!go_on()) return;
-                mob_ai(abilities, response.ct);
+                mob_promise = mob_ai(abilities, response.ct);
               }
             );
           }
@@ -66,10 +68,22 @@ angular.module('room', ['luegg.directives'])
     };
 
     var go_on = function(){
-      //add other conditions...
+      //add conditions...
       //character_hp + mob_hp
-      return $state.current.name != 'pveroom';
+      return true;
     }
+
+    $scope.$on('$destroy', function(){
+      if(mob_promise){
+        console.info('mob stopped');
+        $timeout.cancel(mob_promise);
+      }
+
+      if(spawn_promise){
+        console.info('spawn stopped');
+        $timeout.cancel(spawn_promise);
+      }
+    });
 
     $scope.attack = function(target_url, ability){
       CharacterService.attack($scope.character.name, target_url, ability)
@@ -96,11 +110,11 @@ angular.module('room', ['luegg.directives'])
 
     $scope.battle_ended = function(){
       //end the battle with REST call
-      if(go_on()) spawn();
+      if(go_on()) spawn_promise = spawn();
     };
 
     ///////////START SPAWNING
-    spawn();
+    spawn_promise = spawn();
 })
 
 .controller('RelaxRoom', function($scope, Restangular, $stateParams, $localStorage, $modal){
