@@ -17,7 +17,7 @@
       </ul>
     </div>
     <div class="col-md-10">
-      <div scroll-glue style="overflow: auto; height: 200px">
+      <div scroll-glue style="overflow:auto; height: 200px">
         <div ng-repeat="msg in messages">
           <p class="text-info text-left" ng-if="msg.from_merchant">{{ msg.content }}</p>
           <p class="text-success text-right" ng-if="msg.from_user">{{ msg.content }}</p>

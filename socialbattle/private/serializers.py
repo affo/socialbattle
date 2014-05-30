@@ -180,9 +180,11 @@ class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 class AbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Ability
-		fields = ('url', 'name', 'description', 'power', 'requires', 'element', 'description', 'ap_required')
+		fields = ('url', 'name', 'description', 'power', 'requires', 'element',
+			'description', 'ap_required', 'mp_required', )
 		lookup_field = 'slug'
-		read_only_fields = ('name', 'description', 'power', 'requires', 'element', 'description', 'ap_required')
+		read_only_fields = ('name', 'description', 'power', 'requires', 'element',
+			'description', 'ap_required', 'mp_required')
 
 class LearntAbilitySerializer(serializers.HyperlinkedModelSerializer):
 	character = serializers.HyperlinkedRelatedField(
@@ -215,5 +217,5 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.Mob
-		fields = ('url', 'name', 'slug', 'drops',
+		fields = ('url', 'name', 'slug', 'drops', 'hp',
 					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', )

@@ -1,6 +1,109 @@
 <div class="jumbotron">
-  <h1>Welcome to {{ room.name }}</h1>
-  <ul>
-    <li ng-repeat="msg in messages track by $index">{{ msg }}</li>
-  </ul>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 ng-if="fighting" class="text-center text-muted" style="text-transform: uppercase;">{{mob.name}}</h3>
+      <progressbar ng-if="fighting" max="mob.max_hp" value="mob.curr_hp" type="danger"></progressbar>
+    </div>
+    <div class="col-md-6">
+      <h3 class="text-center text-muted" style="text-transform: uppercase;">{{character.name}}</h3>
+      <div class="row">
+        <div class="col-md-9">
+          <progressbar max="character.max_hp" value="character.curr_hp" type="success">
+            <i>HP:</i> {{character.curr_hp}}/<strong>{{character.max_hp}}</strong>
+          </progressbar>
+        </div>
+        <div class="col-md-3">
+          <progressbar max="character.max_mp" value="character.curr_mp" type="info">
+            <i>MP:</i> {{character.curr_mp}}/<strong>{{character.max_mp}}</strong>
+          </progressbar>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-2" style="height: 300px">
+      <img ng-if="fighting" class="img-thumbnail" ng-src="{{ mob.img }}">
+    </div>
+
+    <div class="col-md-8">
+      <div scroll-glue style="overflow:auto; height: 300px">
+        <div class="container-fluid">
+          <div class="row" ng-repeat="msg in messages">
+
+            <div ng-if="msg.from_mob"> <!-- MOB -->
+              <div class="col-md-6">
+                <div class="alert alert-danger text-left">
+                  <strong>{{ msg.attacker }}</strong> uses <strong>{{ msg.ability }}</strong> on <strong>{{ msg.attacked }}</strong>: <strong>{{ msg.dmg }}</strong>
+                </div>
+              </div>
+              <div class="col-md-6"></div>
+            </div>
+
+            <div ng-if="msg.from_character"> <!-- CHARACTER -->
+              <div class="col-md-6"></div>
+              <div class="col-md-6">
+                <div class="alert alert-success text-right">
+                  <strong>{{ msg.attacker }}</strong> uses <strong>{{ msg.ability }}</strong> on <strong>{{ msg.attacked }}</strong>: <strong>{{msg.dmg}}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div ng-if="msg.info"> <!-- INFO -->
+              <div class="col-md-12">
+                <div class="alert alert-info text-center">
+                  {{ msg.content }}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2" style="overflow:auto; height: 300px">
+      <img class="img-thumbnail" ng-src="{{ character.img }}">
+      <ul ng-if="action == 'ABILITY'">abilities:<li ng-repeat="ability in abilities">{{ability.name}}</li></ul>
+      <ul ng-if="action == 'ITEM'">items:<li ng-repeat="item in items">{{item.item.name}}</li></ul>
+      <ul>weapons:<li ng-repeat="weapon in weapons">{{weapon.item.name}}</li></ul>
+      <ul>armors:<li ng-repeat="armor in armors">{{armor.item.name}}</li></ul>      
+    </div>
+
+  </div>
+
+  <form ng-if="fighting" class="form" ng-if="action == 'ABILITY' && fighting" ng-submit="attack()">
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" ng-click="toggle_action()">{{ action }}</button>
+        </span>
+        <input  autocomplete="off" type="text" class="form-control"
+          typeahead="ability.name for ability in abilities | filter:$viewValue"
+          ng-model="abilityForm.ability"
+          name="ability" autofocus/>
+
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" ng-click="swap_target()" tooltip="Swap target">
+            {{target.name}} <span class="glyphicon glyphicon-screenshot"></span>
+          </button>
+        </span>
+
+      </div>
+    </div>
+  </form>
+
+  <form class="form" ng-if="action == 'ITEM'" ng-submit="use_item()">
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" ng-click="toggle_action()">{{ action }}</button>
+        </span>
+
+        <input  autocomplete="off" type="text" class="form-control"
+        typeahead="item.item.name for item in items | filter:$viewValue"
+        ng-model="itemForm.item"
+        name="item" autofocus/>
+      </div>
+    </div>
+  </form>
 </div>

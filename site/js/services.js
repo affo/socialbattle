@@ -15,11 +15,15 @@ angular.module('services', [])
       var deferred = $q.defer();
       //randomly selected mob
       var mob = mobs[Math.floor(Math.random()*mobs.length)];
+
       var timeout = Math.floor(TIMEOUT_RANGE[0] + Math.random()*(TIMEOUT_RANGE[1] - TIMEOUT_RANGE[0]));
       console.log('TO: ' + timeout);
 
       $timeout(function(){
         if(mob){
+          mob.max_hp = mob.hp;
+          delete mob.hp;
+          mob.curr_hp = mob.max_hp;
           deferred.resolve(mob);
         } else {
           deferred.reject('No mob found');
@@ -105,14 +109,14 @@ angular.module('services', [])
     var factory = {};
 
     factory.attack = function(character_name, target, ability){
-      var endpoint = Restangular.one('character', character_name).all('use_ability');
+      var endpoint = Restangular.one('characters', character_name).all('use_ability');
       var attacked_id = target;
       return AttackService.attack(endpoint, attacked_id, ability);
     };
 
     factory.use_item = function(item){
       var data = {item: item.url};
-      return Restangular.one('character', character_name).all('use_item').post(data);
+      return Restangular.one('characters', character_name).all('use_item').post(data);
     };
 
     return factory;

@@ -16,26 +16,104 @@ angular.module('room', ['luegg.directives'])
 
     var TIMEOUT_RANGE = [5, 10].map(function(x){ return x * 1000;}); //timeout range in ms
     $scope.messages = [];
+    $scope.fighting = false;
+    $scope.action = 'ABILITY';
+    $scope.abilityForm = {};
+    $scope.itemForm = {};
+    $scope.target = undefined;
+
     $scope.character = character;
-    $scope.character.abilities = character_abilities;
-    $scope.character.weapons = weapons;
-    $scope.character.armors = armors;
-    $scope.character.armors = armors;
-    $scope.character.items = items;
+    $scope.abilities = character_abilities;
+    $scope.weapons = weapons;
+    $scope.armors = armors;
+    $scope.armors = armors;
+    $scope.items = items;
     $scope.room = room;
 
     var spawn_promise = undefined;
     var mob_promise = undefined;
 
+    var push_mob = function(attacker, attacked, ability, dmg){
+      var data = {
+        attacked: attacked,
+        attacker: attacker,
+        ability: ability,
+        dmg: dmg,
+        from_mob: true,
+      }
+      $scope.messages.push(data);
+    }
+
+    var push_character = function(attacker, attacked, ability, dmg){
+      var data = {
+        attacked: attacked,
+        attacker: attacker,
+        ability: ability,
+        dmg: dmg,
+        from_character: true,
+      }
+      $scope.messages.push(data);
+    }
+
+    var find_item = function(item_name){
+      //find the item by name
+      for(var i = 0; i < $scope.items.length; i++){
+        if(item_name == $scope.items[i].item.name){
+          return $scope.items[i].item;
+        }
+      }
+      return undefined;
+    };
+
+    var find_ability = function(ability_name){
+      //find the ability by name
+      for(var i = 0; i < $scope.abilities.length; i++){
+        if(ability_name == $scope.abilities[i].name){
+          return $scope.abilities[i];
+        }
+      }
+      return undefined;
+    };
+
+    $scope.toggle_action = function(){
+      if($scope.action == 'ABILITY'){
+        $scope.action = 'ITEM';
+      }else{
+        $scope.action = 'ABILITY';
+      }
+    };
+
+    $scope.filter_mob_msg = function(msg){
+      console.log(msg);
+      if(msg.from_mob) return false;
+      return true;
+    };
+
+    $scope.filter_character_msg = function(msg){
+      console.log(msg);
+      if(msg.from_character) return false;
+      return true;
+    };
+
+    $scope.swap_target = function(){
+      if($scope.target == $scope.mob){
+        $scope.target = $scope.character;
+      }else{
+        $scope.target = $scope.mob;
+      }
+    }
+
     var spawn = function(){
       return SpawnService.spawn(mobs).then(
         function(mob){
           $scope.mob = mob;
-          $scope.messages.push(mob.name);
           Restangular.one('mobs', mob.slug).getList('abilities')
           .then(
             function(response){
               var abilities = Restangular.stripRestangular(response);
+              $scope.fighting = true;
+              //REMOVE
+              $scope.target = mob;
               // START MOB
               mob_promise = mob_ai(abilities, 0);
             }
@@ -54,12 +132,26 @@ angular.module('room', ['luegg.directives'])
           function(response){
             response.attack.then(
               function(attack){
-                $scope.messages.push('MOB: uses ' + attack.ability.name + ' DMG: ' + attack.dmg);
+                var target = $scope.character.name;
+                var dmg = attack.dmg;
+                var hp = $scope.character.curr_hp - dmg;
+                if(attack.ability.element == "H"){ //white magic
+                  target = $scope.mob.name;
+                  hp = $scope.mob.curr_hp - dmg;
+                  if(hp > $scope.mob.max_hp) hp = $scope.mob.max_hp;
+                }else{
+                  if(hp < 0) hp = 0;
+                  $scope.character.curr_hp = hp;
+                }
 
-                //recursive call if we are still in the room
-                //NOT GOOD SOLUTION
-                if(!go_on()) return;
-                mob_promise = mob_ai(abilities, response.ct);
+                push_mob($scope.mob.name, target, attack.ability.name, attack.dmg);
+
+                if(!go_on()){ //if the battle is ended the mob stops
+                  $scope.fighting = false;
+                  $scope.messages.push({info:true, content: "Battle ended"});
+                  return;
+                }
+                mob_promise = mob_ai(abilities, response.ct); //recursive call
               }
             );
           }
@@ -68,10 +160,9 @@ angular.module('room', ['luegg.directives'])
     };
 
     var go_on = function(){
-      //add conditions...
-      //character_hp + mob_hp
-      return true;
-    }
+      //if everyone is still alive
+      return $scope.character.curr_hp > 0 && $scope.mob.curr_hp > 0;
+    };
 
     $scope.$on('$destroy', function(){
       if(mob_promise){
@@ -85,7 +176,15 @@ angular.module('room', ['luegg.directives'])
       }
     });
 
-    $scope.attack = function(target_url, ability){
+    $scope.attack = function(){
+      var target_url = $scope.target.url;
+      var ability = find_ability($scope.abilityForm.ability);
+      $scope.abilityForm = {};
+      if(!ability){
+        //ability not found
+        return;
+      }
+
       CharacterService.attack($scope.character.name, target_url, ability)
       .then(
         function(response){
@@ -94,13 +193,42 @@ angular.module('room', ['luegg.directives'])
             function(response){
               //now we have the dmg to display
               var dmg = response.dmg;
+              var ability = response.ability;
+              var hp = $scope.target.curr_hp - dmg;
+              var mp = $scope.character.curr_mp - ability.mp_required;
+
+              //handle strange cases
+              if(hp < 0) hp = 0;
+              if(mp < 0) mp = 0;
+              if(hp > $scope.target.max_hp) hp = $scope.target.max_hp; 
+              //apply attack
+              $scope.target.curr_hp = hp;
+              $scope.character.curr_mp = mp;
+
+              push_character($scope.character.name, $scope.target.name, ability.name, dmg);
+
+              //stop the battle
+              if(hp < 0){
+                if(mob_promise){
+                  console.info('mob stopped');
+                  $timeout.cancel(mob_promise);
+                }
+                $scope.fighting = false;
+                $scope.messages.push({info:true, content: "Battle ended"});
+              }
             }
           );
         }
       );
     };
 
-    $scope.use_item = function(item){
+    $scope.use_item = function(){
+      var item = find_item($scope.itemForm.item);
+      $scope.itemForm = {};
+      if(!item){
+        //item not found
+        return;
+      }
       CharacterService.use_item(item).then(
         function(response){
           //do awesome things
