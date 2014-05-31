@@ -2,7 +2,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from socialbattle.private import models
 from socialbattle.private import serializers
-from socialbattle.private.tasks import update_status
 from socialbattle.private import mechanics
 from socialbattle.private.models import Ability
 
@@ -20,15 +19,15 @@ def use_ability(attacker, attacked, ability):
 
 	ct = mechanics.get_charge_time(attacker, item_or_ability)	
 	dmg = mechanics.calculate_damage(attacker, attacked, ability)
-	
-	try:
-		update_status.apply_async((attacker, attacked, dmg, ability), countdown=ct)
-	except:
-		update_status(attacker, attacked, dmg, ability)
+
+	attacker_mp = attacker.update_mp(ability)
+	attacked_hp = attacked.update_hp(dmg)
 
 	data = {
 		'dmg': dmg,
 		'ct': ct,
+		'attacker_mp': attacker_mp,
+		'attacked_hp': attacked_hp,
 	}
 	return Response(data, status=status.HTTP_200_OK)
 

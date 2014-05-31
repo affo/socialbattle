@@ -5,13 +5,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from socialbattle.private.models import InventoryRecord
 from socialbattle.private import mechanics
 import random, time
-from announce import AnnounceClient
-announce_client = AnnounceClient()
-
-@shared_task
-def update_status(attacker, attacked, dmg, ability):
-	attacker.update_mp(ability)
-	attacked.update_hp(dmg)
 
 @shared_task
 def end_battle(character, mob):

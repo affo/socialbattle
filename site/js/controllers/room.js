@@ -183,13 +183,12 @@ angular.module('room', ['luegg.directives'])
               function(attack){
                 var target = $scope.character.name;
                 var dmg = attack.dmg;
-                var hp = $scope.character.curr_hp - dmg;
+                var hp = attack.attacked_hp;
                 if(attack.ability.element == "H"){ //white magic
                   target = $scope.mob.name;
                   hp = $scope.mob.curr_hp - dmg;
                   if(hp > $scope.mob.max_hp) hp = $scope.mob.max_hp;
                 }else{
-                  if(hp < 0) hp = 0;
                   $scope.character.curr_hp = hp;
                 }
 
@@ -275,13 +274,14 @@ angular.module('room', ['luegg.directives'])
               //now we have the dmg to display
               var dmg = response.dmg;
               var ability = response.ability;
-              var hp = $scope.target.curr_hp - dmg;
-              var mp = $scope.character.curr_mp - ability.mp_required;
+              var hp = response.attacked_hp
+              var mp = response.attacker_mp;
 
-              //handle strange cases
-              if(hp < 0) hp = 0;
-              if(mp < 0) mp = 0;
-              if(hp > $scope.target.max_hp) hp = $scope.target.max_hp; 
+              if(!hp){
+                hp = $scope.target.curr_hp - dmg;
+                if(hp < 0) hp = 0;
+              }
+             
               //apply attack
               $scope.target.curr_hp = hp;
               $scope.character.curr_mp = mp;

@@ -82,10 +82,10 @@ class Ability(models.Model):
 
 class TargetMixin(object):
 	def update_hp(self, damage):
-		pass
+		return None
 
 	def update_mp(self, ability):
-		pass
+		return None
 
 from socialbattle.private.mechanics import BASE_STATS
 class Character(models.Model, TargetMixin):
@@ -130,6 +130,7 @@ class Character(models.Model, TargetMixin):
 		if self.curr_hp < 0:
 			self.curr_hp = 0
 		self.save()
+		return self.curr_hp
 
 	def update_mp(self, ability):
 		self.curr_mp -= ability.mp_required
@@ -139,6 +140,7 @@ class Character(models.Model, TargetMixin):
 		if self.curr_mp < 0:
 			self.curr_mp = 0
 		self.save()
+		return self.curr_mp
 
 	@property
 	def weapon(self):

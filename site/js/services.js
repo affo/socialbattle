@@ -65,21 +65,21 @@ angular.module('services', [])
       .then(
         function(response){
           var attack = $q.defer();
-          var r = {
-            ct: response.ct * 1000, //it comes in seconds from the server
-            dmg: response.dmg,
-          }
+          var ct = response.ct * 1000; //it comes in seconds from the server
+          var dmg = response.dmg;
 
           $timeout(function(){
             attack.resolve(
               {
                 ability: ability,
-                dmg: r.dmg,
+                attacked_hp: response.attacked_hp,
+                attacker_mp: response.attacker_mp,
+                dmg: dmg,
               }
             );
-          }, r.ct, true);
+          }, ct, true);
 
-          deferred.resolve({ct: r.ct, attack: attack.promise});
+          deferred.resolve({ct: ct, attack: attack.promise});
         }
       );
       return deferred.promise;
