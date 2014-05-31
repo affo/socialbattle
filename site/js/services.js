@@ -20,7 +20,7 @@ angular.module('services', [])
       var mob = JSON.parse(JSON.stringify(obj));
 
       var timeout = Math.floor(TIMEOUT_RANGE[0] + Math.random()*(TIMEOUT_RANGE[1] - TIMEOUT_RANGE[0]));
-      console.log('TO: ' + timeout);
+      //console.log('TO: ' + timeout);
 
       $timeout(function(){
         if(mob){

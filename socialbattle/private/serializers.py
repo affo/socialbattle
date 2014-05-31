@@ -218,4 +218,4 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Mob
 		fields = ('url', 'name', 'slug', 'drops', 'hp',
-					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', )
+					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', 'level' )

@@ -15,7 +15,10 @@ def use_ability(attacker, attacked, ability):
 	item_or_ability = ability
 	if ability.element == Ability.ELEMENTS[6][0]:
 		#physical ability
-		item_or_ability = attacker.weapon
+		if(attacker.weapon): 
+			item_or_ability = attacker.weapon.item
+		else:
+			item_or_ability = None
 
 	ct = mechanics.get_charge_time(attacker, item_or_ability)	
 	dmg = mechanics.calculate_damage(attacker, attacked, ability)
@@ -33,7 +36,11 @@ def use_ability(attacker, attacked, ability):
 
 from socialbattle.private.tasks import end_battle as end_battle_task
 def end_battle(character, mob, context):
-	end_battle_task.delay(character, mob)
+	try:
+		end_battle_task.delay(character, mob)
+	except:
+		end_battle_task(character, mob)
+
 	data = {
 		'msg': 'Battle ended, you win',
 		'guils_gain': mob.guils,

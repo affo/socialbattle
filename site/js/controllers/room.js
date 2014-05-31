@@ -10,7 +10,7 @@ angular.module('room', ['luegg.directives'])
 })
 
 .controller('PVERoom',
-  function($scope, Restangular, $stateParams, $localStorage, SpawnService, MobService, CharacterService,
+  function($scope, Restangular, $stateParams, $localStorage, $modal, SpawnService, MobService, CharacterService,
             character, character_abilities, weapons, armors, items,
             mobs, room, $timeout, $state){
 
@@ -152,15 +152,34 @@ angular.module('room', ['luegg.directives'])
     var spawn = function(){
       return SpawnService.spawn(mobs).then(
         function(mob){
-          $scope.mob = mob;
-          Restangular.one('mobs', mob.slug).getList('abilities')
-          .then(
-            function(response){
-              var abilities = Restangular.stripRestangular(response);
-              $scope.fighting = true;
-              $scope.target = mob;
-              // START MOB
-              mob_promise = mob_ai(abilities, 0);
+          //start modal
+          var m = $modal.open({
+            templateUrl: 'spawnModal.html',
+            controller: 'SpawnModal',
+            resolve: {
+              room: function () {
+                return $scope.room.name;
+              },
+
+              mob: function () {
+                return mob.name;
+              },
+            }
+          });
+
+          m.result.then(
+            function(){
+              $scope.mob = mob;
+              Restangular.one('mobs', mob.slug).getList('abilities')
+              .then(
+                function(response){
+                  var abilities = Restangular.stripRestangular(response);
+                  $scope.fighting = true;
+                  $scope.target = mob;
+                  // START MOB
+                  mob_promise = mob_ai(abilities, 0);
+                }
+              );
             }
           );
         }
@@ -173,7 +192,7 @@ angular.module('room', ['luegg.directives'])
       }
 
       var timeout = Math.floor(TIMEOUT_RANGE[0] + Math.random()*(TIMEOUT_RANGE[1] - TIMEOUT_RANGE[0])) + ct;
-      console.log('Next attack in: ' + timeout);
+      //console.log('Next attack in: ' + timeout);
 
       return $timeout(function(){
         MobService.attack($scope.mob.slug, $scope.character.url, abilities)
@@ -201,15 +220,51 @@ angular.module('room', ['luegg.directives'])
       }, timeout, true);
     };
 
-    var end_battle = function(){
+    var end_battle = function(win){
       if(mob_promise){
         console.info('mob stopped');
         $timeout.cancel(mob_promise);
       }
       $scope.fighting = false;
       push_info('Battle ended');
-      //TODO end the battle with REST call
-      if(is_character_alive()) spawn_promise = spawn();
+
+      if(win){
+        Restangular.oneUrl('character', character.url)
+        .all('end_battle').post({mob: $scope.mob.url})
+        .then(
+          function(response){
+            var m = $modal.open({
+                templateUrl: 'winModal.html',
+                controller: 'WinModal',
+                resolve: {
+                  mob: function () {
+                    return $scope.mob.name;
+                  },
+
+                  end: function(){
+                    return response;
+                  },
+                }
+              });
+
+            m.result.then(
+              function(){
+                if(is_character_alive()) spawn_promise = spawn();
+              }
+            );
+          }
+        );
+      }else{
+        var m = $modal.open({
+            templateUrl: 'loseModal.html',
+            controller: 'LoseModal',
+            resolve: {
+              mob: function(){
+                return $scope.mob.name;
+              },
+            }
+          });
+      }
     };
 
     var is_character_alive = function(){
@@ -288,12 +343,22 @@ angular.module('room', ['luegg.directives'])
 
               push_character($scope.character.name, $scope.target.name, ability.name, dmg);
 
-              //stop the battle, the mob (we hope) is dead
-              if(hp == 0){
-                end_battle();
+              //win
+              if($scope.mob.curr_hp == 0){
+                end_battle(true);
+              }
+
+              //lose
+              if($scope.character.curr_hp == 0){
+                end_battle(false);
               }
             }
           );
+        },
+
+        function(response){
+          console.log(response);
+          push_info(response.data.msg);
         }
       );
     };
@@ -319,6 +384,57 @@ angular.module('room', ['luegg.directives'])
     ///////////START SPAWNING
     spawn_promise = spawn();
 })
+
+.controller('SpawnModal',
+  function($scope, $modalInstance, room, mob){
+    $scope.room = room;
+    $scope.mob = mob;
+
+    $scope.start_fight = function(){
+      $modalInstance.close();
+    };
+  }
+)
+
+.controller('WinModal',
+  function($scope, $modalInstance, mob, end){
+    $scope.mob = mob;
+    $scope.end = end;
+
+    $scope.share = function(){};
+
+    $scope.close = function(){
+      $modalInstance.close();
+    };
+  }
+)
+
+.controller('LoseModal',
+  function($scope, $modalInstance, $state, $localStorage, mob){
+    var redirect = function(){
+      $state.go('character.inventory', {name: $localStorage.character});
+    };
+
+    $scope.share = function(){
+      redirect();
+    };
+
+    $scope.close = function(){
+      $modalInstance.close();
+      redirect();
+    };
+  }
+)
+
+.controller('FlightModal',
+  function($scope, $modalInstance){
+    $scope.flight = function(){};
+
+    $scope.close = function(){
+      $modalInstance.close();
+    };
+  }
+)
 
 .controller('RelaxRoom', function($scope, Restangular, $stateParams, $localStorage, $modal){
   $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);

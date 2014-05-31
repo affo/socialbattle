@@ -1,11 +1,11 @@
 <div class="jumbotron">
   <div class="row">
     <div class="col-md-6">
-      <h3 ng-if="fighting" class="text-center text-muted" style="text-transform: uppercase;">{{mob.name}}</h3>
+      <h3 ng-if="fighting" class="text-center text-muted" style="text-transform: uppercase;">{{mob.name}} - {{mob.level}}</h3>
       <progressbar ng-if="fighting" max="mob.max_hp" value="mob.curr_hp" type="danger"></progressbar>
     </div>
     <div class="col-md-6">
-      <h3 class="text-center text-muted" style="text-transform: uppercase;">{{character.name}}</h3>
+      <h3 class="text-center text-muted" style="text-transform: uppercase;">{{character.name}} - {{character.level}}</h3>
       <div class="row">
         <div class="col-md-9">
           <progressbar max="character.max_hp" value="character.curr_hp" type="success">
@@ -141,4 +141,71 @@
       </div>
     </div>
   </form>
+
+  <script type="text/ng-template" id="spawnModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ room }}</h3>
+        </div>
+        <div class="modal-body">
+        <div class="well">A wild <strong>{{ mob }}</strong> appears...</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="start_fight()">FIGHT!</button>
+        </div>
+  </script>
+
+  <script type="text/ng-template" id="winModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">You defeated {{mob}}!</h3>
+        </div>
+        <div class="modal-body">
+        <div class="well">
+          <ul>
+            DROPPED:
+            <li ng-repeat="item in end.dropped">
+              <a href="" popover="{{item.description}}" popover-trigger="mouseenter"
+              popover-placement="right">{{ item.name }}</a>
+            </li>
+          </ul>
+        <strong>Level</strong>: {{end.level}}, 
+        <strong>EXP</strong>: {{end.exp_gain}}, 
+        <strong>AP</strong>: {{end.ap_gain}}, 
+        <strong>GUIL</strong>: {{end.guils_gain}}
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary disabled" ng-click="share()">Share with Facebook</button>
+          <button class="btn btn-error" ng-click="close()">OK</button>
+        </div>
+  </script>
+
+  <script type="text/ng-template" id="loseModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">You lose...</h3>
+        </div>
+        <div class="modal-body">
+        <div class="well">
+          You lose against {{mob}}
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary disabled" ng-click="share()">Share with Facebook</button>
+          <button class="btn btn-error" ng-click="close()">OK</button>
+        </div>
+  </script>
+
+  <script type="text/ng-template" id="flightModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Warning</h3>
+        </div>
+        <div class="modal-body">
+        <div class="well">
+          A battle is active. Do you really want to flight?
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" ng-click="close()">No, I will stay</button>
+          <button class="btn btn-error" ng-click="flight()">FLIGHT</button>
+        </div>
+  </script>
 </div>
