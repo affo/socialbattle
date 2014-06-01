@@ -31,7 +31,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" ui-sref="home">SocialBattle</a>
+      <a class="navbar-brand" ui-sref="unlogged">SocialBattle</a>
     </div>
 
     <div class="collapse navbar-collapse">
@@ -91,16 +91,16 @@
   <div class="col-md-2" ng-controller="Rooms">
     <nav class=" navbar navbar-default" role="navigation">
       <!-- room bar -->
-      <tabset type="pills" vertical="true">
-        <tab class="disabled" active="tab.disabled"><tab-heading>PVE</tab-heading></tab>
-        <tab ng-repeat="pve in pverooms" select="go('pveroom', {room_name: pve.slug})">
-          <tab-heading>{{ pve.name }}</tab-heading>
-        </tab>
-        <tab class="divider"></tab>
-        <tab class="disabled" active="tab.disabled"><tab-heading>RELAX</tab-heading></tab>
-        <tab ng-repeat="relax in relaxrooms" select="go('relaxroom.posts', {room_name: relax.slug})">
-          <tab-heading>{{ relax.name }}</a></tab-heading>
-        </tab>
+      <ul class="nav nav-pills nav-stacked">
+        <li class="disabled"><a href="">PVE</a></li>
+        <li ng-repeat="pve in pverooms">
+          <a ui-sref="pveroom({room_name: pve.slug})">{{ pve.name }}</a>
+        </li>
+        <li class="divider"></li>
+        <li class="disabled"><a href="">RELAX</a></li>
+        <li ng-repeat="relax in relaxrooms">
+          <a ui-sref="relaxroom.posts({room_name: relax.slug})">{{ relax.name }}</a>
+        </li>
       </ul>
     </nav>
   </div>

@@ -4,7 +4,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
   function($scope, Restangular, Facebook, $localStorage, $state) {
     //if you are logged you cannot authenticate
     if($localStorage.logged){
-      $state.go('user', {username: $localStorage.user.username});
+      $state.go('user', {username: $localStorage.user});
     }
 
     $scope.$storage = $localStorage;

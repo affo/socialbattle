@@ -88,6 +88,7 @@ angular.module('post', ['restangular'])
       .then(
         function(response){//success
           console.log(response);
+          $scope.comment = {};
           if($scope.showing){
             $scope.comments.unshift(response);
           }

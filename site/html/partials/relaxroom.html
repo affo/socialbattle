@@ -1,7 +1,7 @@
 <div class="jumbotron">
 <h2 class="text-center">The merchant</h2>
   <div class="row">
-    <div class="col-md-2" style="overflow:auto">
+    <div class="col-md-2" style="overflow:auto; height: 300px">
       <ul ng-if="action == 'BUY'" class="nav nav-pills nav-stacked">
         <li class="disabled"><a href="#">We sell - {{ character.guils }}G</a></li>
         <li ng-repeat="item in buy_items"><a href="" ng-click="put_item(item.name)"
@@ -17,10 +17,37 @@
       </ul>
     </div>
     <div class="col-md-10">
-      <div scroll-glue style="overflow:auto; height: 200px">
-        <div ng-repeat="msg in messages">
-          <p class="text-info text-left" ng-if="msg.from_merchant">{{ msg.content }}</p>
-          <p class="text-success text-right" ng-if="msg.from_user">{{ msg.content }}</p>
+      <div scroll-glue style="overflow:auto; height: 300px">
+        <div class="container-fluid">
+          <div class="row" ng-repeat="msg in messages">
+
+            <div ng-if="msg.from_merchant"> <!-- MERCHANT -->
+              <div class="col-md-6">
+                <div class="alert alert-info text-left">
+                  {{ msg.content }}
+                </div>
+              </div>
+              <div class="col-md-6"></div>
+            </div>
+
+            <div ng-if="msg.from_user"> <!-- CHARACTER -->
+              <div class="col-md-6"></div>
+              <div class="col-md-6">
+                <div class="alert alert-success text-right">
+                  {{ msg.content }}
+                </div>
+              </div>
+            </div>
+
+            <div ng-if="msg.info"> <!-- INFO -->
+              <div class="col-md-12">
+                <div class="alert alert-warning text-center">
+                  {{ msg.content }}
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>

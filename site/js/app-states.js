@@ -50,7 +50,7 @@ angular.module('states', ['ui.router'])
     .state('pveroom', {
       parent: 'logged',
 
-      url: '/rooms/:room_name',
+      url: '/rooms/pve/:room_name',
       templateUrl: 'html/partials/pveroom.html',
 
       resolve: {
@@ -135,7 +135,7 @@ angular.module('states', ['ui.router'])
     .state('relaxroom', {
       parent: 'logged',
 
-      url: '/rooms/:room_name',
+      url: '/rooms/relax/:room_name',
       templateUrl: 'html/partials/relaxroom.html',
       controller: 'RelaxRoom'
     })

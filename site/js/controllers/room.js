@@ -4,9 +4,6 @@ angular.module('room', ['luegg.directives'])
   function($scope, $state, $localStorage, Restangular){
     $scope.pverooms = Restangular.all('rooms/pve').getList().$object;
     $scope.relaxrooms = Restangular.all('rooms/relax').getList().$object;
-    $scope.go = function(string, data){
-      $state.go(string, data);
-    };
 })
 
 .controller('PVERoom',
@@ -29,6 +26,7 @@ angular.module('room', ['luegg.directives'])
     }
 
     var TIMEOUT_RANGE = [5, 10].map(function(x){ return x * 1000;}); //timeout range in ms
+    var atb_active = false;
     $scope.messages = [];
     $scope.fighting = false;
     $scope.action = 'ABILITY';
@@ -320,16 +318,18 @@ angular.module('room', ['luegg.directives'])
     };
 
     var MAX = 100;
-    var FACTOR = 32;
+    var FACTOR = 4;
     $scope.max = MAX;
     $scope.progr = 0;
     var atb_bar = function(time){
       console.log('CT ' + time);
+      atb_active = true;
       //if the time is too short only charge the bar and descharge
       if(time < 1500){
         $scope.progr = MAX;
         $timeout(function(){
           $scope.progr = 0;
+          atb_active = false;
         }, 1500, true)
         
         return;
@@ -341,6 +341,7 @@ angular.module('room', ['luegg.directives'])
       var rec = function(slice, i){
         if(i > FACTOR + 1){
           $scope.progr = 0;
+          atb_active = false;
           return;
         }
 
@@ -359,6 +360,7 @@ angular.module('room', ['luegg.directives'])
     };
 
     $scope.attack = function(){
+      if(atb_active) return; // another attack is on
       var target_url = $scope.target.url;
       var ability = find_ability($scope.abilityForm.ability);
       $scope.abilityForm = {};
@@ -460,7 +462,7 @@ angular.module('room', ['luegg.directives'])
 .controller('LoseModal',
   function($scope, $modalInstance, $state, $localStorage, mob){
     $scope.mob = mob;
-    
+
     var redirect = function(){
       $state.go('character.inventory', {name: $localStorage.character});
     };
@@ -565,7 +567,7 @@ angular.module('room', ['luegg.directives'])
         }
         var msg = {
           content: content,
-          from_merchant: true,
+          info: true,
         };
         $scope.messages.push(msg);
       }
@@ -575,8 +577,9 @@ angular.module('room', ['luegg.directives'])
       if(isNaN(quantity)){
         var msg = {
           content: 'Please give me a valid number',
-          from_merchant: true,
+          info: true,
         };
+        $scope.messages.push(msg);
       }else{
         var msg = {
             content: 'So you want to ' + $scope.action + ' ' + quantity + " of " + $scope.selected_item.name,
