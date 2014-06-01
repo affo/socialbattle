@@ -66,7 +66,7 @@ class RelaxRoomSerializer(DynamicHyperlinkedModelSerializer):
 			view_name='item-detail',
 			lookup_field='slug',
 			many=True,
-		) 
+		)
 
 	class Meta:
 		model = models.RelaxRoom

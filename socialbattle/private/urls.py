@@ -46,6 +46,7 @@ router.register(
 
 router.register(r'inventory', item.InventoryRecordViewSet)
 router.register(r'abilities', ability.AbilityViewSet)
+router.register(r'signup', auth.SignupViewSet)
 
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
@@ -53,5 +54,4 @@ urlpatterns = patterns('',
 	url(r'^sa/default/', include('social_auth.urls')),
 	url(r'^sa/login/(?P<backend>[a-z]+)/', auth.register_by_access_token),
 	url(r'^sa/associate/(?P<backend>[a-z]+)/', auth.associate_by_access_token),
-	url(r'^signup/$', auth.signup),
 )

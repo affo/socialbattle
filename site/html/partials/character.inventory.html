@@ -1,7 +1,7 @@
 <alert ng-if="alert" type="{{alert.type}}" close="close_alert()">{{alert.msg}}</alert>
 
 <div class="row" ng-if="is_me">
-  <div class="col-md-2"><input class="form-control" ng-model="search.item.name" placeholder="Search Item..."></div>
+  <div class="col-md-2"><input class="form-control" ng-model="search" placeholder="Search Item..."></div>
   <div class="col-md-4">Equipped weapon: 
     <div class="btn-group" dropdown>
       <button type="button" class="btn btn-primary dropdown-toggle">
@@ -32,7 +32,7 @@
 
 <div class="row" style="margin-top: 20px">
 <ul class="list-group">
-  <div class="col-md-4" ng-repeat="record in inventory | filter:search" style="margin-top: 10px">
+  <div class="col-md-4" ng-repeat="record in inventory | filter:{item.name: search}" style="margin-top: 10px">
       <li class="list-group-item list-group-item-success" ng-if="record.item.item_type == 'R'">
         {{ record.item.name }} x{{ record.quantity }}
         <a href="" ng-if="is_me" ng-click="use_item(record)"  tooltip-placement="top" tooltip="Use item">

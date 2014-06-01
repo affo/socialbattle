@@ -88,11 +88,18 @@ class TargetMixin(object):
 		return None
 
 from socialbattle.private.mechanics import BASE_STATS
+from django.core import validators
+from django.utils.translation import ugettext_lazy as _
 class Character(models.Model, TargetMixin):
 	'''
 		The character the user will use to fight
 	'''
-	name = models.CharField(max_length=200, unique=True)
+	name = models.CharField(max_length=30, unique=True,
+		help_text=_('Required. 30 characters or fewer. Letters, digits and '
+						'@/./+/-/_ only.'),
+		validators=[
+			validators.RegexValidator(r'^[\w.@+-]+$', _('Enter a valid username.'), 'invalid')
+		])
 	level = models.IntegerField(default=1)
 	exp = models.IntegerField(default=0)
 	ap = models.IntegerField(default=10)

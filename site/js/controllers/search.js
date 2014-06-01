@@ -1,24 +1,10 @@
 angular.module('search', ['restangular'])
 
-.controller('Search', function($scope, Restangular, $localStorage){
-	var users = Restangular.all('users');
-	var rooms = Restangular.all('rooms');
+.controller('Search', function($scope, Restangular, $localStorage, $state){
+	var users_endpoint = Restangular.all('users');
+	var rooms_endpoint = Restangular.all('rooms');
 	$scope.searchForm = {};
-	$scope.results = {};
-	$scope.searching = false;
-
-	//some view logic for the search bar
-	// angular.element('#searchbar').on('blur', function(e){
-	// 	$scope.$apply(function(){$scope.searching = false;});
-	// });
-
-	angular.element('#searchbar').on('focusin', function(e){
-		$scope.$apply(function(){
-			if($scope.searchForm.query){
-				$scope.searching = true;
-			}
-		});
-	});
+	$scope.results = [];
 	
 	var keys = {
 		LEFT: 37,
@@ -58,23 +44,12 @@ angular.module('search', ['restangular'])
 			return;
 		}
 
-		$scope.searching = true;
-
-		//start with users
-		users.customGET('', {query: query})
+		users_endpoint.customGET('', {query: query})
 		.then(
-			function(users){
-				$scope.results.users = users;
-			}
-		);
-
-		//eventually, rooms
-		rooms.customGET('', {query: query})
-		.then(
-			function(rooms){
-				$scope.results.rooms = rooms;
+			function(response){
+				var users = Restangular.stripRestangular(response);
+				$scope.results = users;
 			}
 		);
 	}
-
 });

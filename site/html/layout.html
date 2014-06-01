@@ -35,6 +35,13 @@
     </div>
 
     <div class="collapse navbar-collapse">
+
+        <script type="text/ng-template" id="customTemplate.html">
+          <a ui-sref="user({username: match.model.username})">
+              <span bind-html-unsafe="match.label | typeaheadHighlight:query"></span>
+          </a>
+        </script>
+
         <form class="navbar-form navbar-left" role="search" ng-controller="Search">
           <div class="form-group">
             <input type="text"
@@ -43,22 +50,10 @@
               ng-keyup="keypressed($event)"
               name="query"
               autocomplete="off"
+              typeahead="user.username for user in results"
+              typeahead-template-url="customTemplate.html"
               placeholder="Search">
           </div>
-          <ul class="nav navbar-nav"
-              ng-if="searching && (results.rooms.length > 0 || results.users.length > 0)">
-            <li class="dropdown open">
-              <ul class="dropdown-menu">
-                <li ng-repeat="u in results.users">
-                    <a ui-sref="user({username: u.username})" ng-click="submit()">{{ u.username }}</a>
-                </li>
-                <li class="divider" ng-if="results.rooms.length > 0 && results.users.length > 0">Rooms</li>
-                <li ng-repeat="r in results.rooms">
-                    <a href="" ng-click="submit()">{{ r.name }}</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
         </form>
 
       <ul class="nav navbar-nav navbar-right">

@@ -2,7 +2,7 @@ from django.contrib.auth import login
 from django.shortcuts import redirect
 from social_auth.decorators import dsa_view
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets, mixins
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from socialbattle.private.serializers import UserSerializer
@@ -41,17 +41,20 @@ def associate_by_access_token(request, backend, *args, **kwargs):
 		return Response(data, status=status.HTTP_200_OK)
 	return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-@permission_classes([AllowAny, ])
-def signup(request, *args, **kwargs):
-	serializer = UserSerializer(data=request.DATA, files=request.FILES)
-	if serializer.is_valid():
-		user = serializer.object
-		username = user.username
-		email = user.email
-		password = user.password
-		user = User.objects.create_user(username, email, password)
-		user = UserSerializer(user, context={'request': request}).data
-		return Response(user, status=status.HTTP_201_CREATED)
-	
-	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class SignupViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+	model = User
+	serializer_class = UserSerializer
+	permission_classes = [AllowAny, ]
+
+	def create(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+		if serializer.is_valid():
+			user = serializer.object
+			username = user.username
+			email = user.email
+			password = user.password
+			user = User.objects.create_user(username, email, password)
+			user = self.get_serializer(user).data
+			return Response(user, status=status.HTTP_201_CREATED)
+		
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

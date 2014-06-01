@@ -293,7 +293,19 @@ angular.module('room', ['luegg.directives'])
 
             m.result.then(
               function(){
-                if(is_character_alive()) spawn();
+                //re-resolve
+                $scope.weapons = Restangular.one('characters', $localStorage.character).getList('weapons').$object;
+                $scope.armors = Restangular.one('characters', $localStorage.character).getList('armors').$object;
+                $scope.items = Restangular.one('characters', $localStorage.character).getList('items').$object;
+                Restangular.one('characters', $localStorage.character).get().then(
+                  function(response){
+                    $scope.character = Restangular.stripRestangular(response);
+                    //re-spawn
+                    if(is_character_alive()){
+                      spawn();
+                    }
+                  }
+                );
               }
             );
           }
