@@ -8,11 +8,13 @@ angular.module('services', [])
   function($q, $timeout, Restangular){
     var factory = {};
     var TIMEOUT_RANGE = [5, 10].map(function(x){ return x * 1000;}); //timeout range in ms
+    var timeout_promise;
+    var deferred;
 
     //returns a promise containing a mob
     factory.spawn = function(mobs){
       if(mobs.length == 0) return {};
-      var deferred = $q.defer();
+      deferred = $q.defer();
       //randomly selected mob
       var obj = mobs[Math.floor(Math.random()*mobs.length)];
       //cloning the mob as suggested by
@@ -22,18 +24,21 @@ angular.module('services', [])
       var timeout = Math.floor(TIMEOUT_RANGE[0] + Math.random()*(TIMEOUT_RANGE[1] - TIMEOUT_RANGE[0]));
       //console.log('TO: ' + timeout);
 
-      $timeout(function(){
-        if(mob){
-          mob.max_hp = mob.hp;
-          mob.curr_hp = mob.hp;
-          delete mob.hp;
-          deferred.resolve(mob);
-        } else {
-          deferred.reject('No mob found');
-        }
+      timeout_promise = $timeout(function(){
+        mob.max_hp = mob.hp;
+        mob.curr_hp = mob.hp;
+        delete mob.hp;
+        deferred.resolve(mob);
       }, timeout, true);
 
       return deferred.promise;
+    };
+
+    factory.stop = function(){
+      if(timeout_promise){
+        $timeout.cancel(timeout_promise);
+        deferred.reject('Stopped');
+      }
     };
 
     return factory;

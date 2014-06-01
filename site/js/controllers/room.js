@@ -30,8 +30,7 @@ angular.module('room', ['luegg.directives'])
     $scope.items = items;
     $scope.room = room;
 
-    var spawn_promise = undefined;
-    var mob_promise = undefined;
+    var mob_promise;
 
     $scope.$on('$destroy', function(){
       if(mob_promise){
@@ -39,10 +38,8 @@ angular.module('room', ['luegg.directives'])
         $timeout.cancel(mob_promise);
       }
 
-      if(spawn_promise){
-        console.info('spawn stopped');
-        $timeout.cancel(spawn_promise);
-      }
+      SpawnService.stop();
+      console.info('spawn stopped');
     });
 
 
@@ -182,6 +179,10 @@ angular.module('room', ['luegg.directives'])
               );
             }
           );
+        },
+
+        function(response){ //stopped
+          console.log($scope.room.name + ': ' + response);
         }
       );
     };
@@ -249,7 +250,7 @@ angular.module('room', ['luegg.directives'])
 
             m.result.then(
               function(){
-                if(is_character_alive()) spawn_promise = spawn();
+                if(is_character_alive()) spawn();
               }
             );
           }
@@ -382,7 +383,7 @@ angular.module('room', ['luegg.directives'])
     };
 
     ///////////START SPAWNING
-    spawn_promise = spawn();
+    spawn();
 })
 
 .controller('SpawnModal',
