@@ -6,6 +6,8 @@ angular.module('logged', ['restangular'])
       var modalInstance = $modal.open({
         templateUrl: 'selectCharacterModal.html',
         controller: 'SelectCharacterModal',
+        backdrop: 'static',
+        keyboard: false,
         resolve: {
           characters: function(){
             return Restangular.one('users', $localStorage.user).getList('characters').$object;

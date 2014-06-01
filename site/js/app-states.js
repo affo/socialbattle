@@ -54,12 +54,12 @@ angular.module('states', ['ui.router'])
       templateUrl: 'html/partials/pveroom.html',
 
       resolve: {
-        character: function($localStorage, Restangular){
+        character: function($localStorage, Restangular, $modal){
           return Restangular.one('characters', $localStorage.character).get()
           .then(
             function(response){
-              var obj = Restangular.stripRestangular(response);
-              return obj;
+              var character = Restangular.stripRestangular(response);
+              return character;
             },
             function(response){
               console.log(response);

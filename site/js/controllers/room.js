@@ -12,7 +12,21 @@ angular.module('room', ['luegg.directives'])
 .controller('PVERoom',
   function($scope, Restangular, $stateParams, $localStorage, $modal, SpawnService, MobService, CharacterService,
             character, character_abilities, weapons, armors, items,
-            mobs, room, $timeout, $state){
+            mobs, room, $timeout, $state, $rootScope){
+
+    if(character.curr_hp <= 0){
+      var m = $modal.open({
+        templateUrl: 'deadModal.html',
+        controller: 'DeadModal',
+        backdrop: 'static',
+        keyboard: false,
+        resolve: {
+          character: function(){
+            return character.name;
+          },
+        }
+      });
+    }
 
     var TIMEOUT_RANGE = [5, 10].map(function(x){ return x * 1000;}); //timeout range in ms
     $scope.messages = [];
@@ -33,14 +47,34 @@ angular.module('room', ['luegg.directives'])
     var mob_promise;
 
     $scope.$on('$destroy', function(){
-      if(mob_promise){
-        console.info('mob stopped');
-        $timeout.cancel(mob_promise);
-      }
-
       SpawnService.stop();
       console.info('spawn stopped');
     });
+
+    $rootScope.$on('$stateChangeStart', 
+      function(event, toState, toParams, fromState, fromParams){
+        if(mob_promise){
+          event.preventDefault(); // stop transition
+          //open modal
+          var m = $modal.open({
+            templateUrl: 'flightModal.html',
+            controller: 'FlightModal',
+          });
+
+          m.result.then(
+            function(stay){
+              // if flight, then go
+              if(!stay){
+                console.info('mob stopped');
+                $timeout.cancel(mob_promise);
+                mob_promise = undefined;
+                $state.go(toState, toParams);
+              }
+            }
+          );
+
+        }    
+      });
 
 
 
@@ -153,6 +187,8 @@ angular.module('room', ['luegg.directives'])
           var m = $modal.open({
             templateUrl: 'spawnModal.html',
             controller: 'SpawnModal',
+            backdrop: 'static',
+            keyboard: false,
             resolve: {
               room: function () {
                 return $scope.room.name;
@@ -213,6 +249,12 @@ angular.module('room', ['luegg.directives'])
                 }
 
                 push_mob($scope.mob.name, target, attack.ability.name, attack.dmg);
+
+                //if the character is dead
+                if(!is_character_alive()){
+                  end_battle(false);
+                  return;
+                }
                 mob_promise = mob_ai(abilities, response.ct); //recursive call
               }
             );
@@ -222,9 +264,12 @@ angular.module('room', ['luegg.directives'])
     };
 
     var end_battle = function(win){
+      if(!$scope.fighting) return;
+
       if(mob_promise){
         console.info('mob stopped');
         $timeout.cancel(mob_promise);
+        mob_promise = undefined;
       }
       $scope.fighting = false;
       push_info('Battle ended');
@@ -259,6 +304,8 @@ angular.module('room', ['luegg.directives'])
         var m = $modal.open({
             templateUrl: 'loseModal.html',
             controller: 'LoseModal',
+            backdrop: 'static',
+            keyboard: false,
             resolve: {
               mob: function(){
                 return $scope.mob.name;
@@ -383,7 +430,7 @@ angular.module('room', ['luegg.directives'])
     };
 
     ///////////START SPAWNING
-    spawn();
+    if(is_character_alive()) spawn();
 })
 
 .controller('SpawnModal',
@@ -412,6 +459,8 @@ angular.module('room', ['luegg.directives'])
 
 .controller('LoseModal',
   function($scope, $modalInstance, $state, $localStorage, mob){
+    $scope.mob = mob;
+    
     var redirect = function(){
       $state.go('character.inventory', {name: $localStorage.character});
     };
@@ -429,10 +478,21 @@ angular.module('room', ['luegg.directives'])
 
 .controller('FlightModal',
   function($scope, $modalInstance){
-    $scope.flight = function(){};
+    $scope.flight = function(){
+      $modalInstance.close(false);
+    };
 
     $scope.close = function(){
+      $modalInstance.close(true);
+    };
+  }
+)
+
+.controller('DeadModal',
+  function($scope, $modalInstance, $state, character){
+    $scope.close = function(){
       $modalInstance.close();
+      $state.go('character.inventory', {name: character});
     };
   }
 )
