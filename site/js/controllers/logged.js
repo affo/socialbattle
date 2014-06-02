@@ -26,13 +26,16 @@ angular.module('logged', ['restangular'])
   function($scope, $modalInstance, $localStorage, characters, endpoint){
     $scope.characters = characters;
     $scope.characterForm = {};
+    $scope.alerts = [];
 
     $scope.create_character = function(){
-      console.log($scope.characterForm);
       endpoint.post($scope.characterForm)
       .then(
         function(character){
           $scope.select(character);
+        },
+        function(response){
+          $scope.alerts.push({type: 'danger', msg: response.data});
         }
       );
     }
@@ -40,6 +43,10 @@ angular.module('logged', ['restangular'])
     $scope.select = function(character){
       $localStorage.character = character.name;
       $modalInstance.close();
+    };
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
     };
   }
 );

@@ -1,3 +1,5 @@
+<div class="col-md-12"><alert class="text-center" ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg | json}}</alert></div>
+
 <div class="form-group">
   <div class="input-group">
     <input type="text" class="form-control" ng-model="characterForm.name" name="name" />

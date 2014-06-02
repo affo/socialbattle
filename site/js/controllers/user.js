@@ -68,18 +68,27 @@ angular.module('user', ['restangular'])
   var characters = $scope.endpoint.getList('characters').$object;
   $scope.characters = characters;
   $scope.characterForm = {};
+  $scope.alerts = [];
 
   $scope.select = function(character){
     $localStorage.character = character.name;
   }
 
   $scope.create_character = function(){
-    console.log($scope.characterForm);
     $scope.endpoint.all('characters').post($scope.characterForm)
     .then(
       function(character){
         $scope.characters.push(character);
+        $scope.alerts.push({type: 'success', msg: character.name + ' succesfully created!'});
+        $scope.characterForm = {};
+      },
+      function(response){
+        $scope.alerts.push({type: 'danger', msg: response.data});
       }
     );
   }
+
+  $scope.closeAlert = function(index){
+    $scope.alerts.splice(index, 1);
+  };
 });

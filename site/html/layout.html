@@ -5,6 +5,9 @@
         <h3 class="modal-title">Please select a character or create a new one:</h3>
     </div>
     <div class="modal-body">
+      <alert class="text-center" ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">
+        {{alert.msg | json}}
+      </alert>
       <ul>
         <li ng-repeat="character in characters">
           <a href="" ng-click="select(character)">{{ character.name }}</a>

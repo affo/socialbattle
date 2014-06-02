@@ -8,6 +8,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     }
 
     $scope.$storage = $localStorage;
+    $scope.alerts = [];
     $scope.signinForm = {};
     $scope.signupForm = {};
 
@@ -26,6 +27,10 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
           }
 
           $state.go('user.posts', {username: username});
+        },
+        function(response){
+          $scope.alerts.push({type: 'danger', msg: response.data});
+          $scope.signinForm = {};
         }
       );
     }
@@ -65,6 +70,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
             },
             function(response){
                 console.log(response);
+                $scope.alerts.push({type: 'danger', msg: response.data});
             });
     };
 
@@ -75,14 +81,26 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
             password: $scope.signupForm.password,
         };
 
-        console.log(data);
+        var check = $scope.signupForm.check_password;
+
+        if(check != data.password){
+          $scope.alerts.push({type: 'danger', msg: 'The two passwords are different!'});
+          $scope.signupForm.password = '';
+          $scope.signupForm.check_password = '';
+          return;
+        }
 
         Restangular.all('signup').post(data).then(
             function(response){
-                console.log(response);
+                $scope.alerts.push({type: 'success', msg: 'Succesfully signed up!'});
+                $scope.signupForm = {};
             },
             function(response){
-                console.log(response);
+                $scope.alerts.push({type: 'danger', msg: response.data});
             });
+    };
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
     };
 });
