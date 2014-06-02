@@ -1,0 +1,24 @@
+{
+  "name": "socialbattle",
+  "version": "0.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "http-proxy": "~1.1.4",
+    "connect": "~2.14.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "lorenzo affetti",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/affo/socialbattle"
+  },
+  "bugs": {
+    "url": "https://github.com/affo/socialbattle/issues"
+  },
+  "homepage": "https://github.com/affo/socialbattle"
+}
