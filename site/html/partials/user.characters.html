@@ -19,7 +19,7 @@
           <input type="radio" name="character" ng-click="select(character)" ng-if="$storage.character == character.name" checked>
           <input type="radio" name="character" ng-click="select(character)"  ng-if="$storage.character != character.name">
         </div>
-        <a ui-sref="character({ name: character.name})">
+        <a ui-sref="character.inventory({ name: character.name })">
         	{{ character.name }}
         </a> - {{ character.level }}
       </div>

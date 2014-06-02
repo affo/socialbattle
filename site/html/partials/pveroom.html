@@ -159,6 +159,7 @@
             <h3 class="modal-title">You defeated {{mob}}!</h3>
         </div>
         <div class="modal-body">
+        <div><alert class="text-center" ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg | json}}</alert></div>
         <div class="well">
           <ul>
             DROPPED:
@@ -174,7 +175,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn btn-primary disabled" ng-click="share()">Share with Facebook</button>
+          <button id="share-fb-button" class="btn btn-primary" ng-click="share()">Share with Facebook</button>
           <button class="btn btn-error" ng-click="close()">Keep on fighting</button>
         </div>
   </script>
@@ -184,12 +185,13 @@
             <h3 class="modal-title">You lose...</h3>
         </div>
         <div class="modal-body">
+        <div><alert class="text-center" ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg | json}}</alert></div>
         <div class="well">
           You lose against {{mob}}
         </div>
 
         <div class="modal-footer">
-          <button class="btn btn-primary disabled" ng-click="share()">Share with Facebook</button>
+          <button id="share-fb-button" class="btn btn-primary" ng-click="share()">Share with Facebook</button>
           <button class="btn btn-error" ng-click="close()">OK</button>
         </div>
   </script>

@@ -1,7 +1,7 @@
 angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Auth',
-  function($scope, Restangular, Facebook, $localStorage, $state) {
+  function($scope, Restangular, $localStorage, Facebook, $state) {
     //if you are logged you cannot authenticate
     if($localStorage.logged){
       $state.go('user', {username: $localStorage.user});
@@ -36,7 +36,6 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     }
 
     $scope.fb_login = function() {
-      console.log('getLoginStatus');
       Facebook.getLoginStatus(function(response){
         $scope.$apply(function(){
           if(response.status == 'connected') {
@@ -49,12 +48,24 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
                 }, function(response){
                   //error
                 });
+          }else if(response.status === 'not_authorized'){
+            // The person is logged into Facebook, but not your app.
+            // and so I'm very sorry...
           } else {
-            //not logged to facebook
-          };
+            // The person is not logged into Facebook, so we're not sure if
+            // they are logged into this app or not.
+            // let's make him log in to Facebook
+            Facebook.login(function(response){
+              if(response.authResponse){
+                $scope.fb_login();
+              }else{
+                //the user stopped the auth
+              }
+            }, {scope: 'publish_actions'});
+          }
         });
       });
-    }
+    };
 
 
     $scope.sb_login = function(){

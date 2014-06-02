@@ -2,17 +2,18 @@
 
 <p ng-if="is_me">You have <strong>{{ character.ap }}</strong> APs</p>
 <div class="row" style="margin-top: 20px">
-  <div class="col-md-2" style="border-right:1px solid grey;"><p class="text-center"><strong>Physical</p>
+  <div class="col-md-2" style="border-right:1px solid grey;">
+    <p class="text-center text-muted"><strong>PHYSICAL</strong></p>
     <ul class="list-group">
       <li class="list-group-item"
-          ng-repeat="ability in abilities" ng-if="ability.element == 'N'">
+          ng-repeat="ability in abilities" ng-if="ability.element == 'P'">
         {{ ability.name }}
       </li>
     </ul>
     <!-- NEXT -->
     <ul class="list-group" ng-if="is_me" ng-if="is_me">
       <li class="list-group-item"
-          ng-repeat="ability in next_abilities" ng-if="ability.element == 'N'">
+          ng-repeat="ability in next_abilities" ng-if="ability.element == 'P'">
         {{ ability.name }} - <small tooltip="AP required">{{ ability.ap_required }}</small>
         <a href="" ng-click="learn_ability(ability)"  tooltip-placement="top" tooltip="Learn ability">
           <span class="glyphicon glyphicon-plus"></span>
@@ -21,7 +22,8 @@
     </ul>
   </div>
 
-  <div class="col-md-2" style="border-right:1px solid grey;"><p class="text-center"><strong>White</p>
+  <div class="col-md-2" style="border-right:1px solid grey;">
+    <p class="text-center text-muted"><strong>WHITE</strong></p>
     <ul class="list-group">
       <li class="list-group-item list-group-item-success"
           ng-repeat="ability in abilities" ng-if="ability.element == 'H'">
@@ -43,7 +45,7 @@
     </ul>
   </div>
 
-  <div class="col-md-8"><p class="text-center"><strong>Black</strong></p>
+  <div class="col-md-8"><p class="text-center text-muted"><strong>BLACK</strong></p>
     <div class="row">
       <div class="col-md-3"><!-- fire -->
         <ul class="list-group">
@@ -113,6 +115,25 @@
         <ul class="list-group" ng-if="is_me">
           <li class="list-group-item"
               ng-repeat="ability in next_abilities" ng-if="ability.element == 'W'">
+            {{ ability.name }} - <small tooltip="AP required">{{ ability.ap_required }}</small>
+            <a href="" ng-click="learn_ability(ability)"  tooltip-placement="top" tooltip="Learn ability">
+              <span class="glyphicon glyphicon-plus"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-md-12"><!-- none -->
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-default"
+              ng-repeat="ability in abilities" ng-if="ability.element == 'N'">
+            {{ ability.name }}
+          </li>
+        </ul>
+        <!-- NEXT -->
+        <ul class="list-group" ng-if="is_me">
+          <li class="list-group-item"
+              ng-repeat="ability in next_abilities" ng-if="ability.element == 'N'">
             {{ ability.name }} - <small tooltip="AP required">{{ ability.ap_required }}</small>
             <a href="" ng-click="learn_ability(ability)"  tooltip-placement="top" tooltip="Learn ability">
               <span class="glyphicon glyphicon-plus"></span>

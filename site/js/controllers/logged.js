@@ -2,6 +2,12 @@ angular.module('logged', ['restangular'])
 
 .controller('Logged',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal) {
+    //check if logged
+    if(!$localStorage.logged){
+      $state.go('unlogged');
+      return;
+    }
+
     if(!$localStorage.character){
       var modalInstance = $modal.open({
         templateUrl: 'selectCharacterModal.html',

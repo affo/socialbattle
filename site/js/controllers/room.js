@@ -459,11 +459,69 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('WinModal',
-  function($scope, $modalInstance, mob, end){
+  function($scope, $modalInstance, $localStorage, Facebook, Restangular, mob, end){
     $scope.mob = mob;
     $scope.end = end;
+    $scope.alerts = [];
 
-    $scope.share = function(){};
+    $scope.share = function(){
+      console.log('share');
+      //disable share button
+      angular.element('#share-fb-button').addClass('disabled');
+      
+      var msg = 'Won a battle against ' + mob;
+      Facebook.getLoginStatus(
+        function(response){
+          $scope.$apply(function(){
+            if(response.status == 'connected'){
+              //ok
+              //associate with facebook
+              var data = {access_token: response.authResponse.accessToken};
+              Restangular.all('sa/associate/').customGET('facebook', data)
+              .then(
+                function(user){
+                  $localStorage.user = user.username;
+                  $localStorage.facebook = true;
+
+                  // and then post on timeline
+                  Facebook.api('me/feed', 'post', {message: msg},
+                    function(response) {
+                      if(!response || response.error){
+                        $scope.alerts.push({type: 'danger', msg: response.error});
+                      } else {
+                        $scope.alerts.push({type: 'success', msg: 'Succesfully posted to your timeline'});
+                      }
+                    }
+                  );
+                },
+                function(response){
+                  //error
+                  console.log(response);
+                }
+              );
+            }else if(response.status === 'not_authorized'){
+              // The person is logged into Facebook, but not your app.
+              // and so I'm very sorry...
+            } else {
+              // The person is not logged into Facebook, so we're not sure if
+              // they are logged into this app or not.
+              // let's make him log in to Facebook
+              Facebook.login(function(response){
+                if(response.authResponse){
+                  $scope.share();
+                }else{
+                  //the user stopped the auth
+                }
+              }, {scope: 'publish_actions'});
+            }
+          }); //$scope.$apply
+        }
+      );
+    };
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
+    };
 
     $scope.close = function(){
       $modalInstance.close();
@@ -472,15 +530,71 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('LoseModal',
-  function($scope, $modalInstance, $state, $localStorage, mob){
+  function($scope, $modalInstance, $state, $localStorage, Facebook, Restangular, mob){
     $scope.mob = mob;
+    $scope.alerts = [];
 
     var redirect = function(){
       $state.go('character.inventory', {name: $localStorage.character});
     };
 
     $scope.share = function(){
-      redirect();
+      console.log('share');
+      //disable share button
+      angular.element('#share-fb-button').addClass('disabled');
+
+      var msg = 'Lose a battle against ' + mob;
+      Facebook.getLoginStatus(
+        function(response){
+          $scope.$apply(function(){
+            if(response.status == 'connected'){
+              //ok
+              //associate with facebook
+              var data = {access_token: response.authResponse.accessToken};
+              Restangular.all('sa/associate/').customGET('facebook', data)
+              .then(
+                function(user){
+                  $localStorage.user = user.username;
+                  $localStorage.facebook = true;
+
+                  // and then post on timeline
+                  Facebook.api('me/feed', 'post', {message: msg},
+                    function(response) {
+                      if(!response || response.error){
+                        $scope.alerts.push({type: 'danger', msg: response.error});
+                      } else {
+                        $scope.alerts.push({type: 'success', msg: 'Succesfully posted to your timeline'});
+                      }
+                    }
+                  );
+                },
+                function(response){
+                  //error
+                  console.log(response);
+                }
+              );
+            }else if(response.status === 'not_authorized'){
+              // The person is logged into Facebook, but not your app.
+              // and so I'm very sorry...
+            } else {
+              // The person is not logged into Facebook, so we're not sure if
+              // they are logged into this app or not.
+              // let's make him log in to Facebook
+              Facebook.login(function(response){
+                if(response.authResponse){
+                  $scope.share();
+                }else{
+                  //the user stopped the auth
+                }
+              }, {scope: 'publish_actions'});
+            }
+          }); //$scope.$apply
+        }
+      );
+    };
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
     };
 
     $scope.close = function(){
@@ -752,15 +866,70 @@ angular.module('room', ['luegg.directives'])
   };
 })
 
-.controller('TransactionModal', function($scope, $modalInstance, user, action, character, shop, item){
-
+.controller('TransactionModal',
+  function($scope, $modalInstance, Restangular, $localStorage, Facebook, user, action, character, shop, item){
     $scope.user = user;
     $scope.action = action;
     $scope.character = character;
     $scope.shop = shop;
     $scope.item = item;
+    $scope.alerts = [];
 
-    $scope.share = function(){console.log('share')};
+    $scope.share = function(){
+      console.log('share');
+      var msg = user + '#' + character + ' bought some ' + item + ' @' + shop;
+      Facebook.getLoginStatus(
+        function(response){
+          $scope.$apply(function(){
+            if(response.status == 'connected'){
+              //ok
+              //associate with facebook
+              var data = {access_token: response.authResponse.accessToken};
+              Restangular.all('sa/associate/').customGET('facebook', data)
+              .then(
+                function(user){
+                  $localStorage.user = user.username;
+                  $localStorage.facebook = true;
+
+                  // and then post on timeline
+                  Facebook.api('me/feed', 'post', {message: msg},
+                    function(response) {
+                      if(!response || response.error){
+                        $scope.alerts.push({type: 'danger', msg: response.error});
+                      } else {
+                        $scope.alerts.push({type: 'success', msg: 'Succesfully posted to your timeline'});
+                      }
+                    }
+                  );
+                },
+                function(response){
+                  //error
+                  console.log(response);
+                }
+              );
+            }else if(response.status === 'not_authorized'){
+              // The person is logged into Facebook, but not your app.
+              // and so I'm very sorry...
+            } else {
+              // The person is not logged into Facebook, so we're not sure if
+              // they are logged into this app or not.
+              // let's make him log in to Facebook
+              Facebook.login(function(response){
+                if(response.authResponse){
+                  $scope.share();
+                }else{
+                  //the user stopped the auth
+                }
+              }, {scope: 'publish_actions'});
+            }
+          }); //$scope.$apply
+        }
+      );
+    };
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
+    };
 
     $scope.close = function () {
       $modalInstance.close();
