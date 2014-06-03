@@ -464,6 +464,8 @@ angular.module('room', ['luegg.directives'])
     $scope.end = end;
     $scope.alerts = [];
 
+    $scope.tweet_text = 'Won a battle against ' + mob;
+
     $scope.share = function(){
       console.log('share');
       //disable share button
@@ -537,6 +539,8 @@ angular.module('room', ['luegg.directives'])
     var redirect = function(){
       $state.go('character.inventory', {name: $localStorage.character});
     };
+
+    $scope.tweet_text = 'Lose a battle against ' + mob;
 
     $scope.share = function(){
       console.log('share');
@@ -926,6 +930,8 @@ angular.module('room', ['luegg.directives'])
         }
       );
     };
+
+    $scope.tweet_text = user + ' using ' + character + ' bought some ' + item + ' @ ' + shop;
 
     $scope.closeAlert = function(index){
       $scope.alerts.splice(index, 1);
