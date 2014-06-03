@@ -40,6 +40,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
         $scope.$apply(function(){
           if(response.status == 'connected') {
               console.log('fb connected');
+              console.log(response.authResponse.accessToken);
               var data = {access_token: response.authResponse.accessToken};
 
               Restangular.all('sa/login/').customGET('facebook', data).then(

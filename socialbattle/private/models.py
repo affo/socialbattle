@@ -3,14 +3,19 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from os.path import join
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from uuslug import uuslug as slugify
 from rest_framework.authtoken.models import Token
 
+import urllib, urllib2, json
+
 GRAVATAR_USER_URL = 'http://www.gravatar.com/avatar/%s?d=identicon'
 GRAVATAR_CHARACTER_URL = 'http://www.gravatar.com/avatar/%s?d=identicon'
 GRAVATAR_MOB_URL = 'http://www.gravatar.com/avatar/%s?d=retro'
+
+FB_OBJECTS_URL = 'https://graph.facebook.com/app/objects/socialbattlegame:%s'
+FB_APP_TOKEN = '1441968896050367|0nawxHIEdROGI1doW9wwephJ1FY'
 
 class User(AbstractUser):
 	'''
@@ -117,6 +122,8 @@ class Character(models.Model, TargetMixin):
 	owner = models.ForeignKey(User)
 	abilities = models.ManyToManyField(Ability, through='LearntAbility')
 	inventory = models.ManyToManyField('Item', through='InventoryRecord')
+
+	fb_id = models.CharField(max_length=50)
 
 	def get_next_abilities(self):
 		abilities = list(Ability.objects.all())
@@ -225,6 +232,34 @@ class Character(models.Model, TargetMixin):
 	def clean(self):
 		if self.curr_hp > self.max_hp or self.curr_mp > self.max_mp:
 			raise ValidationError('It is not possible to overcome maximum hps or mps')
+
+@receiver(pre_save, sender=Character)
+def add_fb_id_char(sender, instance=None, **kwargs):
+	if not instance.fb_id:
+		url = FB_OBJECTS_URL % 'character'
+		print url
+		data = {
+			'access_token': FB_APP_TOKEN,
+			'object': {
+				'title': str(instance.name),
+				'image': instance.img,
+			},
+		}
+		data = urllib.urlencode(data)
+		req = urllib2.Request(url=url, data=data)
+		res = urllib2.urlopen(req)
+		obj = json.load(res)
+		instance.fb_id = obj['id']
+		print str(instance.name) + ' ---> ' + instance.fb_id
+
+@receiver(post_delete, sender=Character)
+def remove_fb_id_char(sender, instance=None, **kwargs):
+	url = 'https://graph.facebook.com/%s?access_token=%s' % (instance.fb_id, FB_APP_TOKEN)
+	req = urllib2.Request(url=url)
+	req.get_method = lambda: 'DELETE'
+	res = urllib2.urlopen(req)
+	if res.read() == 'true':
+		print 'FB deleted instance ' + instance.fb_id		
 
 class Mob(models.Model, TargetMixin):
 	name = models.CharField(max_length=200, unique=True)
