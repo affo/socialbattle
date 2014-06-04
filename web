@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [ $API == 1 ]; then
-	python manage.py runserver
+	python manage.py runserver 0.0.0.0:$PORT --noreload
 else
-	node site/server.js
+	node site/server.js $PORT
 fi
 
 #BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs
