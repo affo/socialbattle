@@ -7,7 +7,7 @@ angular.module('room', ['luegg.directives'])
 })
 
 .controller('PVERoom',
-  function($scope, Restangular, $stateParams, $localStorage, $modal, SpawnService, MobService, CharacterService,
+  function($scope, Restangular, $stateParams, $localStorage, $modal, Facebook, SpawnService, MobService, CharacterService,
             character, character_abilities, weapons, armors, items,
             mobs, room, $timeout, $state, $rootScope){
 
@@ -281,8 +281,16 @@ angular.module('room', ['luegg.directives'])
                 templateUrl: 'winModal.html',
                 controller: 'WinModal',
                 resolve: {
-                  mob: function () {
-                    return $scope.mob.name;
+                  character: function(){
+                    return $scope.character;
+                  },
+
+                  mob: function(){
+                    return $scope.mob;
+                  },
+
+                  room: function(){
+                    return $scope.room;
                   },
 
                   end: function(){
@@ -310,7 +318,29 @@ angular.module('room', ['luegg.directives'])
             );
           }
         );
+
+        //send activity to facebook
+        if($localStorage.facebook == true){
+          var fb_data = {
+            character: $scope.character.fb_id,
+            room: $scope.room.fb_id,
+            mob: $scope.mob.fb_id,
+          };
+
+          Facebook.api('me/socialbattlegame:defeat', 'post', fb_data);
+        }
       }else{
+        //send activity to facebook
+        if($localStorage.facebook == true){
+          var fb_data = {
+            character: $scope.character.fb_id,
+            room: $scope.room.fb_id,
+            mob: $scope.mob.fb_id,
+          };
+
+          Facebook.api('me/socialbattlegame:lose_against', 'post', fb_data);
+        }
+
         var m = $modal.open({
             templateUrl: 'loseModal.html',
             controller: 'LoseModal',
@@ -318,7 +348,15 @@ angular.module('room', ['luegg.directives'])
             keyboard: false,
             resolve: {
               mob: function(){
-                return $scope.mob.name;
+                return $scope.mob;
+              },
+
+              character: function(){
+                return $scope.character;
+              },
+
+              room: function(){
+                return $scope.room;
               },
             }
           });
@@ -459,12 +497,13 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('WinModal',
-  function($scope, $modalInstance, $localStorage, Facebook, Restangular, mob, end){
-    $scope.mob = mob;
+  function($scope, $modalInstance, $localStorage, Facebook, Restangular,
+            character, room, mob, end){
+    $scope.mob = mob.name;
     $scope.end = end;
     $scope.alerts = [];
 
-    $scope.tweet_text = 'Won a battle against ' + mob;
+    $scope.tweet_text = 'Won a battle against ' + mob.name;
 
     $scope.share = function(){
       console.log('share');
@@ -485,13 +524,23 @@ angular.module('room', ['luegg.directives'])
                   $localStorage.user = user.username;
                   $localStorage.facebook = true;
 
-                  // and then post on timeline
-                  Facebook.api('me/feed', 'post', {message: msg},
+                  var fb_data = {
+                    character: character.fb_id,
+                    room: room.fb_id,
+                    mob: mob.fb_id,
+                  };
+
+                  Facebook.ui({
+                    method: 'share_open_graph',
+                    action_type: 'socialbattlegame:defeat',
+                    action_properties: JSON.stringify(fb_data),
+                  },
                     function(response) {
                       if(!response || response.error){
                         $scope.alerts.push({type: 'danger', msg: response.error});
                       } else {
                         $scope.alerts.push({type: 'success', msg: 'Succesfully posted to your timeline'});
+                        console.log(response);
                       }
                     }
                   );
@@ -532,15 +581,16 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('LoseModal',
-  function($scope, $modalInstance, $state, $localStorage, Facebook, Restangular, mob){
-    $scope.mob = mob;
+  function($scope, $modalInstance, $state, $localStorage, Facebook, Restangular,
+              character, room, mob){
+    $scope.mob = mob.name;
     $scope.alerts = [];
 
     var redirect = function(){
       $state.go('character.inventory', {name: $localStorage.character});
     };
 
-    $scope.tweet_text = 'Lose a battle against ' + mob;
+    $scope.tweet_text = 'Lose a battle against ' + mob.name;
 
     $scope.share = function(){
       console.log('share');
@@ -561,13 +611,23 @@ angular.module('room', ['luegg.directives'])
                   $localStorage.user = user.username;
                   $localStorage.facebook = true;
 
-                  // and then post on timeline
-                  Facebook.api('me/feed', 'post', {message: msg},
+                  var fb_data = {
+                    character: character.fb_id,
+                    room: room.fb_id,
+                    mob: mob.fb_id,
+                  };
+
+                  Facebook.ui({
+                    method: 'share_open_graph',
+                    action_type: 'socialbattlegame:lose_against',
+                    action_properties: JSON.stringify(fb_data),
+                  },
                     function(response) {
                       if(!response || response.error){
                         $scope.alerts.push({type: 'danger', msg: response.error});
                       } else {
                         $scope.alerts.push({type: 'success', msg: 'Succesfully posted to your timeline'});
+                        console.log(response);
                       }
                     }
                   );
@@ -629,7 +689,9 @@ angular.module('room', ['luegg.directives'])
   }
 )
 
-.controller('RelaxRoom', function($scope, Restangular, $stateParams, $localStorage, $modal){
+.controller('RelaxRoom',
+  function($scope, Restangular, $stateParams, $localStorage, $modal, Facebook,
+            character, room){
   $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
   $scope.character_endpoint = Restangular.one('characters', $localStorage.character);
   $scope.character = $scope.character_endpoint.get().$object;
@@ -790,6 +852,23 @@ angular.module('room', ['luegg.directives'])
   };
 
   $scope.transaction_ended = function(){
+    //send activity to facebook
+    if($localStorage.facebook == true){
+      var fb_data = {
+        character: character.fb_id,
+        room: room.fb_id,
+        loot: $scope.selected_item.fb_id,
+      };
+
+      Facebook.api('me/socialbattlegame:' + $scope.action.toLowerCase(), 'post', fb_data, 
+        function(response){
+          console.log(response);
+        },
+        function(response){
+          console.log(response);
+        });
+    }
+
     var modalInstance = $modal.open({
       templateUrl: 'transactionModal.html',
       controller: 'TransactionModal',
@@ -799,15 +878,15 @@ angular.module('room', ['luegg.directives'])
         },
 
         character: function(){
-          return $localStorage.character;
+          return character;
         },
 
         item: function(){
-          return $scope.selected_item.name;
+          return $scope.selected_item;
         },
 
         shop: function(){
-          return $stateParams.room_name;
+          return room;
         },
 
         action: function(){
@@ -815,6 +894,10 @@ angular.module('room', ['luegg.directives'])
             return 'bought';
           }
           return 'sold';
+        },
+
+        fb_action: function(){
+          return $scope.action.toLowerCase();
         },
       }
     });
@@ -871,12 +954,13 @@ angular.module('room', ['luegg.directives'])
 })
 
 .controller('TransactionModal',
-  function($scope, $modalInstance, Restangular, $localStorage, Facebook, user, action, character, shop, item){
+  function($scope, $modalInstance, Restangular, $localStorage, Facebook, user, action, character,
+              shop, item, fb_action){
     $scope.user = user;
     $scope.action = action;
-    $scope.character = character;
-    $scope.shop = shop;
-    $scope.item = item;
+    $scope.character = character.name;
+    $scope.shop = shop.name;
+    $scope.item = item.name;
     $scope.alerts = [];
 
     $scope.share = function(){
@@ -895,13 +979,23 @@ angular.module('room', ['luegg.directives'])
                   $localStorage.user = user.username;
                   $localStorage.facebook = true;
 
-                  // and then post on timeline
-                  Facebook.api('me/feed', 'post', {message: msg},
+                  var fb_data = {
+                    character: character.fb_id,
+                    room: shop.fb_id,
+                    loot: item.fb_id,
+                  };
+
+                  Facebook.ui({
+                    method: 'share_open_graph',
+                    action_type: 'socialbattlegame:' + fb_action,
+                    action_properties: JSON.stringify(fb_data),
+                  },
                     function(response) {
                       if(!response || response.error){
                         $scope.alerts.push({type: 'danger', msg: response.error});
                       } else {
                         $scope.alerts.push({type: 'success', msg: 'Succesfully posted to your timeline'});
+                        console.log(response);
                       }
                     }
                   );

@@ -137,8 +137,33 @@ angular.module('states', ['ui.router'])
 
       url: '/rooms/relax/:room_name',
       templateUrl: 'html/partials/relaxroom.html',
-      controller: 'RelaxRoom'
-    })
+      controller: 'RelaxRoom',
+
+     resolve: {
+      character: function($localStorage, Restangular, $modal){
+        return Restangular.one('characters', $localStorage.character).get()
+        .then(
+          function(response){
+            var character = Restangular.stripRestangular(response);
+            return character;
+          },
+          function(response){
+            console.log(response);
+          }
+        );
+      },
+
+      room: function($stateParams, Restangular){
+          return Restangular.one('rooms/relax', $stateParams.room_name).get()
+          .then(
+            function(response){
+              var obj = Restangular.stripRestangular(response);
+              return obj;
+            }
+          );
+        },
+      },
+      })
 
       .state('relaxroom.posts', {
         url: '/posts',
