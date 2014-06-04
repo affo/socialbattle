@@ -7,7 +7,7 @@
     "connect": "~2.14.4"
   },
   "scripts": {
-    "start": "node site/server.js"
+    "start": "node server.js"
   },
   "author": "lorenzo affetti",
   "repository": {

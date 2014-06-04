@@ -1,5 +1,9 @@
 venv
 celerybeat-schedule
+#the underlying heroku repo for the frontend
+site/.git
+site/.gitignore
+site/Procfile
 
 ignore/*
 *.py[cod]
