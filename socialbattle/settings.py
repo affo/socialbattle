@@ -124,6 +124,7 @@ SOCIAL_AUTH_USER_MODEL = 'private.User'
 CORS_ORIGIN_WHITELIST = (
 	'localhost.socialbattle:3000',
 	'localhost.socialbattle:5000',
+	'socialbattle.herokuapp.com',
 )
 
 FACEBOOK_APP_ID = '1441968896050367'
