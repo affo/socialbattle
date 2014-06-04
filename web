@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $API == 1 ]; then
-	python manage.py runserver 0.0.0.0:$PORT --noreload
+	python manage.py runserver
 else
 	node site/server.js
 fi
