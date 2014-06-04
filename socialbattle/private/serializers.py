@@ -70,7 +70,7 @@ class RelaxRoomSerializer(DynamicHyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.RelaxRoom
-		fields = ('url', 'name', 'slug', 'sells', )
+		fields = ('url', 'name', 'slug', 'sells', 'fb_id',)
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -108,7 +108,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Item
-		fields = ('url', 'name', 'cost', 'item_type', 'power', 'description')
+		fields = ('url', 'name', 'cost', 'item_type', 'power', 'description', 'fb_id',)
 		lookup_field = 'slug'
 
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):
@@ -134,11 +134,11 @@ class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 			'url', 'name', 'level', 'guils', 'owner',
 			'ap', 'max_hp', 'max_mp', 'curr_hp', 'curr_mp',
 			'stre', 'vit', 'mag', 'spd', 'defense', 'mdefense', 'atk',
-			'img', 
+			'img', 'fb_id',
 		)
 
 		read_only_fields = ('level', 'ap', 'guils', 'max_hp', 'max_mp', 'stre', 'vit', 'mag', 'spd',
-							'curr_hp', 'curr_mp', )
+							'curr_hp', 'curr_mp', 'fb_id')
 
 class InventoryRecordSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -175,7 +175,7 @@ class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.PVERoom
-		fields = ('url', 'name', 'slug', 'mobs', )
+		fields = ('url', 'name', 'slug', 'mobs', 'fb_id',)
 
 class AbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
@@ -218,4 +218,4 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Mob
 		fields = ('url', 'name', 'slug', 'drops', 'hp',
-					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', 'level' )
+					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', 'level', 'fb_id', )

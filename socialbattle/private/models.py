@@ -17,6 +17,59 @@ GRAVATAR_MOB_URL = 'http://www.gravatar.com/avatar/%s?d=retro'
 FB_OBJECTS_URL = 'https://graph.facebook.com/app/objects/socialbattlegame:%s'
 FB_APP_TOKEN = '1441968896050367|0nawxHIEdROGI1doW9wwephJ1FY'
 
+class FBObjectMixin(models.Model):
+	fb_id = models.CharField(max_length=50)
+	fb_object = {}
+	_fb_data = {
+		'access_token': FB_APP_TOKEN,
+		'object': {},
+	}
+
+	@property
+	def fb_data(self):
+	    return self._fb_data
+
+	@fb_data.setter
+	def fb_data(self, value):
+		#expecting value as self.fb_object
+	    self._fb_data['object'] = value
+
+	class Meta:
+		abstract = True
+
+@receiver(pre_save)
+def add_to_fb_objects(sender, instance=None, **kwargs):
+	try:
+		if not instance.fb_id:
+			class_name = sender.__name__.lower()
+			if class_name == 'item': class_name = 'loot' #problems with facebook types...
+			url = FB_OBJECTS_URL %  class_name
+			print url
+			instance.fb_data = instance.fb_object
+			data = urllib.urlencode(instance.fb_data)
+			req = urllib2.Request(url=url, data=data)
+			res = urllib2.urlopen(req)
+			obj = json.load(res)
+			instance.fb_id = obj['id']
+			print str(instance.name) + ' ---> ' + instance.fb_id
+	except AttributeError:
+		# it means that the attr has not .fb_id
+		pass
+
+@receiver(post_delete)
+def remove_from_fb_objects(sender, instance=None, **kwargs):
+	try:
+		url = 'https://graph.facebook.com/%s?access_token=%s' % (instance.fb_id, FB_APP_TOKEN)
+		req = urllib2.Request(url=url)
+		req.get_method = lambda: 'DELETE'
+		res = urllib2.urlopen(req)
+		if res.read() == 'true':
+			print 'FB deleted instance ' + instance.fb_id
+	except AttributeError:
+		# it means that the attr has not .fb_id
+		pass
+	
+
 class User(AbstractUser):
 	'''
 		This user will include Twitter's (maybe) one and Facebook's one.
@@ -95,7 +148,7 @@ class TargetMixin(object):
 from socialbattle.private.mechanics import BASE_STATS
 from django.core import validators
 from django.utils.translation import ugettext_lazy as _
-class Character(models.Model, TargetMixin):
+class Character(TargetMixin, FBObjectMixin):
 	'''
 		The character the user will use to fight
 	'''
@@ -123,7 +176,12 @@ class Character(models.Model, TargetMixin):
 	abilities = models.ManyToManyField(Ability, through='LearntAbility')
 	inventory = models.ManyToManyField('Item', through='InventoryRecord')
 
-	fb_id = models.CharField(max_length=50)
+	@property
+	def fb_object(self):
+		return {
+			'title': str(self.name),
+			'image': self.img,
+		}
 
 	def get_next_abilities(self):
 		abilities = list(Ability.objects.all())
@@ -231,37 +289,9 @@ class Character(models.Model, TargetMixin):
 
 	def clean(self):
 		if self.curr_hp > self.max_hp or self.curr_mp > self.max_mp:
-			raise ValidationError('It is not possible to overcome maximum hps or mps')
+			raise ValidationError('It is not possible to overcome maximum hps or mps')	
 
-@receiver(pre_save, sender=Character)
-def add_fb_id_char(sender, instance=None, **kwargs):
-	if not instance.fb_id:
-		url = FB_OBJECTS_URL % 'character'
-		print url
-		data = {
-			'access_token': FB_APP_TOKEN,
-			'object': {
-				'title': str(instance.name),
-				'image': instance.img,
-			},
-		}
-		data = urllib.urlencode(data)
-		req = urllib2.Request(url=url, data=data)
-		res = urllib2.urlopen(req)
-		obj = json.load(res)
-		instance.fb_id = obj['id']
-		print str(instance.name) + ' ---> ' + instance.fb_id
-
-@receiver(post_delete, sender=Character)
-def remove_fb_id_char(sender, instance=None, **kwargs):
-	url = 'https://graph.facebook.com/%s?access_token=%s' % (instance.fb_id, FB_APP_TOKEN)
-	req = urllib2.Request(url=url)
-	req.get_method = lambda: 'DELETE'
-	res = urllib2.urlopen(req)
-	if res.read() == 'true':
-		print 'FB deleted instance ' + instance.fb_id		
-
-class Mob(models.Model, TargetMixin):
+class Mob(FBObjectMixin, TargetMixin):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
 	weakness = models.CharField(max_length=1, choices=Ability.ELEMENTS, default=Ability.ELEMENTS[0][0])
@@ -291,6 +321,14 @@ class Mob(models.Model, TargetMixin):
 		if not self.id:
 			self.slug = slugify(self.name, instance=self)
 			super(Mob, self).save(*args, **kwargs)
+
+	@property
+	def fb_object(self):
+		return {
+			'title': str(self.name),
+			'image': self.img,
+			'description': str(self.description),
+		}
 
 	@property
 	def curr_mp(self):
@@ -323,11 +361,26 @@ class InventoryRecord(models.Model):
 	class Meta:
 		unique_together = ('owner', 'item')
 
-class Room(models.Model):
+class Room(FBObjectMixin):
 	name = models.CharField(max_length=200, unique=True)
 	description = models.TextField(blank=True)
 
 	slug = models.CharField(max_length=200, unique=True)
+
+	@property
+	def img(self):
+		import hashlib
+		ash = hashlib.md5(self.slug.strip().lower()).hexdigest()
+		return GRAVATAR_USER_URL % ash
+
+	@property
+	def fb_object(self):
+		return {
+			'title': str(self.name),
+			'image': self.img,
+			'description': str(self.description),
+		}
+
 	def __unicode__(self):
 		return self.name
 
@@ -346,7 +399,7 @@ class PVERoom(Room):
 class RelaxRoom(Room):
 	sells = models.ManyToManyField('Item')
 
-class Item(models.Model):
+class Item(FBObjectMixin):
 	ITEM_TYPE = (
 		('R', 'Restorative Item'),
 		('W', 'Weapon'),
@@ -360,6 +413,21 @@ class Item(models.Model):
 	ctf = models.IntegerField(default=0)
 
 	slug = models.CharField(max_length=200, unique=True)
+
+	@property
+	def img(self):
+		import hashlib
+		ash = hashlib.md5(self.slug.strip().lower()).hexdigest()
+		return GRAVATAR_USER_URL % ash
+
+	@property
+	def fb_object(self):
+		return {
+			'title': str(self.name),
+			'image': self.img,
+			'description': str(self.description),
+		}
+
 	def __unicode__(self):
 		return self.name
 
