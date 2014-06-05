@@ -12,7 +12,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "postinstall": "node_modules/bower/bin/bower install; node_modules/grunt-cli/bin/grunt preprocess"
+    "postinstall": "node_modules/bower/bin/bower install; node_modules/grunt-cli/bin/grunt"
   },
   "author": "lorenzo affetti",
   "repository": {
@@ -22,5 +22,10 @@
   "bugs": {
     "url": "https://github.com/affo/socialbattle/issues"
   },
-  "homepage": "https://github.com/affo/socialbattle"
+  "homepage": "https://github.com/affo/socialbattle",
+  "devDependencies": {
+    "grunt-contrib-concat": "^0.4.0",
+    "grunt-contrib-uglify": "^0.4.0",
+    "grunt-contrib-jshint": "^0.10.0"
+  }
 }

@@ -1,6 +1,7 @@
 angular.module('main', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Main',
+  ['$scope', '$state', '$localStorage', 'Restangular', 'Facebook',
   function($scope, $state, $localStorage, Restangular, Facebook){
     // var t = new Trianglify({cellsize: 200});
     // var pattern = t.generate(200, 200);
@@ -18,4 +19,5 @@ angular.module('main', ['restangular', 'ngStorage', 'facebook'])
     }
 
   }
+  ]
 );

@@ -1,6 +1,7 @@
 angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Auth',
+  ['$scope', 'Restangular', '$localStorage', 'Facebook', '$state',
   function($scope, Restangular, $localStorage, Facebook, $state) {
     //if you are logged you cannot authenticate
     if($localStorage.logged){
@@ -33,7 +34,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
           $scope.signinForm = {};
         }
       );
-    }
+    };
 
     $scope.fb_login = function() {
       Facebook.getLoginStatus(function(response){
@@ -114,4 +115,6 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     $scope.closeAlert = function(index){
       $scope.alerts.splice(index, 1);
     };
-});
+  }
+  ]
+);

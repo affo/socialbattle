@@ -1,7 +1,3 @@
-'use strict';
-
-/* App Module */
-
 var app = angular.module('socialBattle', [
   'ui.router', 'states',
   'restangular',
@@ -22,6 +18,7 @@ var app = angular.module('socialBattle', [
 ]);
 
 app.run(
+    ['$rootScope', '$state', '$stateParams',
     function($rootScope, $state, $stateParams) {
 
       // It's very handy to add references to $state and $stateParams to the $rootScope
@@ -31,13 +28,17 @@ app.run(
       $rootScope.$state = $state;
       $rootScope.$stateParams = $stateParams;
     }
+    ]
 );
 
 app.config(
+  ['RestangularProvider',
   function(RestangularProvider){
     RestangularProvider.setBaseUrl('http://localhost.socialbattle:8000/private/');
     RestangularProvider.setRequestSuffix('/');
-  });
+  }
+  ]
+);
 
 app.config(['FacebookProvider', function(FacebookProvider) {
     // Here you could set your appId through the setAppId method and then initialize
@@ -47,6 +48,9 @@ app.config(['FacebookProvider', function(FacebookProvider) {
 }]);
 
 app.config(
+  ['$urlRouterProvider',
   function($urlRouterProvider) {
     $urlRouterProvider.otherwise('/');
-  });
+  }
+  ]
+);

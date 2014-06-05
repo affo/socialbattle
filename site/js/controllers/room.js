@@ -1,12 +1,19 @@
 angular.module('room', ['luegg.directives'])
 
 .controller('Rooms',
+  ['$scope', '$state', '$localStorage', 'Restangular', 
   function($scope, $state, $localStorage, Restangular){
     $scope.pverooms = Restangular.all('rooms/pve').getList().$object;
     $scope.relaxrooms = Restangular.all('rooms/relax').getList().$object;
-})
+  }
+  ]
+)
 
 .controller('PVERoom',
+  ['$scope', 'Restangular', '$stateParams', '$localStorage', '$modal', 'Facebook',
+    'SpawnService', 'MobService', 'CharacterService', 'FBStoriesService',
+    'character', 'character_abilities', 'weapons', 'armors', 'items',
+    'mobs', 'room', '$timeout', '$state', '$rootScope',
   function($scope, Restangular, $stateParams, $localStorage, $modal, Facebook,
             SpawnService, MobService, CharacterService, FBStoriesService,
             character, character_abilities, weapons, armors, items,
@@ -73,7 +80,8 @@ angular.module('room', ['luegg.directives'])
           );
 
         }    
-      });
+      }
+    );
 
 
 
@@ -153,7 +161,7 @@ angular.module('room', ['luegg.directives'])
       }else{
         $scope.target = $scope.mob;
       }
-    }
+    };
 
     $scope.equip = function(item, is_weapon){
       if(item.equipped){ //already equipped
@@ -223,7 +231,7 @@ angular.module('room', ['luegg.directives'])
     };
 
     var mob_ai = function(abilities, ct){
-      if($scope.mob.curr_hp == 0 || !is_character_alive()){ //if the battle id ended, the mob stops
+      if($scope.mob.curr_hp === 0 || !is_character_alive()){ //if the battle id ended, the mob stops
           return;
       }
 
@@ -365,7 +373,7 @@ angular.module('room', ['luegg.directives'])
         $timeout(function(){
           $scope.progr = 0;
           atb_active = false;
-        }, 1500, true)
+        }, 1500, true);
         
         return;
       }
@@ -414,7 +422,7 @@ angular.module('room', ['luegg.directives'])
               //now we have the dmg to display
               var dmg = response.dmg;
               var ability = response.ability;
-              var hp = response.attacked_hp
+              var hp = response.attacked_hp;
               var mp = response.attacker_mp;
 
               if(!hp){
@@ -429,12 +437,12 @@ angular.module('room', ['luegg.directives'])
               push_character($scope.character.name, $scope.target.name, ability.name, dmg);
 
               //win
-              if($scope.mob.curr_hp == 0){
+              if($scope.mob.curr_hp === 0){
                 end_battle(true);
               }
 
               //lose
-              if($scope.character.curr_hp == 0){
+              if($scope.character.curr_hp === 0){
                 end_battle(false);
               }
             }
@@ -468,9 +476,12 @@ angular.module('room', ['luegg.directives'])
 
     ///////////START SPAWNING
     if(is_character_alive()) spawn();
-})
+  }
+  ]
+)
 
 .controller('SpawnModal',
+  ['$scope', '$modalInstance', 'room', 'mob',
   function($scope, $modalInstance, room, mob){
     $scope.room = room;
     $scope.mob = mob;
@@ -479,9 +490,13 @@ angular.module('room', ['luegg.directives'])
       $modalInstance.close();
     };
   }
+  ]
 )
 
 .controller('WinModal',
+  ['$scope', '$modalInstance', '$localStorage',
+    'Facebook', 'FBStoriesService', 'Restangular',
+    'character', 'room', 'mob', 'end',
   function($scope, $modalInstance, $localStorage,
             Facebook, FBStoriesService, Restangular,
             character, room, mob, end){
@@ -565,9 +580,13 @@ angular.module('room', ['luegg.directives'])
       $modalInstance.close();
     };
   }
+  ]
 )
 
 .controller('LoseModal',
+  ['$scope', '$modalInstance', '$localStorage',
+    'Facebook', 'FBStoriesService', 'Restangular',
+    'character', 'room', 'mob',
   function($scope, $modalInstance, $state, $localStorage,
               Facebook, FBStoriesService, Restangular,
               character, room, mob){
@@ -654,9 +673,11 @@ angular.module('room', ['luegg.directives'])
       redirect();
     };
   }
+  ]
 )
 
 .controller('FlightModal',
+  ['$scope', '$modalInstance',
   function($scope, $modalInstance){
     $scope.flight = function(){
       $modalInstance.close(false);
@@ -666,273 +687,291 @@ angular.module('room', ['luegg.directives'])
       $modalInstance.close(true);
     };
   }
+  ]
 )
 
 .controller('DeadModal',
+  ['$scope', '$modalInstance', '$state', 'FBStoriesService', 'character',
   function($scope, $modalInstance, $state, FBStoriesService, character){
     $scope.close = function(){
       $modalInstance.close();
       $state.go('character.inventory', {name: character});
     };
   }
+  ]
 )
 
 .controller('RelaxRoom',
+  ['$scope', 'Restangular', '$stateParams', '$localStorage', '$modal',
+    'Facebook', 'FBStoriesService',
+    'character', 'room',
   function($scope, Restangular, $stateParams, $localStorage, $modal,
             Facebook, FBStoriesService,
             character, room){
-  $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
-  $scope.character_endpoint = Restangular.one('characters', $localStorage.character);
-  $scope.character = $scope.character_endpoint.get().$object;
-  $scope.init_msg = 'Welcome, I am the merchant at ' + $stateParams.room_name;
-  $scope.buy_items = $scope.endpoint.all('items').getList().$object;
-  $scope.msgForm = {};
-  $scope.action = 'BUY';
+    $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
+    $scope.character_endpoint = Restangular.one('characters', $localStorage.character);
+    $scope.character = $scope.character_endpoint.get().$object;
+    $scope.init_msg = 'Welcome, I am the merchant at ' + $stateParams.room_name;
+    $scope.buy_items = $scope.endpoint.all('items').getList().$object;
+    $scope.msgForm = {};
+    $scope.action = 'BUY';
 
-  $scope.toggle_action = function(){
-    if($scope.action == 'BUY'){
-      $scope.action = 'SELL';
-      $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
-    }else{
-      $scope.action = 'BUY';
-    }
-    ai.reset();
-  }
-
-  var ai = {
-    find_item: function(item_name){
-      //find the item by name
+    $scope.toggle_action = function(){
       if($scope.action == 'BUY'){
-        for(var i = 0; i < $scope.buy_items.length; i++){
-          if(item_name == $scope.buy_items[i].name){
-            return $scope.buy_items[i];
-          }
-        }
-        return undefined;
-      }else if($scope.action == 'SELL'){
-        for(var i = 0; i < $scope.sell_items.length; i++){
-          if(item_name == $scope.sell_items[i].item.name){
-            return $scope.sell_items[i].item;
-          }
-        }
-        return undefined;
+        $scope.action = 'SELL';
+        $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
+      }else{
+        $scope.action = 'BUY';
       }
-    },
+      ai.reset();
+    };
 
-    reset: function(){
-      var msg = {
-        content: 'Please type the item you want to ' + $scope.action,
-        from_merchant: true,
-      };
-      $scope.messages.push(msg);
-      $scope.state = ai.INIT;
-    },
+    var ai = {
+      find_item: function(item_name){
+        //find the item by name
+        var i;
+        if($scope.action == 'BUY'){
+          for(i = 0; i < $scope.buy_items.length; i++){
+            if(item_name == $scope.buy_items[i].name){
+              return $scope.buy_items[i];
+            }
+          }
+          return undefined;
+        }else if($scope.action == 'SELL'){
+          for(i = 0; i < $scope.sell_items.length; i++){
+            if(item_name == $scope.sell_items[i].item.name){
+              return $scope.sell_items[i].item;
+            }
+          }
+          return undefined;
+        }
+      },
 
-    INIT: function(item_name){
-      item = ai.find_item(item_name);
-
-      if(item){
-        $scope.selected_item = item;
+      reset: function(){
         var msg = {
-          content: 'So you want to ' + $scope.action + ' ' + item_name + '... How many?',
+          content: 'Please type the item you want to ' + $scope.action,
           from_merchant: true,
         };
         $scope.messages.push(msg);
-        $scope.state = ai.HOW_MANY;
-      }else{
-        var content = '';
-        if($scope.action == 'BUY'){
-          content = 'I do not sell ' + item_name + ', sorry...';
-        }else{
-          content = 'You do not have ' + item_name + ' in your inventory';
-        }
-        var msg = {
-          content: content,
-          info: true,
-        };
-        $scope.messages.push(msg);
-      }
-    },
+        $scope.state = ai.INIT;
+      },
 
-    HOW_MANY: function(quantity){
-      if(isNaN(quantity)){
-        var msg = {
-          content: 'Please give me a valid number',
-          info: true,
-        };
-        $scope.messages.push(msg);
-      }else{
-        var msg = {
-            content: 'So you want to ' + $scope.action + ' ' + quantity + " of " + $scope.selected_item.name,
+      INIT: function(item_name){
+        item = ai.find_item(item_name);
+        var msg;
+
+        if(item){
+          $scope.selected_item = item;
+          msg = {
+            content: 'So you want to ' + $scope.action + ' ' + item_name + '... How many?',
             from_merchant: true,
           };
-        $scope.messages.push(msg);
-
-        var data = {
-          item: $scope.selected_item.url,
-          quantity: quantity,
-          operation: $scope.action[0]
-        };
-
-        $scope.character_endpoint.all('transactions').post(data)
-        .then(
-          function(response){
-            ai.OK(response);
-          },
-          function(response){
-            console.log(response);
-            ai.KO(response);
-          }
-        );
-      }
-    },
-
-    OK: function(resp){
-      var msg = {
-          content: "Well done",
-          from_merchant: true,
-      };
-      $scope.character.guils = resp.guils_left;
-      $scope.messages.push(msg);
-      $scope.transaction_ended(msg.content);
-
-      if($scope.action == 'SELL'){
-        $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
-      }
-    },
-
-    KO: function(resp){
-      var msg = {
-          content: resp.data.msg,
-          from_merchant: true,
-      };
-      $scope.messages.push(msg);
-      ai.reset();
-    },
-  }
-
-  $scope.endpoint.get().then(
-    function(room){
-      var init_msg = {
-        content: 'Welcome, I am the merchant at ' + room.name,
-        from_merchant: true
-      };
-      $scope.messages = [init_msg, ];
-      ai.reset();
-    }
-  );
-
-  $scope.ai = ai;
-  $scope.state = ai.INIT;
-
-  $scope.send = function(){
-    var msg = $scope.msgForm.content
-    var sent = {
-      content: msg,
-      from_user: true,
-    };
-    $scope.messages.push(sent);
-    $scope.state(msg);
-    $scope.msgForm = {};
-  };
-
-  $scope.put_item = function(name){
-    $scope.msgForm.content = name;
-  };
-
-  $scope.transaction_ended = function(){
-    //send activity to facebook
-    if($scope.action == 'BUY'){
-      FBStoriesService.buy(character.fb_id, room.fb_id, $scope.selected_item.fb_id);
-    }else{
-      FBStoriesService.sell(character.fb_id, room.fb_id, $scope.selected_item.fb_id);
-    }
-
-    var modalInstance = $modal.open({
-      templateUrl: 'transactionModal.html',
-      controller: 'TransactionModal',
-      resolve: {
-        user: function (){
-          return $localStorage.user;
-        },
-
-        character: function(){
-          return character;
-        },
-
-        item: function(){
-          return $scope.selected_item;
-        },
-
-        shop: function(){
-          return room;
-        },
-
-        action: function(){
+          $scope.messages.push(msg);
+          $scope.state = ai.HOW_MANY;
+        }else{
+          var content = '';
           if($scope.action == 'BUY'){
-            return 'bought';
+            content = 'I do not sell ' + item_name + ', sorry...';
+          }else{
+            content = 'You do not have ' + item_name + ' in your inventory';
           }
-          return 'sold';
-        },
+          msg = {
+            content: content,
+            info: true,
+          };
+          $scope.messages.push(msg);
+        }
+      },
 
-        fb_action: function(){
-          return $scope.action.toLowerCase();
-        },
-      }
-    });
+      HOW_MANY: function(quantity){
+        var msg;
+        if(isNaN(quantity)){
+          msg = {
+            content: 'Please give me a valid number',
+            info: true,
+          };
+          $scope.messages.push(msg);
+        }else{
+          msg = {
+              content: 'So you want to ' + $scope.action + ' ' + quantity + " of " + $scope.selected_item.name,
+              from_merchant: true,
+            };
+          $scope.messages.push(msg);
 
-    modalInstance.result
-    .then(
-      function() {
+          var data = {
+            item: $scope.selected_item.url,
+            quantity: quantity,
+            operation: $scope.action[0]
+          };
+
+          $scope.character_endpoint.all('transactions').post(data)
+          .then(
+            function(response){
+              ai.OK(response);
+            },
+            function(response){
+              console.log(response);
+              ai.KO(response);
+            }
+          );
+        }
+      },
+
+      OK: function(resp){
+        var msg = {
+            content: "Well done",
+            from_merchant: true,
+        };
+        $scope.character.guils = resp.guils_left;
+        $scope.messages.push(msg);
+        $scope.transaction_ended(msg.content);
+
+        if($scope.action == 'SELL'){
+          $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
+        }
+      },
+
+      KO: function(resp){
+        var msg = {
+            content: resp.data.msg,
+            from_merchant: true,
+        };
+        $scope.messages.push(msg);
+        ai.reset();
+      },
+    };
+
+    $scope.endpoint.get().then(
+      function(room){
+        var init_msg = {
+          content: 'Welcome, I am the merchant at ' + room.name,
+          from_merchant: true
+        };
+        $scope.messages = [init_msg, ];
         ai.reset();
       }
     );
 
-  };
+    $scope.ai = ai;
+    $scope.state = ai.INIT;
 
-})
+    $scope.send = function(){
+      var msg = $scope.msgForm.content;
+      var sent = {
+        content: msg,
+        from_user: true,
+      };
+      $scope.messages.push(sent);
+      $scope.state(msg);
+      $scope.msgForm = {};
+    };
 
-.controller('RelaxRoomPosts', function($scope, Restangular){
-  $scope.postForm = {};
-  $scope.can_post = true;
+    $scope.put_item = function(name){
+      $scope.msgForm.content = name;
+    };
 
-  $scope.post = function(){
-    $scope.endpoint.all('posts').post($scope.postForm).then(
-      function(post){
-        $scope.posts.unshift(post);
-        $scope.postForm = {};
+    $scope.transaction_ended = function(){
+      //send activity to facebook
+      if($scope.action == 'BUY'){
+        FBStoriesService.buy(character.fb_id, room.fb_id, $scope.selected_item.fb_id);
+      }else{
+        FBStoriesService.sell(character.fb_id, room.fb_id, $scope.selected_item.fb_id);
       }
-    );
-  };
 
-  //because of pagination
-  $scope.endpoint.one('posts').get().then(
-    function(response){
-      $scope.posts = response.results;
-      $scope.next = response.next;
-    }
-  );
+      var modalInstance = $modal.open({
+        templateUrl: 'transactionModal.html',
+        controller: 'TransactionModal',
+        resolve: {
+          user: function (){
+            return $localStorage.user;
+          },
 
-  $scope.next_page = function(){
-    Restangular.oneUrl('next_page', $scope.next).get().
-    then(
+          character: function(){
+            return character;
+          },
+
+          item: function(){
+            return $scope.selected_item;
+          },
+
+          shop: function(){
+            return room;
+          },
+
+          action: function(){
+            if($scope.action == 'BUY'){
+              return 'bought';
+            }
+            return 'sold';
+          },
+
+          fb_action: function(){
+            return $scope.action.toLowerCase();
+          },
+        }
+      });
+
+      modalInstance.result
+      .then(
+        function() {
+          ai.reset();
+        }
+      );
+
+    };
+  }
+  ]
+)
+
+.controller('RelaxRoomPosts',
+  ['$scope', 'Restangular',
+  function($scope, Restangular){
+    $scope.postForm = {};
+    $scope.can_post = true;
+
+    $scope.post = function(){
+      $scope.endpoint.all('posts').post($scope.postForm).then(
+        function(post){
+          $scope.posts.unshift(post);
+          $scope.postForm = {};
+        }
+      );
+    };
+
+    //because of pagination
+    $scope.endpoint.one('posts').get().then(
       function(response){
-        for(var i = 0; i < response.results.length; i++){
-          $scope.posts.push(response.results[i]);
-        }
-
-        if(response.next){
-          $scope.next = response.next;
-        }else{
-          $scope.next = undefined;
-        }
+        $scope.posts = response.results;
+        $scope.next = response.next;
       }
     );
 
-  };
-})
+    $scope.next_page = function(){
+      Restangular.oneUrl('next_page', $scope.next).get().
+      then(
+        function(response){
+          for(var i = 0; i < response.results.length; i++){
+            $scope.posts.push(response.results[i]);
+          }
+
+          if(response.next){
+            $scope.next = response.next;
+          }else{
+            $scope.next = undefined;
+          }
+        }
+      );
+
+    };
+  }
+  ]
+)
 
 .controller('TransactionModal',
+  ['$scope', '$modalInstance', 'Restangular', '$localStorage',
+    'Facebook', 'FBStoriesService',
+    'user', 'action', 'character',
+    'shop', 'item', 'fb_action',
   function($scope, $modalInstance, Restangular, $localStorage,
               Facebook, FBStoriesService,
               user, action, character,
@@ -1016,4 +1055,5 @@ angular.module('room', ['luegg.directives'])
       $modalInstance.close();
     };
   }
+  ]
 );

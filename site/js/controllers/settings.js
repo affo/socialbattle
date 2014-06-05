@@ -1,6 +1,7 @@
 angular.module('settings', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Settings',
+  ['$scope', '$state', '$localStorage', 'Restangular', 'Facebook',
   function($scope, $state, $localStorage, Restangular, Facebook){
 
   	$scope.logout = function(){ 
@@ -54,4 +55,5 @@ angular.module('settings', ['restangular', 'ngStorage', 'facebook'])
     };
 
   }
+  ]
 );

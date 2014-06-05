@@ -1,10 +1,7 @@
-'use strict';
-
-/* Services */
-
 angular.module('services', [])
 
 .factory('SpawnService',
+  ['$q', '$timeout', 'Restangular',
   function($q, $timeout, Restangular){
     var factory = {};
     var TIMEOUT_RANGE = [5, 10].map(function(x){ return x * 1000;}); //timeout range in ms
@@ -13,7 +10,7 @@ angular.module('services', [])
 
     //returns a promise containing a mob
     factory.spawn = function(mobs){
-      if(mobs.length == 0) return {};
+      if(mobs.length === 0) return {};
       deferred = $q.defer();
       //randomly selected mob
       var obj = mobs[Math.floor(Math.random()*mobs.length)];
@@ -43,9 +40,11 @@ angular.module('services', [])
 
     return factory;
   }
+  ]
 )
 
 .factory('AttackService',
+  ['$q', '$timeout', 'Restangular',
   function($q, $timeout, Restangular){
     var factory = {};
     
@@ -92,9 +91,11 @@ angular.module('services', [])
 
     return factory;
   }
+  ]
 )
 
 .factory('MobService',
+  ['Restangular', 'AttackService',
   function(Restangular, AttackService){
     var factory = {};
 
@@ -106,13 +107,15 @@ angular.module('services', [])
       }
       var endpoint = Restangular.one('mobs', mob_slug).all('use_ability');
       return AttackService.attack(endpoint, attacked_id, ability);
-    }
+    };
 
     return factory;
   }
+  ]
 )
 
 .factory('CharacterService',
+  ['Restangular', 'AttackService',
   function(Restangular, AttackService){
     var factory = {};
 
@@ -132,9 +135,11 @@ angular.module('services', [])
 
     return factory;
   }
+  ]
 )
 
 .factory('FBStoriesService',
+  ['Facebook', '$localStorage',
   function(Facebook, $localStorage){
     var factory = {};
 
@@ -217,4 +222,5 @@ angular.module('services', [])
 
     return factory;
   }
+  ]
 );

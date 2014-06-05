@@ -1,6 +1,7 @@
 angular.module('character', ['restangular'])
 
 .controller('CharacterDetail',
+  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage',
   function($scope, $stateParams, Restangular, $state, $localStorage){
     $scope.endpoint = Restangular.one('characters', $stateParams.name);
     $scope.is_me = false;
@@ -14,13 +15,15 @@ angular.module('character', ['restangular'])
           }
         }
       );
-    }
+    };
 
     $scope.load_character();
   }
+  ]
 )
 
 .controller('CharacterAbilities',
+  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage',
   function($scope, $stateParams, Restangular, $state, $localStorage){
     $scope.endpoint.getList('abilities').then(
       function(abilities){
@@ -73,12 +76,14 @@ angular.module('character', ['restangular'])
     $scope.alert = undefined;
     $scope.close_alert = function(){
       $scope.alert = undefined;
-    }
+    };
 
   }
+  ]
 )
 
 .controller('CharacterInventory',
+  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage',
   function($scope, $stateParams, Restangular, $state, $localStorage){
     $scope.endpoint.getList('inventory').then(
       function(inventory){
@@ -138,7 +143,7 @@ angular.module('character', ['restangular'])
           $scope.load_character();
         }
       );
-    }
+    };
 
     $scope.equip_armor = function(record){
       var rec = Restangular.oneUrl('inventory', record.url);
@@ -182,4 +187,5 @@ angular.module('character', ['restangular'])
     };
 
   }
+  ]
 );

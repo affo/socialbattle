@@ -1,6 +1,7 @@
 angular.module('user', ['restangular'])
 
 .controller('UserDetail',
+  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage',
   function($scope, $stateParams, Restangular, $state, $localStorage) {
     $scope.endpoint = Restangular.one('users', $stateParams.username);
     $scope.endpoint.get().then(
@@ -48,47 +49,58 @@ angular.module('user', ['restangular'])
           console.log(response);
         }
       );
-    }
+    };
   }
+  ]
 )
 
 
 .controller('UserFollowing',
+  ['$scope', 'Restangular',
   function($scope, Restangular) {
     $scope.followx = $scope.endpoint.getList('following').$object;
-  })
+  }
+  ]
+)
 
 .controller('UserFollowers',
+  ['$scope',
   function($scope) {
     var followx = $scope.endpoint.getList('followers').$object;
     $scope.followx = followx;
-  })
-
-.controller('UserCharacters', function($scope, Restangular, $localStorage){
-  var characters = $scope.endpoint.getList('characters').$object;
-  $scope.characters = characters;
-  $scope.characterForm = {};
-  $scope.alerts = [];
-
-  $scope.select = function(character){
-    $localStorage.character = character.name;
   }
+  ]
+)
 
-  $scope.create_character = function(){
-    $scope.endpoint.all('characters').post($scope.characterForm)
-    .then(
-      function(character){
-        $scope.characters.push(character);
-        $scope.alerts.push({type: 'success', msg: character.name + ' succesfully created!'});
-        $scope.characterForm = {};
-      },
-      function(response){
-        $scope.alerts.push({type: 'danger', msg: response.data});
-      }
-    );
+.controller('UserCharacters',
+  ['$scope', 'Restangular', '$localStorage',
+  function($scope, Restangular, $localStorage){
+    var characters = $scope.endpoint.getList('characters').$object;
+    $scope.characters = characters;
+    $scope.characterForm = {};
+    $scope.alerts = [];
+
+    $scope.select = function(character){
+      $localStorage.character = character.name;
+    };
+
+    $scope.create_character = function(){
+      $scope.endpoint.all('characters').post($scope.characterForm)
+      .then(
+        function(character){
+          $scope.characters.push(character);
+          $scope.alerts.push({type: 'success', msg: character.name + ' succesfully created!'});
+          $scope.characterForm = {};
+        },
+        function(response){
+          $scope.alerts.push({type: 'danger', msg: response.data});
+        }
+      );
+    };
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
+    };
   }
-
-  $scope.closeAlert = function(index){
-    $scope.alerts.splice(index, 1);
-  };
-});
+  ]
+);

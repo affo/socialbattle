@@ -1,6 +1,7 @@
 angular.module('logged', ['restangular'])
 
 .controller('Logged',
+  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', '$modal',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal) {
     //check if logged
     if(!$localStorage.logged){
@@ -26,9 +27,11 @@ angular.module('logged', ['restangular'])
       });
     }
   }
+  ]
 )
 
 .controller('SelectCharacterModal',
+  ['$scope', '$modalInstance', '$localStorage', 'characters', 'endpoint',
   function($scope, $modalInstance, $localStorage, characters, endpoint){
     $scope.characters = characters;
     $scope.characterForm = {};
@@ -44,7 +47,7 @@ angular.module('logged', ['restangular'])
           $scope.alerts.push({type: 'danger', msg: response.data});
         }
       );
-    }
+    };
 
     $scope.select = function(character){
       $localStorage.character = character.name;
@@ -55,4 +58,5 @@ angular.module('logged', ['restangular'])
       $scope.alerts.splice(index, 1);
     };
   }
+  ]
 );

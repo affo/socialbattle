@@ -1,7 +1,7 @@
-angular.module('states', ['ui.router'])
+angular.module('states', [])
 
 .config(
-
+  ['$stateProvider',
 	function($stateProvider){
 		$stateProvider
 
@@ -54,7 +54,8 @@ angular.module('states', ['ui.router'])
       templateUrl: 'html/partials/pveroom.html',
 
       resolve: {
-        character: function($localStorage, Restangular, $modal){
+        character: ['$localStorage', 'Restangular', '$modal',
+        function($localStorage, Restangular, $modal){
           return Restangular.one('characters', $localStorage.character).get()
           .then(
             function(response){
@@ -65,9 +66,10 @@ angular.module('states', ['ui.router'])
               console.log(response);
             }
           );
-        },
+        }],
 
-        character_abilities: function($localStorage, Restangular){
+        character_abilities: ['$localStorage', 'Restangular', 
+        function($localStorage, Restangular){
           return Restangular.one('characters', $localStorage.character).getList('abilities')
           .then(
             function(response){
@@ -75,9 +77,10 @@ angular.module('states', ['ui.router'])
               return obj;
             }
           );
-        },
+        }],
 
-        weapons: function($localStorage, Restangular){
+        weapons: ['$localStorage', 'Restangular',
+        function($localStorage, Restangular){
           return Restangular.one('characters', $localStorage.character).getList('weapons')
           .then(
             function(response){
@@ -85,9 +88,10 @@ angular.module('states', ['ui.router'])
               return obj;
             }
           );
-        },
+        }],
 
-        armors: function($localStorage, Restangular){
+        armors: ['$localStorage', 'Restangular',
+        function($localStorage, Restangular){
           return Restangular.one('characters', $localStorage.character).getList('armors')
           .then(
             function(response){
@@ -95,9 +99,10 @@ angular.module('states', ['ui.router'])
               return obj;
             }
           );
-        },
+        }],
 
-        items: function($localStorage, Restangular){
+        items: ['$localStorage', 'Restangular',
+        function($localStorage, Restangular){
           return Restangular.one('characters', $localStorage.character).getList('items')
           .then(
             function(response){
@@ -105,9 +110,10 @@ angular.module('states', ['ui.router'])
               return obj;
             }
           );
-        },
+        }],
 
-        mobs: function($stateParams, Restangular){
+        mobs: ['$stateParams', 'Restangular',
+        function($stateParams, Restangular){
           return Restangular.one('rooms/pve', $stateParams.room_name).getList('mobs')
           .then(
             function(response){
@@ -115,9 +121,10 @@ angular.module('states', ['ui.router'])
               return obj;
             }
           );
-        },
+        }],
 
-        room: function($stateParams, Restangular){
+        room: ['$stateParams', 'Restangular',
+        function($stateParams, Restangular){
           return Restangular.one('rooms/pve', $stateParams.room_name).get()
           .then(
             function(response){
@@ -125,7 +132,7 @@ angular.module('states', ['ui.router'])
               return obj;
             }
           );
-        },
+        }],
       },
 
       controller: 'PVERoom',
@@ -140,7 +147,8 @@ angular.module('states', ['ui.router'])
       controller: 'RelaxRoom',
 
      resolve: {
-      character: function($localStorage, Restangular, $modal){
+      character: ['$localStorage', 'Restangular', '$modal',
+      function($localStorage, Restangular, $modal){
         return Restangular.one('characters', $localStorage.character).get()
         .then(
           function(response){
@@ -151,9 +159,10 @@ angular.module('states', ['ui.router'])
             console.log(response);
           }
         );
-      },
+      }],
 
-      room: function($stateParams, Restangular){
+      room: ['$stateParams', 'Restangular',
+      function($stateParams, Restangular){
           return Restangular.one('rooms/relax', $stateParams.room_name).get()
           .then(
             function(response){
@@ -161,7 +170,7 @@ angular.module('states', ['ui.router'])
               return obj;
             }
           );
-        },
+        }],
       },
       })
 
@@ -189,6 +198,7 @@ angular.module('states', ['ui.router'])
         url: '/inventory',
         templateUrl: 'html/partials/character.inventory.html',
         controller: 'CharacterInventory'
-      })
+      });
 	}
+  ]
 );

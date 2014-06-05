@@ -1,34 +1,39 @@
 angular.module('post', ['restangular'])
 
-.controller('UserPosts', function($scope, Restangular){
-  //because of pagination
-  $scope.endpoint.one('posts').get().then(
-    function(response){
-      $scope.posts = response.results;
-      $scope.next = response.next;
-    }
-  );
-
-  $scope.next_page = function(){
-    Restangular.oneUrl('next_page', $scope.next).get().
-    then(
+.controller('UserPosts',
+  ['$scope', 'Restangular',
+  function($scope, Restangular){
+    //because of pagination
+    $scope.endpoint.one('posts').get().then(
       function(response){
-        for(var i = 0; i < response.results.length; i++){
-          $scope.posts.push(response.results[i]);
-        }
-
-        if(response.next){
-          $scope.next = response.next;
-        }else{
-          $scope.next = undefined;
-        }
+        $scope.posts = response.results;
+        $scope.next = response.next;
       }
     );
 
-  };
-})
+    $scope.next_page = function(){
+      Restangular.oneUrl('next_page', $scope.next).get().
+      then(
+        function(response){
+          for(var i = 0; i < response.results.length; i++){
+            $scope.posts.push(response.results[i]);
+          }
+
+          if(response.next){
+            $scope.next = response.next;
+          }else{
+            $scope.next = undefined;
+          }
+        }
+      );
+
+    };
+  }
+  ]
+)
 
 .controller('Post',
+  ['$scope', 'Restangular',
   function($scope, Restangular){
     $scope.comment = {};
     $scope.editPost = { content: $scope.post.content };
@@ -76,12 +81,12 @@ angular.module('post', ['restangular'])
             $scope.next = response.next;
           }
         );
-    }
+    };
 
     $scope.remove_comments = function(){
       $scope.comments = {};
       $scope.showing = false;
-    }
+    };
 
     $scope.submit = function(){
       Restangular.oneUrl('post', $scope.post.url).all('comments').post($scope.comment)
@@ -114,48 +119,51 @@ angular.module('post', ['restangular'])
         }
       }
       );
-    }
+    };
 
 
   }
+  ]
 )
 
-.controller('Comment', function($scope, Restangular){
-  $scope.editing = false;
-  $scope.editComment = { content: $scope.comment.content };
+.controller('Comment', 
+  ['$scope', 'Restangular',
+  function($scope, Restangular){
+    $scope.editing = false;
+    $scope.editComment = { content: $scope.comment.content };
 
-  $scope.toggle_editing = function(){
-      $scope.editing = !$scope.editing;
-  };
+    $scope.toggle_editing = function(){
+        $scope.editing = !$scope.editing;
+    };
 
-  $scope.delete_comment = function(){
-    var comment_url = $scope.comment.url;
-    Restangular.oneUrl('comment', comment_url).remove()
-    .then(
-      function(response){
-        if($scope.showing){
-          for(var i = 0; i < $scope.comments.length; i++){
-            if($scope.comments[i].url == comment_url){
-              $scope.comments.splice(i, 1);
+    $scope.delete_comment = function(){
+      var comment_url = $scope.comment.url;
+      Restangular.oneUrl('comment', comment_url).remove()
+      .then(
+        function(response){
+          if($scope.showing){
+            for(var i = 0; i < $scope.comments.length; i++){
+              if($scope.comments[i].url == comment_url){
+                $scope.comments.splice(i, 1);
+              }
             }
           }
         }
-      }
-    );
-  };
+      );
+    };
 
-  $scope.edit_comment = function(){
-    var comment =  Restangular.oneUrl('comments', $scope.comment.url);
-    console.log(comment);
-    comment.content = $scope.editComment.content;
-    comment.put().then(
-      function(response){
-        //update what you are seeing
-        $scope.comment.content = comment.content;
-        $scope.toggle_editing();
-      }
-    );
-  };
-
-
-});
+    $scope.edit_comment = function(){
+      var comment =  Restangular.oneUrl('comments', $scope.comment.url);
+      console.log(comment);
+      comment.content = $scope.editComment.content;
+      comment.put().then(
+        function(response){
+          //update what you are seeing
+          $scope.comment.content = comment.content;
+          $scope.toggle_editing();
+        }
+      );
+    };
+  }
+  ]
+);
