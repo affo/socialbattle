@@ -29,12 +29,22 @@ module.exports = function(grunt) {
       }
     },
 
-    uglify : {
+    uglify: {
       js: {
         files: {
             'js/socialbattle.min.js' : 'js/socialbattle.js',
         },
       },
+    },
+
+    watch: {
+      files: [
+        'js/app.raw.js',
+        'js/app-states.js',
+        'js/services.raw.js',
+        'js/controllers/*',
+      ],
+      tasks: ['concat', 'uglify'],
     },
 
     jshint: {
@@ -74,6 +84,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['preprocess', 'concat', 'uglify', ]);
+  grunt.registerTask('default', ['preprocess', 'concat', 'uglify']);
+  
 };
