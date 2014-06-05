@@ -36,6 +36,7 @@ def associate_by_access_token(request, backend, *args, **kwargs):
 	if user and user.is_active:
 		f_uid = UserSocialAuth.objects.values('uid').get(user_id=user.pk)['uid']
 		user.img = FACEBOOK_IMG_URL % f_uid
+		user.set_unusable_password() #in the way that the user cannot login without facebook
 		user.save()
 		data = UserSerializer(user, context={'request': request}).data
 		return Response(data, status=status.HTTP_200_OK)
