@@ -9,19 +9,17 @@ from uuslug import uuslug as slugify
 from rest_framework.authtoken.models import Token
 
 import urllib, urllib2, json
+from socialbattle import settings
 
 GRAVATAR_USER_URL = 'http://www.gravatar.com/avatar/%s?d=identicon'
 GRAVATAR_CHARACTER_URL = 'http://www.gravatar.com/avatar/%s?d=identicon'
 GRAVATAR_MOB_URL = 'http://www.gravatar.com/avatar/%s?d=retro'
 
-FB_OBJECTS_URL = 'https://graph.facebook.com/app/objects/socialbattlegame:%s'
-FB_APP_TOKEN = '1441968896050367|0nawxHIEdROGI1doW9wwephJ1FY'
-
 class FBObjectMixin(models.Model):
 	fb_id = models.CharField(max_length=50)
 	fb_object = {}
 	_fb_data = {
-		'access_token': FB_APP_TOKEN,
+		'access_token': settings.FACEBOOK_APP_ACCESS_TOKEN,
 		'object': {},
 	}
 
@@ -43,7 +41,7 @@ def add_to_fb_objects(sender, instance=None, **kwargs):
 		if not instance.fb_id:
 			class_name = sender.__name__.lower()
 			if class_name == 'item': class_name = 'loot' #problems with facebook types...
-			url = FB_OBJECTS_URL %  class_name
+			url = settings.FB_OBJECTS_URL %  class_name
 			print url
 			instance.fb_data = instance.fb_object
 			data = urllib.urlencode(instance.fb_data)
@@ -59,7 +57,7 @@ def add_to_fb_objects(sender, instance=None, **kwargs):
 @receiver(post_delete)
 def remove_from_fb_objects(sender, instance=None, **kwargs):
 	try:
-		url = 'https://graph.facebook.com/%s?access_token=%s' % (instance.fb_id, FB_APP_TOKEN)
+		url = 'https://graph.facebook.com/%s?access_token=%s' % (instance.fb_id, settings.FACEBOOK_APP_ACCESS_TOKEN)
 		req = urllib2.Request(url=url)
 		req.get_method = lambda: 'DELETE'
 		res = urllib2.urlopen(req)

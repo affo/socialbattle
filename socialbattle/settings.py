@@ -127,8 +127,16 @@ CORS_ORIGIN_WHITELIST = (
 	'socialbattle.herokuapp.com',
 )
 
-FACEBOOK_APP_ID = '1441968896050367'
-FACEBOOK_API_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
+if os.environ.get('HEROKU'): #production mode app - socialbattle
+	FACEBOOK_APP_ID = '1441968896050367'
+	FACEBOOK_API_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
+	FACEBOOK_APP_ACCESS_TOKEN = '1441968896050367|0nawxHIEdROGI1doW9wwephJ1FY'
+	FB_OBJECTS_URL = 'https://graph.facebook.com/app/objects/socialbattlegame:%s'
+else: #development mode app - socialbattle - Test1
+	FACEBOOK_APP_ID = '1451410555106201'
+	FACEBOOK_API_SECRET = '89bf6904f14a36d9014dfa0eaaab4370'
+	FACEBOOK_APP_ACCESS_TOKEN = '1451410555106201|UlQpJYZ4M4tFxO5uQp4fnz_TOJk'
+	FB_OBJECTS_URL = 'https://graph.facebook.com/app/objects/socialbattle_test:%s'
 
 FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'publish_actions']
 

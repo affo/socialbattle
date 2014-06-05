@@ -36,15 +36,14 @@ app.run(
 app.config(
   function(RestangularProvider){
     RestangularProvider.setBaseUrl('http://localhost.socialbattle:8000/private/');
-
-    RestangularProvider.setBaseUrl('http://socialbattle-api.herokuapp.com/private/');
     RestangularProvider.setRequestSuffix('/');
   });
 
 app.config(['FacebookProvider', function(FacebookProvider) {
     // Here you could set your appId through the setAppId method and then initialize
     // or use the shortcut in the initialize method directly.
-    FacebookProvider.init('1441968896050367');
+
+    FacebookProvider.init('1451410555106201');
 }]);
 
 app.config(

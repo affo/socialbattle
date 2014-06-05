@@ -7,7 +7,8 @@ angular.module('room', ['luegg.directives'])
 })
 
 .controller('PVERoom',
-  function($scope, Restangular, $stateParams, $localStorage, $modal, Facebook, SpawnService, MobService, CharacterService,
+  function($scope, Restangular, $stateParams, $localStorage, $modal, Facebook,
+            SpawnService, MobService, CharacterService, FBStoriesService,
             character, character_abilities, weapons, armors, items,
             mobs, room, $timeout, $state, $rootScope){
 
@@ -320,26 +321,10 @@ angular.module('room', ['luegg.directives'])
         );
 
         //send activity to facebook
-        if($localStorage.facebook == true){
-          var fb_data = {
-            character: $scope.character.fb_id,
-            room: $scope.room.fb_id,
-            mob: $scope.mob.fb_id,
-          };
-
-          Facebook.api('me/socialbattlegame:defeat', 'post', fb_data);
-        }
+        FBStoriesService.defeat($scope.character.fb_id, $scope.room.fb_id, $scope.mob.fb_id);
       }else{
         //send activity to facebook
-        if($localStorage.facebook == true){
-          var fb_data = {
-            character: $scope.character.fb_id,
-            room: $scope.room.fb_id,
-            mob: $scope.mob.fb_id,
-          };
-
-          Facebook.api('me/socialbattlegame:lose_against', 'post', fb_data);
-        }
+        FBStoriesService.lose($scope.character.fb_id, $scope.room.fb_id, $scope.mob.fb_id);
 
         var m = $modal.open({
             templateUrl: 'loseModal.html',
@@ -497,7 +482,8 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('WinModal',
-  function($scope, $modalInstance, $localStorage, Facebook, Restangular,
+  function($scope, $modalInstance, $localStorage,
+            Facebook, FBStoriesService, Restangular,
             character, room, mob, end){
     $scope.mob = mob.name;
     $scope.end = end;
@@ -532,7 +518,7 @@ angular.module('room', ['luegg.directives'])
 
                   Facebook.ui({
                     method: 'share_open_graph',
-                    action_type: 'socialbattlegame:defeat',
+                    action_type: FBStoriesService.APP_NAMESPACE + ':defeat',
                     action_properties: JSON.stringify(fb_data),
                   },
                     function(response) {
@@ -553,6 +539,7 @@ angular.module('room', ['luegg.directives'])
             }else if(response.status === 'not_authorized'){
               // The person is logged into Facebook, but not your app.
               // and so I'm very sorry...
+              console.log(response);
             } else {
               // The person is not logged into Facebook, so we're not sure if
               // they are logged into this app or not.
@@ -581,7 +568,8 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('LoseModal',
-  function($scope, $modalInstance, $state, $localStorage, Facebook, Restangular,
+  function($scope, $modalInstance, $state, $localStorage,
+              Facebook, FBStoriesService, Restangular,
               character, room, mob){
     $scope.mob = mob.name;
     $scope.alerts = [];
@@ -619,7 +607,7 @@ angular.module('room', ['luegg.directives'])
 
                   Facebook.ui({
                     method: 'share_open_graph',
-                    action_type: 'socialbattlegame:lose_against',
+                    action_type: FBStoriesService.APP_NAMESPACE + ':lose_against',
                     action_properties: JSON.stringify(fb_data),
                   },
                     function(response) {
@@ -681,7 +669,7 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('DeadModal',
-  function($scope, $modalInstance, $state, character){
+  function($scope, $modalInstance, $state, FBStoriesService, character){
     $scope.close = function(){
       $modalInstance.close();
       $state.go('character.inventory', {name: character});
@@ -690,7 +678,8 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('RelaxRoom',
-  function($scope, Restangular, $stateParams, $localStorage, $modal, Facebook,
+  function($scope, Restangular, $stateParams, $localStorage, $modal,
+            Facebook, FBStoriesService,
             character, room){
   $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
   $scope.character_endpoint = Restangular.one('characters', $localStorage.character);
@@ -853,20 +842,10 @@ angular.module('room', ['luegg.directives'])
 
   $scope.transaction_ended = function(){
     //send activity to facebook
-    if($localStorage.facebook == true){
-      var fb_data = {
-        character: character.fb_id,
-        room: room.fb_id,
-        loot: $scope.selected_item.fb_id,
-      };
-
-      Facebook.api('me/socialbattlegame:' + $scope.action.toLowerCase(), 'post', fb_data, 
-        function(response){
-          console.log(response);
-        },
-        function(response){
-          console.log(response);
-        });
+    if($scope.action == 'BUY'){
+      FBStoriesService.buy(character.fb_id, room.fb_id, $scope.selected_item.fb_id);
+    }else{
+      FBStoriesService.sell(character.fb_id, room.fb_id, $scope.selected_item.fb_id);
     }
 
     var modalInstance = $modal.open({
@@ -954,7 +933,9 @@ angular.module('room', ['luegg.directives'])
 })
 
 .controller('TransactionModal',
-  function($scope, $modalInstance, Restangular, $localStorage, Facebook, user, action, character,
+  function($scope, $modalInstance, Restangular, $localStorage,
+              Facebook, FBStoriesService,
+              user, action, character,
               shop, item, fb_action){
     $scope.user = user;
     $scope.action = action;
@@ -987,7 +968,7 @@ angular.module('room', ['luegg.directives'])
 
                   Facebook.ui({
                     method: 'share_open_graph',
-                    action_type: 'socialbattlegame:' + fb_action,
+                    action_type: FBStoriesService.APP_NAMESPACE + ':' + fb_action,
                     action_properties: JSON.stringify(fb_data),
                   },
                     function(response) {

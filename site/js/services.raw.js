@@ -138,7 +138,14 @@ angular.module('services', [])
   function(Facebook, $localStorage){
     var factory = {};
 
+    //@ifndef HEROKU
     factory.APP_NAMESPACE = 'socialbattle_test';
+    //@endif
+
+    //@ifdef HEROKU
+    factory.APP_NAMESPACE = 'socialbattlegame';
+    //@endif
+
     factory.defeat = function(character, room, mob){
       if(!$localStorage.facebook) return;
 
