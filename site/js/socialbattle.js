@@ -801,10 +801,12 @@ angular.module('logged', ['restangular'])
   ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', '$modal',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal) {
     //check if logged
-    if(!$localStorage.logged){
-      $state.go('unlogged');
-      return;
-    }
+    // if(!$localStorage.logged){
+    //   $state.go('unlogged');
+    //   return;
+    // }
+    $scope.character_name = $localStorage.character;
+    $scope.username = $localStorage.user; 
 
     if(!$localStorage.character){
       var modalInstance = $modal.open({
@@ -822,6 +824,12 @@ angular.module('logged', ['restangular'])
           }
         }
       });
+
+      modalInstance.result.then(
+        function(character){
+          $scope.character_name = character;
+        }
+      );
     }
   }
   ]
@@ -848,7 +856,7 @@ angular.module('logged', ['restangular'])
 
     $scope.select = function(character){
       $localStorage.character = character.name;
-      $modalInstance.close();
+      $modalInstance.close(character.name);
     };
 
     $scope.closeAlert = function(index){
