@@ -801,10 +801,10 @@ angular.module('logged', ['restangular'])
   ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', '$modal',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal) {
     //check if logged
-    // if(!$localStorage.logged){
-    //   $state.go('unlogged');
-    //   return;
-    // }
+    if(!$localStorage.logged){
+      $state.go('unlogged');
+      return;
+    }
     $scope.character_name = $localStorage.character;
     $scope.username = $localStorage.user; 
 
