@@ -23,6 +23,8 @@ A single User object
             "no_followers": 0
         }
 
+
+
 # Group Fellowship
 ## Fellowship [/fellowship/{id}]
 ### Retrieve a fellowship [GET]
@@ -102,3 +104,101 @@ The list of the users follows the specified user
                 }
             }
         ]
+
+
+#Group Room
+## Relax Rooms [/rooms/relax]
+All relax rooms
+### List al relax rooms [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                "name": "moguri shop", 
+                "slug": "moguri-shop", 
+                "fb_id": "716467545059393"
+            }, 
+            {
+                "url": "http://localhost:8000/rooms/relax/chocobo-emporium/", 
+                "name": "chocobo emporium", 
+                "slug": "chocobo-emporium", 
+                "fb_id": "245988905597076"
+            }
+        ]
+
+
+## PVE Rooms [/rooms/pve]
+All PVE rooms
+### List al PVE rooms [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://localhost:8000/rooms/pve/zertinan-caves/", 
+                "name": "zertinan caves", 
+                "slug": "zertinan-caves", 
+                "fb_id": "900462223304608"
+            }, 
+            {
+                "url": "http://localhost:8000/rooms/pve/golmore-jungle/", 
+                "name": "golmore jungle", 
+                "slug": "golmore-jungle", 
+                "fb_id": "1415747728712053"
+            }
+        ]
+
+## All Rooms [/rooms]
+### List all rooms independently from the type [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://localhost:8000/rooms/relax/chocobo-emporium/", 
+                "name": "chocobo emporium", 
+                "slug": "chocobo-emporium", 
+                "fb_id": "245988905597076"
+            }, 
+            {
+                "url": "http://localhost:8000/rooms/pve/zertinan-caves/", 
+                "name": "zertinan caves", 
+                "slug": "zertinan-caves", 
+                "fb_id": "900462223304608"
+            },
+        ]
+
+
+# Group Post
+## User Posts [/user/{username}/posts]
+All posts from the specified user
+
+### List all posts [GET]
+This resource uses paging, pages can explored using `previous` and `next` fields of the response.  
+The number of resources returned can be limited using `?limit={integer}`.
+
++ Response 200 (application/json)
+
+    {
+        "count": 1, 
+        "next": null, 
+        "previous": null, 
+        "results": [
+            {
+                "url": "http://localhost:8000/posts/8/", 
+                "content": "Hello world Again!", 
+                "author": {
+                    "url": "http://localhost:8000/users/sb_user/", 
+                    "username": "sb_user", 
+                    "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+                }, 
+                "room": {
+                    "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                    "name": "moguri shop", 
+                    "slug": "moguri-shop"
+                }, 
+                "time": "2014-06-06T14:56:53Z"
+            }
+        ]
+    }
+
+
