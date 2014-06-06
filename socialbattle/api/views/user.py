@@ -10,11 +10,10 @@ from socialbattle.api import serializers
 from socialbattle.api.permissions import IsFromUser, IsAuthor
 
 ### USER
-# GET, POST: /users/
+# GET: /users/
 # GET, PUT: /users/{username}/
 class UserViewSet(viewsets.GenericViewSet,
 					mixins.ListModelMixin,
-					mixins.UpdateModelMixin,
 					mixins.RetrieveModelMixin):
 	queryset = models.User.objects.all()
 	serializer_class = serializers.UserSerializer
@@ -66,6 +65,10 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 						mixins.ListModelMixin):
 	serializer_class = serializers.UserSerializer
 
+	class AlreadyFollowingError(Exception):
+			def __init__(self, msg):
+				self.msg = msg
+
 	def get_serializer_class(self):
 		if self.request.method == 'POST':
 			return serializers.FellowshipSerializer
@@ -81,7 +84,17 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 		return queryset
 
 	def pre_save(self, obj):
+		if obj.to_user in self.get_queryset():
+			raise self.AlreadyFollowingError('The fellowship specified already exists')
+
 		obj.from_user = self.request.user
+
+	def create(self, request, *args, **kwargs):
+		try:
+			return super(UserFollowingViewSet, self).create(request, *args, **kwargs)
+		except self.AlreadyFollowingError as e:
+			return Response(data={'msg': e.msg}, status=status.HTTP_400_BAD_REQUEST)
+
 
 	def list(self, request, username, *args, **kwargs):
 		try:
