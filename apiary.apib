@@ -20,7 +20,7 @@ An fusion between a common social network and an RPG game
             "token": "d548578adf03dd89d6145ecb142eb923d18cffd4"
         }
 
-        
+
 
 # Group User
 ## User [/users/{username}]
@@ -33,7 +33,7 @@ A single User object
 + Response 200 (application/json)
         
         {
-            "url": "http://localhost:8000/users/sb_user/", 
+            "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
             "username": "sb_user", 
             "email": "sb_user@sb.com", 
             "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon", 
@@ -45,13 +45,14 @@ A single User object
 
 # Group Fellowship
 ## Fellowship [/fellowship/{id}]
+
 ### Retrieve a fellowship [GET]
 + Response 200 (application/json)
 
         {
-            "url": "http://localhost:8000/fellowship/17/", 
-            "from_user": "http://localhost:8000/users/another_sb_user/", 
-            "to_user": "http://localhost:8000/users/sb_user/"
+            "url": "http://socialbattle-api.herokuapp.com/fellowship/17/", 
+            "from_user": "http://socialbattle-api.herokuapp.com/users/another_sb_user/", 
+            "to_user": "http://socialbattle-api.herokuapp.com/users/sb_user/"
         }
 
 ### Delete a fellowship [DELETE]
@@ -65,9 +66,9 @@ The list of the users that a user is following
 
         [
             {
-                "url": "http://localhost:8000/fellowship/7/", 
+                "url": "http://socialbattle-api.herokuapp.com/fellowship/7/", 
                 "to_user": {
-                    "url": "http://localhost:8000/users/another_sb_user/", 
+                    "url": "http://socialbattle-api.herokuapp.com/users/another_sb_user/", 
                     "username": "another_sb_user", 
                     "email": "another_sb_user@sb.com", 
                     "img": "http://www.gravatar.com/avatar/60feaeae4ea163dedcd0f210281d7708?d=identicon", 
@@ -76,9 +77,9 @@ The list of the users that a user is following
                 }
             }, 
             {
-                "url": "http://localhost:8000/fellowship/9/", 
+                "url": "http://socialbattle-api.herokuapp.com/fellowship/9/", 
                 "to_user": {
-                    "url": "http://localhost:8000/users/someother_sb_user/", 
+                    "url": "http://socialbattle-api.herokuapp.com/users/someother_sb_user/", 
                     "username": "someother_sb_user", 
                     "email": "someother_sb_user@sb.com", 
                     "img": "http://www.gravatar.com/avatar/51d0e310ea1e05916620f126c078fcf1?d=identicon", 
@@ -98,9 +99,9 @@ The list of the users that a user is following
 + Response 201 (application/json)
 
         {
-            "url": "http://localhost:8000/fellowship/1/", 
-            "from_user": "http://localhost:8000/users/sb_user/", 
-            "to_user": "http://localhost:8000/users/another_sb_user/"
+            "url": "http://socialbattle-api.herokuapp.com/fellowship/1/", 
+            "from_user": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
+            "to_user": "http://socialbattle-api.herokuapp.com/users/another_sb_user/"
         }
 
 ## User Followers [/users/{username}/followers]
@@ -111,9 +112,9 @@ The list of the users follows the specified user
 
         [
             {
-                "url": "http://localhost:8000/fellowship/17/", 
+                "url": "http://socialbattle-api.herokuapp.com/fellowship/17/", 
                 "from_user": {
-                    "url": "http://localhost:8000/users/another_sb_user/", 
+                    "url": "http://socialbattle-api.herokuapp.com/users/another_sb_user/", 
                     "username": "another_sb_user", 
                     "email": "another_sb_user@sb.com", 
                     "img": "http://www.gravatar.com/avatar/60feaeae4ea163dedcd0f210281d7708?d=identicon", 
@@ -132,13 +133,13 @@ All relax rooms
 
         [
             {
-                "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                 "name": "moguri shop", 
                 "slug": "moguri-shop", 
                 "fb_id": "716467545059393"
             }, 
             {
-                "url": "http://localhost:8000/rooms/relax/chocobo-emporium/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/relax/chocobo-emporium/", 
                 "name": "chocobo emporium", 
                 "slug": "chocobo-emporium", 
                 "fb_id": "245988905597076"
@@ -153,13 +154,13 @@ All PVE rooms
 
         [
             {
-                "url": "http://localhost:8000/rooms/pve/zertinan-caves/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/pve/zertinan-caves/", 
                 "name": "zertinan caves", 
                 "slug": "zertinan-caves", 
                 "fb_id": "900462223304608"
             }, 
             {
-                "url": "http://localhost:8000/rooms/pve/golmore-jungle/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/pve/golmore-jungle/", 
                 "name": "golmore jungle", 
                 "slug": "golmore-jungle", 
                 "fb_id": "1415747728712053"
@@ -172,13 +173,13 @@ All PVE rooms
 
         [
             {
-                "url": "http://localhost:8000/rooms/relax/chocobo-emporium/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/relax/chocobo-emporium/", 
                 "name": "chocobo emporium", 
                 "slug": "chocobo-emporium", 
                 "fb_id": "245988905597076"
             }, 
             {
-                "url": "http://localhost:8000/rooms/pve/zertinan-caves/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/pve/zertinan-caves/", 
                 "name": "zertinan caves", 
                 "slug": "zertinan-caves", 
                 "fb_id": "900462223304608"
@@ -186,22 +187,32 @@ All PVE rooms
         ]
 
 ## Relax Room [/rooms/relax/{room-slug}]
+
++ Parameters
+    + room-slug (string) ... The slugified name of the room.
+
+
 ### Retrieve a relax room [GET]
 + Response 200 (application/json)
 
     {
-        "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+        "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
         "name": "moguri shop", 
         "slug": "moguri-shop", 
         "fb_id": "716467545059393"
     }
 
 ## PVE Room [/rooms/pve/{room-slug}]
+
++ Parameters
+    + room-slug (string) ... The slugified name of the room.
+
+
 ### Retrieve a PVE room [GET]
 + Response 200 (application/json)
 
     {
-        "url": "http://localhost:8000/rooms/pve/golmore-jungle/", 
+        "url": "http://socialbattle-api.herokuapp.com/rooms/pve/golmore-jungle/", 
         "name": "golmore jungle", 
         "slug": "golmore-jungle", 
         "fb_id": "1415747728712053"
@@ -225,15 +236,15 @@ The number of returned resources can be limited using `?limit={integer}`.
         "previous": null, 
         "results": [
             {
-                "url": "http://localhost:8000/posts/8/", 
+                "url": "http://socialbattle-api.herokuapp.com/posts/8/", 
                 "content": "Hello world!", 
                 "author": {
-                    "url": "http://localhost:8000/users/sb_user/", 
+                    "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                     "username": "sb_user", 
                     "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
                 }, 
                 "room": {
-                    "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                    "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                     "name": "moguri shop", 
                     "slug": "moguri-shop"
                 }, 
@@ -254,34 +265,34 @@ The number of returned resources can be limited using `?limit={integer}`.
 
         {
             "count": 8, 
-            "next": "http://localhost:8000/rooms/relax/moguri-shop/posts/?limit=2&page=2", 
+            "next": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/posts/?limit=2&page=2", 
             "previous": null, 
             "results": [
                 {
-                    "url": "http://localhost:8000/posts/9/", 
+                    "url": "http://socialbattle-api.herokuapp.com/posts/9/", 
                     "content": "Hello World!", 
                     "author": {
-                        "url": "http://localhost:8000/users/sb_user/", 
+                        "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                         "username": "sb_user", 
                         "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
                     }, 
                     "room": {
-                        "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                        "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                         "name": "moguri shop", 
                         "slug": "moguri-shop"
                     }, 
                     "time": "2014-06-06T15:07:42Z"
                 }, 
                 {
-                    "url": "http://localhost:8000/posts/8/", 
+                    "url": "http://socialbattle-api.herokuapp.com/posts/8/", 
                     "content": "Hello world Again!", 
                     "author": {
-                        "url": "http://localhost:8000/users/sb_user/", 
+                        "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                         "username": "sb_user", 
                         "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
                     }, 
                     "room": {
-                        "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                        "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                         "name": "moguri shop", 
                         "slug": "moguri-shop"
                     }, 
@@ -300,15 +311,15 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Response 201 (application/json)
 
         {
-            "url": "http://localhost:8000/posts/10/", 
+            "url": "http://socialbattle-api.herokuapp.com/posts/10/", 
             "content": "Hello World!", 
             "author": {
-                "url": "http://localhost:8000/users/sb_user/", 
+                "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
             }, 
             "room": {
-                "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                 "name": "moguri shop", 
                 "slug": "moguri-shop"
             }, 
@@ -320,22 +331,22 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Response 200 (application/json)
 
         {
-            "url": "http://localhost:8000/posts/10/", 
+            "url": "http://socialbattle-api.herokuapp.com/posts/10/", 
             "content": "Hello World!", 
             "author": {
-                "url": "http://localhost:8000/users/sb_user/", 
+                "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
             }, 
             "room": {
-                "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                 "name": "moguri shop", 
                 "slug": "moguri-shop"
             }, 
             "time": "2014-06-06T15:10:21Z"
         }
 
-## Edit a Post [PUT]
+## Edit a Post [PATCH]
 + Request (application/json)
 
         {
@@ -345,15 +356,15 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Response 200 (application/json)
 
         {
-            "url": "http://localhost:8000/posts/10/", 
+            "url": "http://socialbattle-api.herokuapp.com/posts/10/", 
             "content": "Hello World! It's sb_user!", 
             "author": {
-                "url": "http://localhost:8000/users/sb_user/", 
+                "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
             }, 
             "room": {
-                "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                 "name": "moguri shop", 
                 "slug": "moguri-shop"
             }, 
@@ -381,14 +392,14 @@ The number of returned resources can be limited using `?limit={integer}`.
             "previous": null, 
             "results": [
                 {
-                    "url": "http://localhost:8000/comments/1/", 
+                    "url": "http://socialbattle-api.herokuapp.com/comments/1/", 
                     "content": "Hello to you sb_user!", 
                     "author": {
-                        "url": "http://localhost:8000/users/sb_user/", 
+                        "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                         "username": "sb_user", 
                         "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
                     }, 
-                    "post": "http://localhost:8000/posts/9/", 
+                    "post": "http://socialbattle-api.herokuapp.com/posts/9/", 
                     "time": "2014-06-06T15:22:52Z"
                 }
             ]
@@ -405,14 +416,14 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Response 201 (application/json)
 
         {
-            "url": "http://localhost:8000/comments/1/", 
+            "url": "http://socialbattle-api.herokuapp.com/comments/1/", 
             "content": "Hello to you!", 
             "author": {
-                "url": "http://localhost:8000/users/sb_user/", 
+                "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
             }, 
-            "post": "http://localhost:8000/posts/9/", 
+            "post": "http://socialbattle-api.herokuapp.com/posts/9/", 
             "time": "2014-06-06T15:20:26.516Z"
         }
 
@@ -422,18 +433,18 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Response 200 (application/json)
 
         {
-            "url": "http://localhost:8000/comments/1/", 
+            "url": "http://socialbattle-api.herokuapp.com/comments/1/", 
             "content": "Hello to you!", 
             "author": {
-                "url": "http://localhost:8000/users/sb_user/", 
+                "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
             }, 
-            "post": "http://localhost:8000/posts/9/", 
+            "post": "http://socialbattle-api.herokuapp.com/posts/9/", 
             "time": "2014-06-06T15:20:26.516Z"
         }
 
-### Edit a comment [PUT]
+### Edit a comment [PATCH]
 + Request (application/json)
 
         {
@@ -443,17 +454,730 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Response 200 (application/json)
 
         {
-            "url": "http://localhost:8000/comments/1/", 
+            "url": "http://socialbattle-api.herokuapp.com/comments/1/", 
             "content": "Hello to you sb_user!", 
             "author": {
-                "url": "http://localhost:8000/users/sb_user/", 
+                "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
             }, 
-            "post": "http://localhost:8000/posts/9/", 
+            "post": "http://socialbattle-api.herokuapp.com/posts/9/", 
             "time": "2014-06-06T15:20:26.516Z"
         }
 
 ### Delete a comment [DELETE]
 + Response 204
 
+
+
+# Group Character
+## User Characters [/user/{username}/characters]
+The characters owned by the specified user.
+
+### List characters [GET]
++ Reponse 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+                "name": "Leviathan", 
+                "level": 1, 
+                "guils": 1000, 
+                "owner": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
+                "ap": 10, 
+                "max_hp": 46, 
+                "max_mp": 45, 
+                "curr_hp": 46, 
+                "curr_mp": 45, 
+                "stre": 23, 
+                "vit": 24, 
+                "mag": 20, 
+                "spd": 24, 
+                "defense": 0, 
+                "mdefense": 0, 
+                "atk": 11, 
+                "img": "http://www.gravatar.com/avatar/87fe6644da2bf1e158613189f1b9cb7f?d=identicon", 
+                "fb_id": "1431931340402243"
+            }
+        ]
+
+### Create Character [POST]
++ Request (application/json)
+
+    + Parameters
+        + name (required, string) ... 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+
+        {
+            "name": "Leviathan"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+            "name": "Leviathan", 
+            "level": 1, 
+            "guils": 1000, 
+            "owner": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
+            "ap": 10, 
+            "max_hp": 46, 
+            "max_mp": 45, 
+            "curr_hp": 46, 
+            "curr_mp": 45, 
+            "stre": 23, 
+            "vit": 24, 
+            "mag": 20, 
+            "spd": 24, 
+            "defense": 0, 
+            "mdefense": 0, 
+            "atk": 11, 
+            "img": "http://www.gravatar.com/avatar/87fe6644da2bf1e158613189f1b9cb7f?d=identicon", 
+            "fb_id": "1431931340402243"
+        }
+
+
+## Character [/characters/{character-name}]
+### Retrieve a Character [GET]
++ Response 201 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+            "name": "Leviathan", 
+            "level": 1, 
+            "guils": 1000, 
+            "owner": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
+            "ap": 10, 
+            "max_hp": 46, 
+            "max_mp": 45, 
+            "curr_hp": 46, 
+            "curr_mp": 45, 
+            "stre": 23, 
+            "vit": 24, 
+            "mag": 20, 
+            "spd": 24, 
+            "defense": 0, 
+            "mdefense": 0, 
+            "atk": 11, 
+            "img": "http://www.gravatar.com/avatar/87fe6644da2bf1e158613189f1b9cb7f?d=identicon", 
+            "fb_id": "1431931340402243"
+        }
+
+### Remove a Character [DELETE]
++ Response 204
+
+
+# Group Item
+An Item can be:
+ - Restorative `R`
+ - A weapon `W`
+ - An armor `A`
+
+## Relax Rooms Items [/rooms/relax/{room-slug}/items]
+The items sold in a relax room.
+
+### List all items sold [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/items/potion/", 
+                "name": "potion", 
+                "cost": 50, 
+                "item_type": "R", 
+                "power": 20, 
+                "description": "Restores minor HP", 
+                "fb_id": "667448223323234"
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/items/mythril-sword/", 
+                "name": "mythril sword", 
+                "cost": 50, 
+                "item_type": "W", 
+                "power": 25, 
+                "description": "The equipment of this type are usually of weak or mediocre power.", 
+                "fb_id": "230004043877395"
+            }
+        ]
+
+## Item [/item/{item-slug}]
+### Retrieve an Item [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/items/potion/", 
+            "name": "potion", 
+            "cost": 50, 
+            "item_type": "R", 
+            "power": 20, 
+            "description": "Restores minor HP", 
+            "fb_id": "667448223323234"
+        } 
+
+
+## Character Inventory [/characters/{character-name}/inventory]
+### List the whole inventory [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/inventory/6/", 
+                "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+                "item": {
+                    "url": "http://socialbattle-api.herokuapp.com/items/potion/", 
+                    "name": "potion", 
+                    "cost": 50, 
+                    "item_type": "R", 
+                    "power": 20, 
+                    "description": "Restores minor HP", 
+                    "fb_id": "667448223323234"
+                }, 
+                "quantity": 5, 
+                "equipped": false
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/inventory/7/", 
+                "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+                "item": {
+                    "url": "http://socialbattle-api.herokuapp.com/items/mythril-sword/", 
+                    "name": "mythril sword", 
+                    "cost": 50, 
+                    "item_type": "W", 
+                    "power": 25, 
+                    "description": "The equipment of this type are usually of weak or mediocre power.", 
+                    "fb_id": "230004043877395"
+                }, 
+                "quantity": 1, 
+                "equipped": true
+            }
+        ]
+
+## Character armors [/characters/{character-name}/armors]
+### List armors [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/inventory/8/", 
+                "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+                "item": {
+                    "url": "http://socialbattle-api.herokuapp.com/items/maximilian/", 
+                    "name": "maximilian", 
+                    "cost": 50, 
+                    "item_type": "A", 
+                    "power": 0, 
+                    "description": "", 
+                    "fb_id": "1429743820626535"
+                }, 
+                "quantity": 1, 
+                "equipped": false
+            }
+        ]
+
+
+## Character weapons [/characters/{character-name}/weapons]
+### List weapons [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/inventory/7/", 
+                "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+                "item": {
+                    "url": "http://socialbattle-api.herokuapp.com/items/mythril-sword/", 
+                    "name": "mythril sword", 
+                    "cost": 50, 
+                    "item_type": "W", 
+                    "power": 25, 
+                    "description": "The equipment of this type are usually of weak or mediocre power.", 
+                    "fb_id": "230004043877395"
+                }, 
+                "quantity": 1, 
+                "equipped": true
+            }
+        ]
+
+
+## Character restorative items [/characters/{character-name}/items]
+### List restorative items [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/inventory/6/", 
+                "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+                "item": {
+                    "url": "http://socialbattle-api.herokuapp.com/items/potion/", 
+                    "name": "potion", 
+                    "cost": 50, 
+                    "item_type": "R", 
+                    "power": 20, 
+                    "description": "Restores minor HP", 
+                    "fb_id": "667448223323234"
+                }, 
+                "quantity": 5, 
+                "equipped": false
+            }
+        ]
+
+
+## Character currently equipped weapon [/characters/{character-name}/weapon]
+### Retrieve equipped weapon [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/inventory/7/", 
+            "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+            "item": {
+                "url": "http://socialbattle-api.herokuapp.com/items/mythril-sword/", 
+                "name": "mythril sword", 
+                "cost": 50, 
+                "item_type": "W", 
+                "power": 25, 
+                "description": "The equipment of this type are usually of weak or mediocre power.", 
+                "fb_id": "230004043877395"
+            }, 
+            "quantity": 1, 
+            "equipped": true
+        }
+
+## Character currently equipped armor [/characters/{character-name}/armor]
+### Retrieve equipped armor [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/inventory/8/", 
+            "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+            "item": {
+                "url": "http://socialbattle-api.herokuapp.com/items/maximilian/", 
+                "name": "maximilian", 
+                "cost": 50, 
+                "item_type": "A", 
+                "power": 0, 
+                "description": "", 
+                "fb_id": "1429743820626535"
+            }, 
+            "quantity": 1, 
+            "equipped": true
+        }
+
+## Inventory Record [/inventory/{id}]
+### Retrieve an inventory record [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/inventory/8/", 
+            "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+            "item": {
+                "url": "http://socialbattle-api.herokuapp.com/items/maximilian/", 
+                "name": "maximilian", 
+                "cost": 50, 
+                "item_type": "A", 
+                "power": 0, 
+                "description": "", 
+                "fb_id": "1429743820626535"
+            }, 
+            "quantity": 1, 
+            "equipped": false
+        }
+
+### Equip an inventory record [PATCH]
+Equipping a weapon (an armor) will automatically unequip the previously equipped weapon (armor).  
+It is not possible to equip restorative items.
+
++ Request (application/json)
+
+        {
+            "equipped": true
+        }
+
++ Response 200 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/inventory/8/", 
+            "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+            "item": {
+                "url": "http://socialbattle-api.herokuapp.com/items/maximilian/", 
+                "name": "maximilian", 
+                "cost": 50, 
+                "item_type": "A", 
+                "power": 0, 
+                "description": "", 
+                "fb_id": "1429743820626535"
+            }, 
+            "quantity": 1, 
+            "equipped": true
+        }
+
+
+
+# Group Ability
+## Ability [/abilities/{ability-slug}]
+### Retrieve an Ability [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/abilities/firaga/", 
+            "name": "firaga", 
+            "description": "", 
+            "power": 5, 
+            "requires": [
+                "http://socialbattle-api.herokuapp.com/abilities/fira/"
+            ], 
+            "element": "F", 
+            "ap_required": 1, 
+            "mp_required": 0
+        }
+
+
+## Character abilities [/characters/{character-name}/abilities]
+The abilities that a characters has already learnt.
+
+### List all learnt abilities [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/attack/", 
+                "name": "attack", 
+                "description": "Attack ability", 
+                "power": 5, 
+                "requires": [], 
+                "element": "P", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/fire/", 
+                "name": "fire", 
+                "description": "Fire black magic of level 1", 
+                "power": 5, 
+                "requires": [], 
+                "element": "F", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/thunder/", 
+                "name": "thunder", 
+                "description": "", 
+                "power": 5, 
+                "requires": [], 
+                "element": "T", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/cure/", 
+                "name": "cure", 
+                "description": "", 
+                "power": 5, 
+                "requires": [], 
+                "element": "H", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }
+        ]
+
+
+## Character next abilities [/characters/{character-name}/abilities/next]
+The abilities that a character can learn, given the already learnt abilities.
+
+### List all next abilities [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/tokkata/", 
+                "name": "tokkata", 
+                "description": "", 
+                "power": 5, 
+                "requires": [
+                    "http://socialbattle-api.herokuapp.com/abilities/attack/"
+                ], 
+                "element": "P", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/fira/", 
+                "name": "fira", 
+                "description": "", 
+                "power": 5, 
+                "requires": [
+                    "http://socialbattle-api.herokuapp.com/abilities/fire/"
+                ], 
+                "element": "F", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/thundara/", 
+                "name": "thundara", 
+                "description": "", 
+                "power": 5, 
+                "requires": [
+                    "http://socialbattle-api.herokuapp.com/abilities/thunder/"
+                ], 
+                "element": "T", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/blizzard/", 
+                "name": "blizzard", 
+                "description": "", 
+                "power": 5, 
+                "requires": [], 
+                "element": "B", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/idro/", 
+                "name": "idro", 
+                "description": "", 
+                "power": 5, 
+                "requires": [], 
+                "element": "W", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/cura/", 
+                "name": "cura", 
+                "description": "", 
+                "power": 5, 
+                "requires": [
+                    "http://socialbattle-api.herokuapp.com/abilities/cure/"
+                ], 
+                "element": "H", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }
+        ]
+
+
+### Learn an ability [POST]
+All the requirements of the ability have to be satisfied for the action to be successful.
+
++ Request (application/json)
+
+        {
+            "ability": "http://socialbattle-api.herokuapp.com/abilities/fira/"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+            "ability": "http://socialbattle-api.herokuapp.com/abilities/fira/"
+        }
+
+
+# Group Mob
+## Mob [/mobs/{mob-slug}]
+### Retrieve a Mob [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://socialbattle-api.herokuapp.com/mobs/wolf/", 
+            "name": "wolf", 
+            "slug": "wolf", 
+            "drops": [
+                "http://socialbattle-api.herokuapp.com/items/potion/"
+            ], 
+            "hp": 94, 
+            "stre": 8, 
+            "atk": 8, 
+            "mag": 10, 
+            "spd": 10, 
+            "defense": 4, 
+            "mdefense": 7, 
+            "vit": 12, 
+            "img": "http://www.gravatar.com/avatar/bf4397d8b4dc061e1b6d191a352e9134?d=retro", 
+            "level": 2, 
+            "fb_id": "1430416330559703"
+        }
+
+## Mob Abilities [/mobs/{mob-slug}/abilities]
+### List the abilities of the Mob [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/attack/", 
+                "name": "attack", 
+                "description": "Attack ability", 
+                "power": 5, 
+                "requires": [], 
+                "element": "P", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/abilities/fira/", 
+                "name": "fira", 
+                "description": "", 
+                "power": 5, 
+                "requires": [
+                    "http://socialbattle-api.herokuapp.com/abilities/fire/"
+                ], 
+                "element": "F", 
+                "ap_required": 1, 
+                "mp_required": 0
+            }
+        ]
+
+
+## Mob Items [/mobs/{mob-slug}/items]
+### List the Items that the Mob will drop if defeated (*loots*) [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/items/potion/", 
+                "name": "potion", 
+                "cost": 50, 
+                "item_type": "R", 
+                "power": 20, 
+                "description": "Restores minor HP", 
+                "fb_id": "667448223323234"
+            }
+        ]
+
+## PVE Room Mobs [/rooms/pve/{room-slug}/mobs]
+The mobs that can spawn in the specified PVE room.
+
+### List available mobs [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://socialbattle-api.herokuapp.com/mobs/malboro/", 
+                "name": "malboro", 
+                "slug": "malboro", 
+                "hp": 250, 
+                "stre": 10, 
+                "atk": 10, 
+                "mag": 10, 
+                "spd": 10, 
+                "defense": 10, 
+                "mdefense": 10, 
+                "vit": 10, 
+                "img": "http://www.gravatar.com/avatar/bacdab1877d1816e1252c3951e6b21f3?d=retro", 
+                "level": 1, 
+                "fb_id": "1413953518887287"
+            }, 
+            {
+                "url": "http://socialbattle-api.herokuapp.com/mobs/hellhound/", 
+                "name": "hellhound", 
+                "slug": "hellhound", 
+                "hp": 250, 
+                "stre": 10, 
+                "atk": 10, 
+                "mag": 10, 
+                "spd": 10, 
+                "defense": 10, 
+                "mdefense": 10, 
+                "vit": 10, 
+                "img": "http://www.gravatar.com/avatar/9a616693f9c37e954dd361576fdc7e01?d=retro", 
+                "level": 1, 
+                "fb_id": "474231496043919"
+            }
+        ]
+
+
+# Group Mechanics
+A public section of the API that provides some of the algorithms used in *Final Fantasy XII*.  
+The implemented algorithms are taken from http://www.gamefaqs.com/ps2/459841-final-fantasy-xii/faqs/45900.
+
+## Damage [/rpg/dmg]
+### Get Damage [POST]
+Calculates the damage giving an attacker, the target and the ability used.
+
++ Request (application/json)
+
+        {
+            "attacker": {
+                "level": 2,
+                "stre": 8,
+                "mag": 5,
+                "defense": 4,
+                "mdefense": 7,
+                "atk": 8
+            },
+
+            "attacked": {
+                "level": 2,
+                "stre": 8,
+                "mag": 5,
+                "defense": 4,
+                "mdefense": 7,
+                "atk": 8
+            },
+
+            "ability": {
+                "power": 5,
+                "element": "P"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "dmg": 4
+        }
+
+## Experience [/rpg/exp]
+### Get EXP [POST]
+Calculates the experience required to reach the specified level. 
+
++ Request (application/json)
+
+        {
+            "lvl": 42
+        }
+
++ Response 200 (application/json)
+
+        {
+            "exp": 633147
+        }
+
+## Charge Time [/rpg/ct]
+### Get CT [POST]
+Calculates the charge time required to perform an attack, given:  
+- the speed of the attacker  
+- the charge time factor of the ability (in case of magics)  
+- the charge time factor of the weapon (in case of physical attack) 
+
++ Request (application/json)
+
+        {
+            "spd": 18,
+            "ctf": 30
+        }
+
++ Response 200 (application/json)
+
+        {
+            "ct": 0.30514764279199386
+        }
+
+## Status [/rpg/stat]
+### Get Status [POST]
+Calculates the stat specified from the level given.  
+The stat could be: `HP`, `MP`, `STR`, `MAG`, `SPD` or `VIT`.
+
++ Request (application/json)
+
+        {
+            "lvl": 25,
+            "stat": "HP"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "HP": 875
+        }
