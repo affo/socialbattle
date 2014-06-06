@@ -1045,7 +1045,7 @@ angular.module('room', ['luegg.directives'])
       );
     };
 
-    $scope.tweet_text = user + ' using ' + character + ' bought some ' + item + ' @ ' + shop;
+    $scope.tweet_text = $scope.user + ' using ' + $scope.character + ' bought some ' + $scope.item + ' @ ' + $scope.shop;
 
     $scope.closeAlert = function(index){
       $scope.alerts.splice(index, 1);
