@@ -34,7 +34,7 @@ app.run(
 app.config(
   ['RestangularProvider',
   function(RestangularProvider){
-    RestangularProvider.setBaseUrl('http://localhost.socialbattle:8000/private/');
+    RestangularProvider.setBaseUrl('http://localhost.socialbattle:8000/');
     RestangularProvider.setRequestSuffix('/');
   }
   ]

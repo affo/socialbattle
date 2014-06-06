@@ -58,16 +58,33 @@ angular.module('user', ['restangular'])
 .controller('UserFollowing',
   ['$scope', 'Restangular',
   function($scope, Restangular) {
-    $scope.followx = $scope.endpoint.getList('following').$object;
+    $scope.endpoint.getList('following')
+    .then(
+      function(response){
+        var following = Restangular.stripRestangular(response);
+        following = following.map(function(fellowship){
+          return fellowship.to_user;
+        });
+        $scope.followx = following;
+      }
+    );
   }
   ]
 )
 
 .controller('UserFollowers',
-  ['$scope',
-  function($scope) {
-    var followx = $scope.endpoint.getList('followers').$object;
-    $scope.followx = followx;
+  ['$scope', 'Restangular',
+  function($scope, Restangular) {
+    $scope.endpoint.getList('followers')
+    .then(
+      function(response){
+        var followers = Restangular.stripRestangular(response);
+        followers = followers.map(function(fellowship){
+          return fellowship.from_user;
+        });
+        $scope.followx = followers;
+      }
+    );
   }
   ]
 )

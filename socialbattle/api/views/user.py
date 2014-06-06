@@ -63,7 +63,7 @@ class UserViewSet(viewsets.GenericViewSet,
 class UserFollowingViewSet(viewsets.GenericViewSet, 
 						mixins.CreateModelMixin,
 						mixins.ListModelMixin):
-	serializer_class = serializers.UserSerializer
+	serializer_class = serializers.FollowingSerializer
 
 	class AlreadyFollowingError(Exception):
 			def __init__(self, msg):
@@ -76,11 +76,9 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 			return self.serializer_class
 
 	def get_queryset(self):
-		queryset = models.User.objects.all()
 		username = self.kwargs.get('username')
-		if username:
-			user = get_object_or_404(models.User.objects.all(), username=username)
-			queryset = user.follows.all()
+		user = get_object_or_404(models.User.objects.all(), username=username)
+		queryset = models.Fellowship.objects.filter(from_user=user).all()
 		return queryset
 
 	def pre_save(self, obj):
@@ -114,17 +112,13 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 
 
 class UserFollowersViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-	serializer_class = serializers.UserSerializer
+	serializer_class = serializers.FollowersSerializer
 
 	def get_queryset(self):
-		queryset = models.User.objects.all()
 		username = self.kwargs.get('username')
-		if username:
-			queryset = queryset.get(username=username).followss.all()
+		user = get_object_or_404(models.User.objects.all(), username=username)
+		queryset = models.Fellowship.objects.filter(to_user=user).all()
 		return queryset
-
-	def pre_save(self, obj):
-		obj.from_user = self.request.user
 
 class FellowshipViewSet(viewsets.GenericViewSet,
 						mixins.DestroyModelMixin,

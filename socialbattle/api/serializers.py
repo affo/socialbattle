@@ -28,7 +28,7 @@ class UserSerializer(DynamicHyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.User
-		fields = ('url', 'username', 'first_name', 'last_name', 'password','email', 'img',
+		fields = ('url', 'username', 'password', 'email', 'img',
 					'no_following', 'no_followers', )
 		write_only_fields = ('password', )
 		read_only_fields = ('img', )
@@ -55,6 +55,30 @@ class FellowshipSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Fellowship
 		fields = ('url', 'from_user', 'to_user')
+
+class FollowingSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+			view_name='fellowship-detail',
+			lookup_field='pk',
+		)
+
+	to_user = UserSerializer(read_only=True)
+
+	class Meta:
+		model = models.Fellowship
+		fields = ('url', 'to_user')
+
+class FollowersSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+			view_name='fellowship-detail',
+			lookup_field='pk',
+		)
+
+	from_user = UserSerializer(read_only=True)
+
+	class Meta:
+		model = models.Fellowship
+		fields = ('url', 'from_user')
 
 class RelaxRoomSerializer(DynamicHyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

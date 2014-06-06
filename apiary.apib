@@ -23,6 +23,20 @@ A single User object
             "no_followers": 0
         }
 
+# Group Fellowship
+## Fellowship [/fellowship/{id}]
+### Retrieve a fellowship [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://localhost:8000/fellowship/17/", 
+            "from_user": "http://localhost:8000/users/another_sb_user/", 
+            "to_user": "http://localhost:8000/users/sb_user/"
+        }
+
+### Delete a fellowship [DELETE]
++ Response 204
+
 ## User Following [/users/{username}/following]
 The list of the users that a user is following
 
@@ -31,20 +45,26 @@ The list of the users that a user is following
 
         [
             {
-                "url": "http://localhost:8000/users/another_sb_user/", 
-                "username": "another_sb_user", 
-                "email": "another_sb_user@sb.com", 
-                "img": "http://www.gravatar.com/avatar/60feaeae4ea163dedcd0f210281d7708?d=identicon", 
-                "no_following": 0, 
-                "no_followers": 1
+                "url": "http://localhost:8000/fellowship/7/", 
+                "to_user": {
+                    "url": "http://localhost:8000/users/another_sb_user/", 
+                    "username": "another_sb_user", 
+                    "email": "another_sb_user@sb.com", 
+                    "img": "http://www.gravatar.com/avatar/60feaeae4ea163dedcd0f210281d7708?d=identicon", 
+                    "no_following": 2, 
+                    "no_followers": 1
+                }
             }, 
             {
-                "url": "http://localhost:8000/users/someother_sb_user/", 
-                "username": "someother_sb_user", 
-                "email": "someother_sb_user@sb.com", 
-                "img": "http://www.gravatar.com/avatar/51d0e310ea1e05916620f126c078fcf1?d=identicon", 
-                "no_following": 0, 
-                "no_followers": 1
+                "url": "http://localhost:8000/fellowship/9/", 
+                "to_user": {
+                    "url": "http://localhost:8000/users/someother_sb_user/", 
+                    "username": "someother_sb_user", 
+                    "email": "someother_sb_user@sb.com", 
+                    "img": "http://www.gravatar.com/avatar/51d0e310ea1e05916620f126c078fcf1?d=identicon", 
+                    "no_following": 0, 
+                    "no_followers": 2
+                }
             }
         ]
 
@@ -62,3 +82,23 @@ The list of the users that a user is following
             "from_user": "http://localhost:8000/users/sb_user/", 
             "to_user": "http://localhost:8000/users/another_sb_user/"
         }
+
+## User Followers [/users/{username}/followers]
+The list of the users follows the specified user
+
+### List all followers [GET]
++ Response 200 (application/json)
+
+        [
+            {
+                "url": "http://localhost:8000/fellowship/17/", 
+                "from_user": {
+                    "url": "http://localhost:8000/users/another_sb_user/", 
+                    "username": "another_sb_user", 
+                    "email": "another_sb_user@sb.com", 
+                    "img": "http://www.gravatar.com/avatar/60feaeae4ea163dedcd0f210281d7708?d=identicon", 
+                    "no_following": 2, 
+                    "no_followers": 1
+                }
+            }
+        ]
