@@ -20,7 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'elsv&hoox@mko0(27^m^z=_14ph$49s@a^&rl5jxkly-va5cjj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if os.environ.get('HEROKU'):
+	DEBUG = True
+else:
+	DEBUG = False
 
 TEMPLATE_DEBUG = True
 
