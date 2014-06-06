@@ -86,15 +86,9 @@ class RelaxRoomSerializer(DynamicHyperlinkedModelSerializer):
 			lookup_field='slug',
 		)
 
-	sells = serializers.HyperlinkedRelatedField(
-			view_name='item-detail',
-			lookup_field='slug',
-			many=True,
-		)
-
 	class Meta:
 		model = models.RelaxRoom
-		fields = ('url', 'name', 'slug', 'sells', 'fb_id',)
+		fields = ('url', 'name', 'slug', 'fb_id',)
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -191,15 +185,9 @@ class PVERoomSerializer(serializers.HyperlinkedModelSerializer):
 			lookup_field='slug',
 		)
 
-	mobs = serializers.HyperlinkedRelatedField(
-			view_name='mob-detail',
-			lookup_field='slug',
-			many=True,
-		)
-
 	class Meta:
 		model = models.PVERoom
-		fields = ('url', 'name', 'slug', 'mobs', 'fb_id',)
+		fields = ('url', 'name', 'slug', 'fb_id',)
 
 class AbilitySerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
@@ -223,7 +211,7 @@ class LearntAbilitySerializer(serializers.HyperlinkedModelSerializer):
 		)
 	class Meta:
 		model = models.LearntAbility
-		fields = ('id', 'character', 'ability')
+		fields = ('character', 'ability')
 
 class MobSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -231,15 +219,9 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 			lookup_field='slug',
 		)
 
-	drops = serializers.HyperlinkedRelatedField(
-			view_name='item-detail',
-			lookup_field='slug',
-			many=True,
-		) 
-
 	img = serializers.Field(source='img')
 
 	class Meta:
 		model = models.Mob
-		fields = ('url', 'name', 'slug', 'drops', 'hp',
+		fields = ('url', 'name', 'slug', 'hp',
 					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', 'level', 'fb_id', )

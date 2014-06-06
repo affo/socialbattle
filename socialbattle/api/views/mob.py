@@ -69,3 +69,9 @@ class MobViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 		mob = self.get_object()
 		abilities = mob.abilities.all()
 		return Response(self.get_serializer(abilities, many=True).data, status=status.HTTP_200_OK)
+
+	@action(methods=['GET'], serializer_class=serializers.ItemSerializer)
+	def items(self, request, *args, **kwargs):
+		mob = self.get_object()
+		items = mob.drops.all()
+		return Response(self.get_serializer(items, many=True).data, status=status.HTTP_200_OK)
