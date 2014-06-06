@@ -4,6 +4,24 @@ HOST: http://socialbattle-api.herokuapp.com
 # SocialBattle
 An fusion between a common social network and an RPG game
 
+# Group Login
+## Login [/auth]
+### Login [POST]
++ Request (application/json)
+
+        {
+            "username": "sb_user",
+            "password": "socialbattle"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "token": "d548578adf03dd89d6145ecb142eb923d18cffd4"
+        }
+
+        
+
 # Group User
 ## User [/users/{username}]
 A single User object
@@ -167,14 +185,37 @@ All PVE rooms
             },
         ]
 
+## Relax Room [/rooms/relax/{room-slug}]
+### Retrieve a relax room [GET]
++ Response 200 (application/json)
+
+    {
+        "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+        "name": "moguri shop", 
+        "slug": "moguri-shop", 
+        "fb_id": "716467545059393"
+    }
+
+## PVE Room [/rooms/pve/{room-slug}]
+### Retrieve a PVE room [GET]
++ Response 200 (application/json)
+
+    {
+        "url": "http://localhost:8000/rooms/pve/golmore-jungle/", 
+        "name": "golmore jungle", 
+        "slug": "golmore-jungle", 
+        "fb_id": "1415747728712053"
+    }
+
 
 # Group Post
 ## User Posts [/user/{username}/posts]
 All posts from the specified user
 
 ### List all posts [GET]
-This resource uses paging, pages can explored using `previous` and `next` fields of the response.  
-The number of resources returned can be limited using `?limit={integer}`.
+This resource uses paging.  
+Pages can explored using `previous` and `next` fields of the response.  
+The number of returned resources can be limited using `?limit={integer}`.
 
 + Response 200 (application/json)
 
@@ -185,7 +226,7 @@ The number of resources returned can be limited using `?limit={integer}`.
         "results": [
             {
                 "url": "http://localhost:8000/posts/8/", 
-                "content": "Hello world Again!", 
+                "content": "Hello world!", 
                 "author": {
                     "url": "http://localhost:8000/users/sb_user/", 
                     "username": "sb_user", 
@@ -201,4 +242,218 @@ The number of resources returned can be limited using `?limit={integer}`.
         ]
     }
 
+## Relax Room Posts [/rooms/relax/{room-slug}/posts]
+All posts in the specified relax room
+
+### List all posts [GET]
+This resource uses paging.  
+Pages can explored using `previous` and `next` fields of the response.  
+The number of returned resources can be limited using `?limit={integer}`.
+
++ Response 200 (application/json)
+
+        {
+            "count": 8, 
+            "next": "http://localhost:8000/rooms/relax/moguri-shop/posts/?limit=2&page=2", 
+            "previous": null, 
+            "results": [
+                {
+                    "url": "http://localhost:8000/posts/9/", 
+                    "content": "Hello World!", 
+                    "author": {
+                        "url": "http://localhost:8000/users/sb_user/", 
+                        "username": "sb_user", 
+                        "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+                    }, 
+                    "room": {
+                        "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                        "name": "moguri shop", 
+                        "slug": "moguri-shop"
+                    }, 
+                    "time": "2014-06-06T15:07:42Z"
+                }, 
+                {
+                    "url": "http://localhost:8000/posts/8/", 
+                    "content": "Hello world Again!", 
+                    "author": {
+                        "url": "http://localhost:8000/users/sb_user/", 
+                        "username": "sb_user", 
+                        "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+                    }, 
+                    "room": {
+                        "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                        "name": "moguri shop", 
+                        "slug": "moguri-shop"
+                    }, 
+                    "time": "2014-06-06T14:56:53Z"
+                }
+            ]
+        }
+
+### Create a Post [POST]
++ Request (application/json)
+    
+        {
+            "content": "Hello World!"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "url": "http://localhost:8000/posts/10/", 
+            "content": "Hello World!", 
+            "author": {
+                "url": "http://localhost:8000/users/sb_user/", 
+                "username": "sb_user", 
+                "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+            }, 
+            "room": {
+                "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                "name": "moguri shop", 
+                "slug": "moguri-shop"
+            }, 
+            "time": "2014-06-06T15:10:21.507Z"
+        }
+
+## Post [/posts/{id}]
+## Retrieve a Post [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://localhost:8000/posts/10/", 
+            "content": "Hello World!", 
+            "author": {
+                "url": "http://localhost:8000/users/sb_user/", 
+                "username": "sb_user", 
+                "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+            }, 
+            "room": {
+                "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                "name": "moguri shop", 
+                "slug": "moguri-shop"
+            }, 
+            "time": "2014-06-06T15:10:21Z"
+        }
+
+## Edit a Post [PUT]
++ Request (application/json)
+
+        {
+            "content": "Hello World! It's sb_user!"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "url": "http://localhost:8000/posts/10/", 
+            "content": "Hello World! It's sb_user!", 
+            "author": {
+                "url": "http://localhost:8000/users/sb_user/", 
+                "username": "sb_user", 
+                "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+            }, 
+            "room": {
+                "url": "http://localhost:8000/rooms/relax/moguri-shop/", 
+                "name": "moguri shop", 
+                "slug": "moguri-shop"
+            }, 
+            "time": "2014-06-06T15:14:00.957Z"
+        }   
+
+## Delete a Post [DELETE]
++ Response 204
+
+
+
+# Group Comment
+## Post Comments [/post/{id}/comments]
+Comments for the specified Post
+### List Comments [GET]
+This resource uses paging.  
+Pages can explored using `previous` and `next` fields of the response.  
+The number of returned resources can be limited using `?limit={integer}`.
+
++ Response 200 (application/json)
+
+        {
+            "count": 1, 
+            "next": null, 
+            "previous": null, 
+            "results": [
+                {
+                    "url": "http://localhost:8000/comments/1/", 
+                    "content": "Hello to you sb_user!", 
+                    "author": {
+                        "url": "http://localhost:8000/users/sb_user/", 
+                        "username": "sb_user", 
+                        "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+                    }, 
+                    "post": "http://localhost:8000/posts/9/", 
+                    "time": "2014-06-06T15:22:52Z"
+                }
+            ]
+        }
+
+
+### Comment [POST]
++ Request (application/json)
+
+        {
+            "content": "Hello to you!"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "url": "http://localhost:8000/comments/1/", 
+            "content": "Hello to you!", 
+            "author": {
+                "url": "http://localhost:8000/users/sb_user/", 
+                "username": "sb_user", 
+                "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+            }, 
+            "post": "http://localhost:8000/posts/9/", 
+            "time": "2014-06-06T15:20:26.516Z"
+        }
+
+
+## Comment [/comments/{id}]
+### Retrieve a comment [GET]
++ Response 200 (application/json)
+
+        {
+            "url": "http://localhost:8000/comments/1/", 
+            "content": "Hello to you!", 
+            "author": {
+                "url": "http://localhost:8000/users/sb_user/", 
+                "username": "sb_user", 
+                "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+            }, 
+            "post": "http://localhost:8000/posts/9/", 
+            "time": "2014-06-06T15:20:26.516Z"
+        }
+
+### Edit a comment [PUT]
++ Request (application/json)
+
+        {
+            "content": "Hello to you sb_user!"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "url": "http://localhost:8000/comments/1/", 
+            "content": "Hello to you sb_user!", 
+            "author": {
+                "url": "http://localhost:8000/users/sb_user/", 
+                "username": "sb_user", 
+                "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+            }, 
+            "post": "http://localhost:8000/posts/9/", 
+            "time": "2014-06-06T15:20:26.516Z"
+        }
+
+### Delete a comment [DELETE]
++ Response 204
 
