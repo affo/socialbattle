@@ -1,54 +1,64 @@
 FORMAT: 1A
-HOST: http://www.google.com
+HOST: http://socialbattle-api.herokuapp.com
 
-# socialbattle
+# SocialBattle
+An fusion between a common social network and an RPG game
 
 # Group User
-
 ## User [/users/{username}]
 A single User object
 
 + Parameters
-    + username (required, string, `sb_user`) ... String representing the `username` of the User. Has example value.
-    
-# Group Notes
-Notes related resources of the **Notes API**
+    + username (string) ... String representing the `username` of the User.
 
-## Notes Collection [/notes]
-### List all Notes [GET]
+### Retrieve a user [GET]
++ Response 200 (application/json)
+        
+        {
+            "url": "http://localhost:8000/users/sb_user/", 
+            "username": "sb_user", 
+            "email": "sb_user@sb.com", 
+            "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon", 
+            "no_following": 0, 
+            "no_followers": 0
+        }
+
+## User Following [/users/{username}/following]
+The list of the users that a user is following
+
+### List all following [GET]
 + Response 200 (application/json)
 
-        [{
-          "id": 1, "title": "Jogging in park"
-        }, {
-          "id": 2, "title": "Pick-up posters from post-office"
-        }]
+        [
+            {
+                "url": "http://localhost:8000/users/another_sb_user/", 
+                "username": "another_sb_user", 
+                "email": "another_sb_user@sb.com", 
+                "img": "http://www.gravatar.com/avatar/60feaeae4ea163dedcd0f210281d7708?d=identicon", 
+                "no_following": 0, 
+                "no_followers": 1
+            }, 
+            {
+                "url": "http://localhost:8000/users/someother_sb_user/", 
+                "username": "someother_sb_user", 
+                "email": "someother_sb_user@sb.com", 
+                "img": "http://www.gravatar.com/avatar/51d0e310ea1e05916620f126c078fcf1?d=identicon", 
+                "no_following": 0, 
+                "no_followers": 1
+            }
+        ]
 
-### Create a Note [POST]
+### Follow a user [POST]
 + Request (application/json)
 
-        { "title": "Buy cheese and bread for breakfast." }
+        {
+            "to_user": "http://socialbattle-api.herokuapp.com/users/another_sb_user"
+        }
 
 + Response 201 (application/json)
 
-        { "id": 3, "title": "Buy cheese and bread for breakfast." }
-
-## Note [/notes/{id}]
-A single Note object with all its details
-
-+ Parameters
-    + id (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
-
-### Retrieve a Note [GET]
-+ Response 200 (application/json)
-
-    + Header
-
-            X-My-Header: The Value
-
-    + Body
-
-            { "id": 2, "title": "Pick-up posters from post-office" }
-
-### Remove a Note [DELETE]
-+ Response 204
+        {
+            "url": "http://localhost:8000/fellowship/1/", 
+            "from_user": "http://localhost:8000/users/sb_user/", 
+            "to_user": "http://localhost:8000/users/another_sb_user/"
+        }
