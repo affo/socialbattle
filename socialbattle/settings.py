@@ -22,7 +22,7 @@ SECRET_KEY = 'elsv&hoox@mko0(27^m^z=_14ph$49s@a^&rl5jxkly-va5cjj'
 # SECURITY WARNING: don't run with debug turned on in production!
 if os.environ.get('HEROKU'):
 	DEBUG = False
-	ALLOWED_HOSTS = ['http://socialbattle.herokuapp.com']
+	ALLOWED_HOSTS = ['socialbattle.herokuapp.com']
 else:
 	DEBUG = True
 
