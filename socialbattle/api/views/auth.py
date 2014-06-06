@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from socialbattle.private.serializers import UserSerializer
-from socialbattle.private.models import User
+from socialbattle.api.serializers import UserSerializer
+from socialbattle.api.models import User
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.authtoken.models import Token
 from social_auth.models import UserSocialAuth

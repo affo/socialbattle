@@ -3,8 +3,8 @@ from rest_framework import permissions, viewsets, mixins
 from rest_framework.serializers import HyperlinkedRelatedField, HyperlinkedModelSerializer
 from rest_framework.response import Response
 from rest_framework import status
-from socialbattle.private.models import Character, InventoryRecord, Item
-from socialbattle.private import serializers
+from socialbattle.api.models import Character, InventoryRecord, Item
+from socialbattle.api import serializers
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 

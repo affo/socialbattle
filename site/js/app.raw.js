@@ -35,11 +35,11 @@ app.config(
   ['RestangularProvider',
   function(RestangularProvider){
     //@ifndef HEROKU
-    RestangularProvider.setBaseUrl('http://localhost.socialbattle:8000/private/');
+    RestangularProvider.setBaseUrl('http://localhost.socialbattle:8000/');
     //@endif
 
     //@ifdef HEROKU
-    RestangularProvider.setBaseUrl('http://socialbattle-api.herokuapp.com/private/');
+    RestangularProvider.setBaseUrl('http://socialbattle-api.herokuapp.com/');
     //@endif
 
     RestangularProvider.setRequestSuffix('/');

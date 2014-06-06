@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
-from socialbattle.private.models import InventoryRecord
-from socialbattle.private import mechanics
+from socialbattle.api.models import InventoryRecord
+from socialbattle.api import mechanics
 import random, time
 
 @shared_task

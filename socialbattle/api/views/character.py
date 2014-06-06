@@ -2,9 +2,9 @@ from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
-from socialbattle.private import models
-from socialbattle.private import serializers
-from socialbattle.private.permissions import IsOwner, IsLoggedUser
+from socialbattle.api import models
+from socialbattle.api import serializers
+from socialbattle.api.permissions import IsOwner, IsLoggedUser
 
 ### CHARACTER
 # GET, POST: /users/{username}/characters/
@@ -40,7 +40,7 @@ class UserCharacterViewSet(viewsets.GenericViewSet,
 			potion = models.Item.objects.get(name='potion')
 			record = models.InventoryRecord.objects.create(owner=obj, item=potion, quantity=5)
 
-from socialbattle.private.views.action import use_ability, use_item, end_battle
+from socialbattle.api.views.action import use_ability, use_item, end_battle
 from django.db import models as dj_models
 from rest_framework import serializers as drf_serializers
 class AbilityUsage(dj_models.Model):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from socialbattle.private import models
+from socialbattle.api import models
 
 #taken from DRF
 class DynamicHyperlinkedModelSerializer(serializers.HyperlinkedModelSerializer):
@@ -28,7 +28,7 @@ class UserSerializer(DynamicHyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.User
-		fields = ('url', 'id', 'username', 'first_name', 'last_name', 'password','email', 'img',
+		fields = ('url', 'username', 'first_name', 'last_name', 'password','email', 'img',
 					'no_following', 'no_followers', )
 		write_only_fields = ('password', )
 		read_only_fields = ('img', )

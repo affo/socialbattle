@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from rest_framework.urlpatterns import format_suffix_patterns
-from socialbattle.private.views import user, ability, character, item, mob, post, room, transaction, auth
+from socialbattle.api.views import user, ability, character, item, mob, post, room, transaction, auth, action
 from rest_framework.routers import SimpleRouter
 router = SimpleRouter()
 
@@ -54,4 +54,9 @@ urlpatterns = patterns('',
 	url(r'^sa/default/', include('social_auth.urls')),
 	url(r'^sa/login/(?P<backend>[a-z]+)/', auth.register_by_access_token),
 	url(r'^sa/associate/(?P<backend>[a-z]+)/', auth.associate_by_access_token),
+
+	url(r'^rpg/dmg/$', action.damage),
+	url(r'^rpg/exp/$', action.exp),
+	url(r'^rpg/ct/$', action.ct),
+	url(r'^rpg/stat/$', action.stat),
 )

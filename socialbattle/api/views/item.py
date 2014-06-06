@@ -2,9 +2,9 @@ from rest_framework.generics import get_object_or_404
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
-from socialbattle.private import models
-from socialbattle.private import serializers
-from socialbattle.private.permissions import IsOwnedByCharacter
+from socialbattle.api import models
+from socialbattle.api import serializers
+from socialbattle.api.permissions import IsOwnedByCharacter
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 ### ITEM

@@ -36,8 +36,7 @@ INSTALLED_APPS = (
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-	'socialbattle.public',
-	'socialbattle.private',
+	'socialbattle.api',
 	'rest_framework',
 	'rest_framework.authtoken',
 	'corsheaders',
@@ -118,8 +117,8 @@ REST_FRAMEWORK = {
     #'PAGINATE_BY': 10
 }
 
-AUTH_USER_MODEL = 'private.User'
-SOCIAL_AUTH_USER_MODEL = 'private.User'
+AUTH_USER_MODEL = 'api.User'
+SOCIAL_AUTH_USER_MODEL = 'api.User'
 
 CORS_ORIGIN_WHITELIST = (
 	'localhost.socialbattle:3000',
@@ -143,7 +142,7 @@ FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'publish_actions']
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 LOGIN_URL          = '/'
-LOGIN_REDIRECT_URL = '/private/users'
+LOGIN_REDIRECT_URL = '/users'
 LOGIN_ERROR_URL    = '/'
 
 AUTHENTICATION_BACKENDS = (

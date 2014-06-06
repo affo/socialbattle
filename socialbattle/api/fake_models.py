@@ -1,6 +1,6 @@
-# fake models to serialize, real models are in socialbattle.private.models
+# fake models to serialize, real models are in socialbattle.api.models
 from django.db import models
-from socialbattle.private.models import Ability
+from socialbattle.api.models import Ability
 
 class Target(models.Model):
 	atk = models.IntegerField(default=0)

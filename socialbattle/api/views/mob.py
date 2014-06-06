@@ -2,8 +2,8 @@ from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
-from socialbattle.private import models
-from socialbattle.private import serializers
+from socialbattle.api import models
+from socialbattle.api import serializers
 
 ### MOB
 # GET: /room/pve/{room_slug}/mobs/
@@ -21,7 +21,7 @@ class RoomMobViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 			queryset = queryset.filter(pveroom__slug=room_slug).all()
 		return queryset
 
-from socialbattle.private.views.action import use_ability
+from socialbattle.api.views.action import use_ability
 from django.db import models as dj_models
 from rest_framework import serializers as drf_serializers
 class MobAbilityUsage(dj_models.Model):

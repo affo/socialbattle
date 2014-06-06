@@ -143,7 +143,7 @@ class TargetMixin(object):
 	def update_mp(self, ability):
 		return None
 
-from socialbattle.private.mechanics import BASE_STATS
+from socialbattle.api.mechanics import BASE_STATS
 from django.core import validators
 from django.utils.translation import ugettext_lazy as _
 class Character(TargetMixin, FBObjectMixin):

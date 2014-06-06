@@ -1,6 +1,5 @@
-from socialbattle.private.serializers import UserSerializer
-from socialbattle.private import models
-from socialbattle.public import fake_models
+from socialbattle.api import models
+from socialbattle.api import fake_models
 from rest_framework import serializers
 
 class TargetSerializer(serializers.ModelSerializer):
@@ -46,9 +45,3 @@ class StatSerializer(serializers.Serializer):
 			instance.stat = attrs.get('stat', instance.ct)
 			return instance
 		return fake_models.Stat(**attrs)
-
-class UserSerializer(UserSerializer):
-	
-	class Meta:
-		model = models.User
-		fields = ('username', )
