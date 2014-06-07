@@ -6,7 +6,8 @@ from socialbattle.api import mechanics
 from socialbattle.api.models import Ability
 from socialbattle.api import fake_serializers
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 def use_ability(attacker, attacked, ability):
 	if ability not in attacker.abilities.all():
@@ -78,6 +79,7 @@ def use_item(character, item):
 ##########
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def damage(request, *args, **kwargs):
 	'''
 	Calculates the damage giving an attacker, the target and the ability used.  
@@ -118,6 +120,7 @@ def damage(request, *args, **kwargs):
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def exp(request, *args, **kwargs):
 	'''
 	Calculates the experience required to reach the specified level.    
@@ -134,6 +137,7 @@ def exp(request, *args, **kwargs):
 		return Response({'lvl': 'this field is required'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def ct(request, *args, **kwargs):
 	'''
 	Calculates the charge time required to perform an attack, given:  
@@ -155,6 +159,7 @@ def ct(request, *args, **kwargs):
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def stat(request, *args, **kwargs):
 	'''
 	Calculates the stat specified from the level given.  

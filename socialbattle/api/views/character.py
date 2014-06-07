@@ -16,7 +16,7 @@ class UserCharacterViewSet(viewsets.GenericViewSet,
 		List of characters for the chosen user
 	'''
 	serializer_class = serializers.CharacterSerializer
-	permission_classes = [permissions.IsAuthenticated,  IsLoggedUser]
+	permission_classes = [permissions.IsAuthenticated, IsLoggedUser]
 
 	def get_queryset(self):
 		queryset = models.Character.objects.all()
@@ -95,6 +95,7 @@ class CharacterViewSet(viewsets.GenericViewSet,
 						mixins.ListModelMixin):
 	queryset = models.Character.objects.all()
 	serializer_class = serializers.CharacterSerializer
+	permission_classes = [permissions.IsAuthenticated, IsOwner]
 	lookup_field = 'name'
         
 	def list(self, request, *args, **kwargs):

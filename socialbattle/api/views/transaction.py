@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from socialbattle.api.models import Character, InventoryRecord, Item
 from socialbattle.api import serializers
+from socialbattle.api.permissions import IsOwner
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 

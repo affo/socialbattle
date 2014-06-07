@@ -84,6 +84,7 @@ class InventoryRecordViewSet(viewsets.GenericViewSet,
 
 	def destroy(self, request, *args, **kwargs):
 		record = self.get_object()
+		self.check_object_permissions(request, record)
 		character = record.owner
 		item = record.item
 
