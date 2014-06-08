@@ -39,7 +39,7 @@ app.config(
     //@endif
 
     //@ifdef HEROKU
-    RestangularProvider.setBaseUrl('http://socialbattle-api.herokuapp.com/');
+    RestangularProvider.setBaseUrl('https://socialbattle-api.herokuapp.com/');
     //@endif
 
     RestangularProvider.setRequestSuffix('/');
