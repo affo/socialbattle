@@ -47,6 +47,7 @@ nosetests.xml
 # DOC settings
 doc/*
 !doc/*.tex
+!doc/master.pdf
 
 # Angular settings
 site/bower_components/*
