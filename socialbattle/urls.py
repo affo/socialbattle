@@ -7,3 +7,9 @@ urlpatterns = patterns('',
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 )
+
+from socialbattle import settings
+if not settings.DEBUG: #production
+	urlpatterns += patterns('',
+		(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+	)
