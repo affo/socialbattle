@@ -28,6 +28,10 @@ else:
 
 TEMPLATE_DEBUG = True
 
+# Disable SSLify if DEBUG is enabled.
+if DEBUG:
+	SSLIFY_DISABLE = True
+
 
 # Application definition
 
@@ -43,9 +47,11 @@ INSTALLED_APPS = (
 	'rest_framework.authtoken',
 	'corsheaders',
 	'social_auth',
+	'oauth2_provider'
 )
 
 MIDDLEWARE_CLASSES = (
+	'sslify.middleware.SSLifyMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
@@ -148,7 +154,8 @@ LOGIN_REDIRECT_URL = '/users'
 LOGIN_ERROR_URL    = '/'
 
 AUTHENTICATION_BACKENDS = (
-    #'social_auth.backends.twitter.TwitterBackend',
     'social_auth.backends.facebook.FacebookBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
