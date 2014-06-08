@@ -32,7 +32,6 @@ TEMPLATE_DEBUG = True
 if DEBUG:
 	SSLIFY_DISABLE = True
 
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -47,7 +46,6 @@ INSTALLED_APPS = (
 	'rest_framework.authtoken',
 	'corsheaders',
 	'social_auth',
-	'oauth2_provider'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -104,6 +102,7 @@ USE_TZ = True
 
 MEDIA_ROOT = '/home/affo/Projects/socialbattle/socialbattle/media/'
 STATIC_URL = '/static/'
+STATIC_ROOT = '/static/'
 
 REST_FRAMEWORK = {
 	# Use hyperlinked styles by default.
