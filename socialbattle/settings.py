@@ -102,7 +102,7 @@ USE_TZ = True
 
 MEDIA_ROOT = '/home/affo/Projects/socialbattle/socialbattle/media/'
 STATIC_URL = '/static/'
-STATIC_ROOT = '/static/'
+STATIC_ROOT= os.path.join(BASE_DIR,'static/')
 
 REST_FRAMEWORK = {
 	# Use hyperlinked styles by default.
