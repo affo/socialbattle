@@ -46,6 +46,7 @@ INSTALLED_APPS = (
 	'rest_framework.authtoken',
 	'corsheaders',
 	'social_auth',
+	'oauth2_provider',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -116,11 +117,9 @@ REST_FRAMEWORK = {
 	],
 
 	'DEFAULT_AUTHENTICATION_CLASSES': (
-		'rest_framework.authentication.TokenAuthentication',
+		'oauth2_provider.ext.rest_framework.OAuth2Authentication',
 		'rest_framework.authentication.SessionAuthentication',
 	), 
-
-    #'PAGINATE_BY': 10
 }
 
 AUTH_USER_MODEL = 'api.User'
@@ -147,9 +146,7 @@ FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'publish_actions']
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
-LOGIN_URL          = '/'
-LOGIN_REDIRECT_URL = '/users'
-LOGIN_ERROR_URL    = '/'
+LOGIN_URL          = '/auth/login'
 
 AUTHENTICATION_BACKENDS = (
     'social_auth.backends.facebook.FacebookBackend',
@@ -157,3 +154,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
+}

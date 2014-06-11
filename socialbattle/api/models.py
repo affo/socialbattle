@@ -86,10 +86,10 @@ class User(AbstractUser):
 		return self.followss.count();
 
 
-@receiver(post_save, sender=User)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-	if created:
-		Token.objects.create(user=instance)
+# @receiver(post_save, sender=User)
+# def create_auth_token(sender, instance=None, created=False, **kwargs):
+# 	if created:
+# 		Token.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
 def add_image_url(sender, instance=None, created=False, **kwargs):

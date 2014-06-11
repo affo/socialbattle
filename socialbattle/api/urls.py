@@ -50,7 +50,8 @@ router.register(r'signup', auth.SignupViewSet)
 
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
-	url(r'^auth/', 'rest_framework.authtoken.views.obtain_auth_token'),
+	url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+	url(r'^oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 	url(r'^sa/default/', include('social_auth.urls')),
 	url(r'^sa/login/(?P<backend>[a-z]+)/', auth.register_by_access_token),
 	url(r'^sa/associate/(?P<backend>[a-z]+)/', auth.associate_by_access_token),
@@ -60,3 +61,9 @@ urlpatterns = patterns('',
 	url(r'^rpg/ct/$', action.ct),
 	url(r'^rpg/stat/$', action.stat),
 )
+
+#use in the future for a personal template!
+# urlpatterns += patterns('',
+# 	#required by DOT
+# 	url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'api/login.html'}),
+# )
