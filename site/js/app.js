@@ -7,7 +7,6 @@ var app = angular.module('socialBattle', [
   
   'services',
   'auth',
-  'main',
   'user',
   'room',
   'post',
@@ -54,3 +53,5 @@ app.config(
   }
   ]
 );
+
+app.constant('CLIENT_ID', 'muswW5o!U_hOlfOaK_ai7pMMHX7-1vggQY5yPGGA');

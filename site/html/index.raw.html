@@ -23,7 +23,11 @@
   <script src="/bower_components/trianglify/trianglify.min.js"></script>
   -->
 
+  <!-- @ifdef HEROKU -->
+  <script src="/js/socialbattle.min.js"></script>
+  <!-- @endif -->
 
+  <!-- @ifndef HEROKU -->
   <script src="/js/app.js"></script>
   <script src="/js/app-states.js"></script>
   <script src="/js/services.js"></script>
@@ -35,6 +39,7 @@
   <script src="/js/controllers/search.js"></script>
   <script src="/js/controllers/settings.js"></script>
   <script src="/js/controllers/user.js"></script>
+  <!-- @endif -->
   
 </head>
 <body ng-app="socialBattle">

@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>My Project</title>
-    </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% load staticfiles%}
 
-    <body>
-    {% block content %}{% endblock %}
-    </body>
+  <link href="{% static "bootstrap.min.css" %}" rel="stylesheet">
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="{% static "jquery.min.js" %}"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="{% static "bootstrap.min.js" %}"></script>
+  
+</head>
+<body>
+
+  {% block content %}{% endblock %}
+
+</body>
 </html>

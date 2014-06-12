@@ -43,9 +43,8 @@ INSTALLED_APPS = (
 	'django.contrib.staticfiles',
 	'socialbattle.api',
 	'rest_framework',
-	'rest_framework.authtoken',
 	'corsheaders',
-	'social_auth',
+	'social.apps.django_app.default',
 	'oauth2_provider',
 )
 
@@ -112,14 +111,18 @@ REST_FRAMEWORK = {
 
 	# Use Django's standard `django.contrib.auth` permissions,
 	# or allow read-only access for unauthenticated users.
-	'DEFAULT_PERMISSION_CLASSES': [
-		'rest_framework.permissions.IsAuthenticated'
-	],
+	'DEFAULT_PERMISSION_CLASSES': (
+		'rest_framework.permissions.IsAuthenticated',
+	),
 
 	'DEFAULT_AUTHENTICATION_CLASSES': (
 		'oauth2_provider.ext.rest_framework.OAuth2Authentication',
-		'rest_framework.authentication.SessionAuthentication',
-	), 
+		'rest_framework.authentication.SessionAuthentication'
+	),
+
+	# 'DEFAULT_RENDERER_CLASSES': (
+	# 	'rest_framework.renderers.JSONRenderer',
+	# ), 
 }
 
 AUTH_USER_MODEL = 'api.User'
@@ -129,33 +132,34 @@ CORS_ORIGIN_WHITELIST = (
 	'localhost.socialbattle:3000',
 	'localhost.socialbattle:5000',
 	'socialbattle.herokuapp.com',
+	'django-oauth-toolkit.herokuapp.com',
 )
 
 if os.environ.get('HEROKU'): #production mode app - socialbattle
-	FACEBOOK_APP_ID = '1441968896050367'
-	FACEBOOK_API_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
+	SOCIAL_AUTH_FACEBOOK_KEY = '1441968896050367'
+	SOCIAL_AUTH_FACEBOOK_SECRET = '440e8e4c365b8e2d0e87bb5c42a1e464'
 	FACEBOOK_APP_ACCESS_TOKEN = '1441968896050367|0nawxHIEdROGI1doW9wwephJ1FY'
 	FB_OBJECTS_URL = 'https://graph.facebook.com/app/objects/socialbattlegame:%s'
 else: #development mode app - socialbattle - Test1
-	FACEBOOK_APP_ID = '1451410555106201'
-	FACEBOOK_API_SECRET = '89bf6904f14a36d9014dfa0eaaab4370'
+	SOCIAL_AUTH_FACEBOOK_KEY = '1451410555106201'
+	SOCIAL_AUTH_FACEBOOK_SECRET = '89bf6904f14a36d9014dfa0eaaab4370'
 	FACEBOOK_APP_ACCESS_TOKEN = '1451410555106201|UlQpJYZ4M4tFxO5uQp4fnz_TOJk'
 	FB_OBJECTS_URL = 'https://graph.facebook.com/app/objects/socialbattle_test:%s'
 
-FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'publish_actions']
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'publish_actions']
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
-LOGIN_URL          = '/auth/login'
+LOGIN_URL = '/auth/login'
 
 AUTHENTICATION_BACKENDS = (
-    'social_auth.backends.facebook.FacebookBackend',
+    'social.backends.facebook.Facebook2OAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 OAUTH2_PROVIDER = {
-    # this is the list of available scopes
-    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'},
+    'OAUTH2_VALIDATOR_CLASS': 'socialbattle.api.validators.MyOAuth2Validator',
 }

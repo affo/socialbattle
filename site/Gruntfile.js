@@ -12,6 +12,7 @@ module.exports = function(grunt) {
         files: {
           'js/app.js': 'js/app.raw.js',
           'js/services.js': 'js/services.raw.js',
+          'html/index.html': 'html/index.raw.html',
         },
       },
     },
@@ -44,7 +45,7 @@ module.exports = function(grunt) {
         'js/services.raw.js',
         'js/controllers/*',
       ],
-      tasks: ['concat', 'uglify'],
+      tasks: ['preprocess'],
     },
 
     jshint: {

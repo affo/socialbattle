@@ -4,14 +4,25 @@ from django.http import Http404
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action, permission_classes, api_view
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsFromUser, IsAuthor, IsLoggedUser
 
 ### USER
 # GET: /users/
+# GET: /me/
 # GET, PUT: /users/{username}/
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def me(request, *args, **kwargs):
+	'''
+		returns the detail of the currently logged user
+	'''
+	context = {'request': request}
+	data = serializers.UserSerializer(request.user, context=context).data
+	return Response(data=data, status=status.HTTP_200_OK)
+
 class UserViewSet(viewsets.GenericViewSet,
 					mixins.ListModelMixin,
 					mixins.RetrieveModelMixin):

@@ -48,11 +48,24 @@ router.register(r'inventory', item.InventoryRecordViewSet)
 router.register(r'abilities', ability.AbilityViewSet)
 router.register(r'signup', auth.SignupViewSet)
 
+from rest_framework import viewsets, permissions
+from oauth2_provider.ext.rest_framework import TokenHasScope
+from socialbattle.api.serializers import MobSerializer
+from socialbattle.api.models import Mob
+class SecretViewSet(viewsets.ModelViewSet):
+	queryset = Mob.objects.all()
+	serializer_class = MobSerializer
+	permission_classes = [permissions.IsAuthenticated, TokenHasScope]
+	required_scopes = ['read', 'write']
+
+router.register(r'secret', SecretViewSet)
+
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
+	url(r'^me/$', user.me),
 	url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
 	url(r'^oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-	url(r'^sa/default/', include('social_auth.urls')),
+	url(r'^sa/default/', include('social.apps.django_app.urls', namespace='social')),
 	url(r'^sa/login/(?P<backend>[a-z]+)/', auth.register_by_access_token),
 	url(r'^sa/associate/(?P<backend>[a-z]+)/', auth.associate_by_access_token),
 

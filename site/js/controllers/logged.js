@@ -2,12 +2,14 @@ angular.module('logged', ['restangular'])
 
 .controller('Logged',
   ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', '$modal',
-  function($scope, $stateParams, Restangular, $state, $localStorage, $modal) {
+    'LoginService', 'user',
+  function($scope, $stateParams, Restangular, $state, $localStorage, $modal,
+            LoginService, user) {
     //check if logged
-    if(!$localStorage.logged){
-      $state.go('unlogged');
-      return;
-    }
+    LoginService.check_login();
+
+    $localStorage.user = user.username;
+
     $scope.character_name = $localStorage.character;
     $scope.username = $localStorage.user; 
 

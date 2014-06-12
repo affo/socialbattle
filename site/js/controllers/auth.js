@@ -1,8 +1,8 @@
 angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Auth',
-  ['$scope', 'Restangular', '$localStorage', 'Facebook', '$state',
-  function($scope, Restangular, $localStorage, Facebook, $state) {
+  ['$scope', 'Restangular', '$localStorage', 'Facebook', '$state', 'LoginService',
+  function($scope, Restangular, $localStorage, Facebook, $state, LoginService) {
     //if you are logged you cannot authenticate
     if($localStorage.logged){
       $state.go('user', {username: $localStorage.user});
@@ -13,77 +13,29 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     $scope.signinForm = {};
     $scope.signupForm = {};
 
-    var login = function(username, token, social){
-      $localStorage.token = token;
-      Restangular.setDefaultHeaders({'Authorization': 'Token ' + $localStorage.token});
-      Restangular.one('users', username).get().then(
-        function(user){
-          $localStorage.user = user.username;
-          $localStorage.logged = true;
-
-          if(social == 'fb'){
-            $localStorage.facebook = true;
-          }else if(social == 'tw'){
-            $localStorage.twitter = true;
-          }
-
-          $state.go('user.posts', {username: username});
+    $scope.fb_login = function(){
+      LoginService.fb_login()
+      .then(
+        function(result){
+          $state.go('logged');
         },
         function(response){
           $scope.alerts.push({type: 'danger', msg: response.data});
-          $scope.signinForm = {};
         }
       );
     };
 
-    $scope.fb_login = function() {
-      Facebook.getLoginStatus(function(response){
-        $scope.$apply(function(){
-          if(response.status == 'connected') {
-              console.log('fb connected');
-              var data = {access_token: response.authResponse.accessToken};
-
-              Restangular.all('sa/login/').customGET('facebook', data).then(
-                function(response){
-                  login(response.username, response.token, 'fb');
-                }, function(response){
-                  //error
-                });
-          }else if(response.status === 'not_authorized'){
-            // The person is logged into Facebook, but not your app.
-            // and so I'm very sorry...
-          } else {
-            // The person is not logged into Facebook, so we're not sure if
-            // they are logged into this app or not.
-            // let's make him log in to Facebook
-            Facebook.login(function(response){
-              if(response.authResponse){
-                $scope.fb_login();
-              }else{
-                //the user stopped the auth
-              }
-            }, {scope: 'publish_actions'});
-          }
-        });
-      });
-    };
-
 
     $scope.sb_login = function(){
-        var data = {
-            username: $scope.signinForm.username,
-            password: $scope.signinForm.password,
-        };
-
-        Restangular.all('auth').post(data).then(
-            function(response){
-                console.log(response);
-                login(data.username, response.token, '');
-            },
-            function(response){
-                console.log(response);
-                $scope.alerts.push({type: 'danger', msg: response.data});
-            });
+        LoginService.sb_login($scope.signinForm.username, $scope.signinForm.password)
+        .then(
+          function(result){
+            $state.go('logged');
+          },
+          function(response){
+            $scope.alerts.push({type: 'danger', msg: response.data});
+          }
+        );
     };
 
     $scope.signup = function(){

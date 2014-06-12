@@ -13,6 +13,29 @@ angular.module('states', [])
 
     .state('logged', {
       templateUrl: 'html/layout.html',
+      controller: 'Logged',
+
+      onEnter: ['LoginService',
+      function(LoginService){
+        LoginService.check_login();
+      }],
+
+      resolve: {
+        user: ['$localStorage', 'Restangular',
+        function($localStorage, Restangular){
+          return Restangular.one('me').get()
+          .then(
+            function(response){
+              var user = Restangular.stripRestangular(response);
+              return user;
+            },
+            function(response){
+              console.log(response);
+              return undefined;
+            }
+          );
+        }], 
+      },
     })
 
     .state('user', {
