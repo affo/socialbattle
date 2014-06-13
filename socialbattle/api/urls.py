@@ -66,7 +66,6 @@ urlpatterns = patterns('',
 	url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
 	url(r'^oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 	url(r'^sa/default/', include('social.apps.django_app.urls', namespace='social')),
-	url(r'^sa/login/(?P<backend>[a-z]+)/', auth.register_by_access_token),
 	url(r'^sa/associate/(?P<backend>[a-z]+)/', auth.associate_by_access_token),
 
 	url(r'^rpg/dmg/$', action.damage),

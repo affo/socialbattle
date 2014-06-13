@@ -68,11 +68,12 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Logged',
   ['$scope', '$stateParams', 'Restangular', '$state',
-    '$localStorage', '$modal', 'user', 'IdentityService', '$http',
+    '$localStorage', '$modal', 'user', 'IdentityService', '$http', 'Facebook',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal, user,
-            IdentityService, $http){
+            IdentityService, $http, Facebook){
     $scope.character_name = $localStorage.character;
     $scope.username = user.username;
+    $scope.facebook = $localStorage.facebook;
 
     if(!$localStorage.character){
       var modalInstance = $modal.open({
@@ -106,7 +107,6 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       delete $localStorage.user;
       delete $localStorage.character;
       delete $localStorage.facebook;
-      delete $localStorage.twitter;
       $state.go('unlogged');
     };
 

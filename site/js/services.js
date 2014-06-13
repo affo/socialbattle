@@ -366,48 +366,51 @@ angular.module('services', ['socialBattle'])
     factory.fb_login = function(){
       var deferred = $q.defer();
 
+      var get_token_from_fb_token = function(response){
+        var data = {
+          grant_type: "password",
+          client_id: CLIENT_ID,
+          username: 'invalid username',
+          //invalid username with spaces
+          //in this way it won't match anyone
+          password: 'password',
+          fb_token: response.authResponse.accessToken,
+        };
+
+        //encode the request
+        data = $.param(data);
+
+        Restangular.all('oauth/token').post(data, undefined, {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        })
+        .then(
+          function(response){
+            $localStorage.facebook = true;
+            $localStorage.refresh_token = response.refresh_token;
+            $localStorage.access_token = response.access_token;
+            set_header(response.access_token);
+            IdentityService.identity(true)
+            .then(
+              function(identity){
+                IdentityService.authenticate(identity);
+                deferred.resolve(identity);
+              },
+              function(response){
+                //something went wrong
+                deferred.reject(response);
+              }
+            );
+          }, function(response){
+            deferred.reject(response);
+          }
+        );
+      };
+
       Facebook.getLoginStatus(
         function(response){
           if(response.status == 'connected') {
               console.log('fb connected');
-              var data = {
-                grant_type: "password",
-                client_id: CLIENT_ID,
-                username: 'invalid username',
-                //invalid username with spaces
-                //in this way it won't match anyone
-                password: 'password',
-                fb_token: response.authResponse.accessToken,
-              };
-
-              //encode the request
-              data = $.param(data);
-
-              Restangular.all('oauth/token').post(data, undefined, {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-              })
-              .then(
-                function(response){
-                  $localStorage.facebook = true;
-                  $localStorage.refresh_token = response.refresh_token;
-                  $localStorage.access_token = response.access_token;
-                  set_header(response.access_token);
-                  IdentityService.identity(true)
-                  .then(
-                    function(identity){
-                      IdentityService.authenticate(identity);
-                      deferred.resolve(identity);
-                    },
-                    function(response){
-                      //something went wrong
-                      deferred.reject(response);
-                    }
-                  );
-                }, function(response){
-                  deferred.reject(response);
-                }
-              );
-
+              get_token_from_fb_token(response);
           }else if(response.status === 'not_authorized'){
             // The person is logged into Facebook, but not your app.
             // and so I'm very sorry...
@@ -418,7 +421,7 @@ angular.module('services', ['socialBattle'])
             // let's make him log in to Facebook
             Facebook.login(function(response){
               if(response.authResponse){
-                factory.fb_login();
+                get_token_from_fb_token(response);
               }else{
                 //the user stopped the auth
               }
