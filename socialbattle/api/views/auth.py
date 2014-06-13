@@ -7,29 +7,18 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from socialbattle.api.serializers import UserSerializer
 from socialbattle.api.models import User
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from rest_framework.authtoken.models import Token
 
+from social.apps.django_app.utils import strategy
+from social.apps.django_app.default.models import UserSocialAuth
 
-@dsa_view()
-@api_view(['GET', ])
-@permission_classes([AllowAny, ])
-def register_by_access_token(request, backend, *args, **kwargs):
-	access_token = request.GET.get('access_token')
-	user = backend.do_auth(access_token)
-	if user and user.is_active:
-		f_uid = UserSocialAuth.objects.values('uid').get(user_id=user.pk)['uid']
-		user.img = FACEBOOK_IMG_URL % f_uid
-		user.save()
-		token, created = Token.objects.get_or_create(user=user)
-		return Response({'username': user.username,'token': token.key}, status=status.HTTP_200_OK)
-	return Response(status=status.HTTP_400_BAD_REQUEST)
+FACEBOOK_IMG_URL = 'https://graph.facebook.com/%s/picture?type=normal'
 
-@dsa_view()
+@strategy('social:complete')
 @api_view(['GET', ])
 @permission_classes([IsAuthenticated, ])
 def associate_by_access_token(request, backend, *args, **kwargs):
 	access_token = request.GET.get('access_token')
+	backend = request.strategy.backend
 	user = backend.do_auth(access_token, user=request.user)
 	if user and user.is_active:
 		f_uid = UserSocialAuth.objects.values('uid').get(user_id=user.pk)['uid']
