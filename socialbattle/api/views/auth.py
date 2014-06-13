@@ -9,9 +9,7 @@ from socialbattle.api.serializers import UserSerializer
 from socialbattle.api.models import User
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.authtoken.models import Token
-from social_auth.models import UserSocialAuth
 
-FACEBOOK_IMG_URL = 'https://graph.facebook.com/%s/picture?type=normal'
 
 @dsa_view()
 @api_view(['GET', ])

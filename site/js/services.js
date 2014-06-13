@@ -373,8 +373,10 @@ angular.module('services', ['socialBattle'])
               var data = {
                 grant_type: "password",
                 client_id: CLIENT_ID,
-                username: 'empty',
-                password: 'empty',
+                username: 'invalid username',
+                //invalid username with spaces
+                //in this way it won't match anyone
+                password: 'password',
                 fb_token: response.authResponse.accessToken,
               };
 
