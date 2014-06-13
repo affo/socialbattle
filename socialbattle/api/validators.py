@@ -3,6 +3,10 @@ from social.backends.facebook import Facebook2OAuth2 as FacebookBackend
 from social.apps.django_app.utils import load_strategy
 from django.contrib.auth import authenticate
 
+from social.apps.django_app.default.models import UserSocialAuth
+
+FACEBOOK_IMG_URL = 'https://graph.facebook.com/%s/picture?type=normal'
+
 class MyOAuth2Validator(OAuth2Validator):
 	def validate_user(self, username, password, client, request, *args, **kwargs):
 		"""
@@ -27,4 +31,13 @@ class MyOAuth2Validator(OAuth2Validator):
 			return None
 		strategy = load_strategy(backend='facebook')
 		user = FacebookBackend(strategy=strategy).do_auth(fb_token)
+
+		if user and user.is_active:
+			f_uid = UserSocialAuth.objects.values('uid').get(user_id=user.pk)['uid']
+			img = FACEBOOK_IMG_URL % f_uid
+
+			if user.img != img:
+				user.img = img
+				user.save()
+
 		return user
