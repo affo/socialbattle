@@ -11,23 +11,28 @@ var app = angular.module('socialBattle', [
   'room',
   'post',
   'search',
-  'settings',
-  'logged',
   'character',
 ]);
 
 app.run(
-    ['$rootScope', '$state', '$stateParams',
-    function($rootScope, $state, $stateParams) {
+  ['$rootScope', '$state', '$stateParams', 'CheckAuthService',
+    'IdentityService', 'Restangular', '$localStorage',
+  function($rootScope, $state, $stateParams, CheckAuthService,
+            IdentityService, Restangular, $localStorage){
 
-      // It's very handy to add references to $state and $stateParams to the $rootScope
-      // so that you can access them from any scope within your applications.For example,
-      // <li ui-sref-active="active }"> will set the <li> // to active whenever
-      // 'contacts.list' or one of its decendents is active.
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
-    }
-    ]
+    $rootScope.$on('$stateChangeStart',
+      function(event, toState, toStateParams){
+        $rootScope.toState = toState;
+        $rootScope.toStateParams = toStateParams;
+
+        CheckAuthService.check_auth();
+      }
+    );
+
+    Restangular.setDefaultHeaders({Authorization: 'Bearer ' + $localStorage.access_token});
+
+  }
+  ]
 );
 
 app.config(

@@ -1,17 +1,17 @@
 angular.module('user', ['restangular'])
 
 .controller('UserDetail',
-  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage',
-  function($scope, $stateParams, Restangular, $state, $localStorage) {
+  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', 'user',
+  function($scope, $stateParams, Restangular, $state, $localStorage, identity) {
     $scope.endpoint = Restangular.one('users', $stateParams.username);
     $scope.endpoint.get().then(
       function(user){
         $scope.user = user;
-        if(user.username == $localStorage.user){
+        if(user.username == identity.username){
           $scope.isMe = true;
         }
 
-        Restangular.one('users', $localStorage.user)
+        Restangular.one('users', identity.username)
           .post('isfollowing', {to_user: user.url}).then(
             function(response){
               $scope.alreadyFollowing = response.is_following;
@@ -28,7 +28,8 @@ angular.module('user', ['restangular'])
       data = {
         to_user: $scope.user.url,
       };
-      $scope.endpoint.all('following').post(data).then(
+      Restangular.one('users', identity.username).all('following').post(data)
+      .then(
         function(response){
           console.log(response);
           $scope.alreadyFollowing = true;

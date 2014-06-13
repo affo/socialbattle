@@ -232,20 +232,101 @@ angular.module('services', ['socialBattle'])
   ]
 )
 
-.factory('LoginService',
-  ['Facebook', '$localStorage', 'Restangular', '$q', '$state', 'CLIENT_ID',
-  function(Facebook, $localStorage, Restangular, $q, $state, CLIENT_ID){
+.factory('IdentityService',
+  ['$q', '$http', '$timeout', 'Restangular', '$localStorage',
+  function($q, $http, $timeout, Restangular, $localStorage){
+    var _identity = undefined;
+    var _authenticated = false;
     var factory = {};
 
-    var set_header = function(){
-      Restangular.setDefaultHeaders({Authorization: 'Bearer ' + $localStorage.access_token});
+    
+    factory.isIdentityResolved = function(){
+      return angular.isDefined(_identity);
     };
 
-    factory.check_login = function(){
-      if(!$localStorage.logged){
-        $state.go('unlogged');
-        return;
+    factory.isAuthenticated = function(){
+      return _authenticated;
+    };
+      
+    factory.authenticate = function(identity){
+      _identity = identity;
+      _authenticated = angular.isDefined(identity);
+      
+      if(identity){
+        $localStorage.user = identity;
+      } else {
+        delete $localStorage.user;
       }
+    };
+
+    factory.identity = function(force){
+      var deferred = $q.defer();
+
+      if (force === true) _identity = undefined;
+
+      // check and see if we have retrieved the identity data from the server. if we have, reuse it by immediately resolving
+      if (angular.isDefined(_identity)) {
+        deferred.resolve(_identity);
+
+        return deferred.promise;
+      }
+
+      Restangular.one('me').get()
+      .then(
+        function(response){
+          var user = Restangular.stripRestangular(response);
+          _identity = user;
+          _authenticated = true;
+          deferred.resolve(_identity);
+        },
+        function(response){
+          _identity = undefined;
+          _authenticated = false;
+          deferred.reject(_identity);
+        }
+      );
+      
+
+      return deferred.promise;
+    };
+
+    return factory;
+  }
+  ]
+)
+
+.factory('CheckAuthService',
+  ['$rootScope', '$state', 'IdentityService',
+  function($rootScope, $state, IdentityService){
+    var factory = {};
+
+    factory.check_auth = function(){
+      return IdentityService.identity()
+      .then(
+        function(identity){
+          //everything is ok 
+          //$state.go('user.posts', {username: identity.username});
+        },
+        function(identity){
+          $state.go('unlogged');
+        }
+      );
+    };
+
+    return factory;
+  }
+  ]
+)
+
+.factory('LoginService',
+  ['Facebook', '$localStorage', 'Restangular', '$q', '$state',
+    'CLIENT_ID', 'IdentityService',
+  function(Facebook, $localStorage, Restangular, $q, $state,
+            CLIENT_ID, IdentityService){
+    var factory = {};
+
+    var set_header = function(token){
+      Restangular.setDefaultHeaders({Authorization: 'Bearer ' + token});
     };
 
     factory.sb_login = function(username, password){
@@ -264,18 +345,27 @@ angular.module('services', ['socialBattle'])
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       })
       .then(
-          function(response){
-              console.log(response);
-              $localStorage.logged = true;
-              $localStorage.refresh_token = response.refresh_token;
-              $localStorage.access_token = response.access_token;
-              set_header();
-              deferred.resolve('OK');
-          },
-          function(response){
-              console.log(response);
-              deferred.reject(response);
-          }
+        function(response){
+            console.log(response);
+            $localStorage.refresh_token = response.refresh_token;
+            $localStorage.access_token = response.access_token;
+            set_header(response.access_token);
+            IdentityService.identity(true)
+            .then(
+              function(identity){
+                IdentityService.authenticate(identity);
+                deferred.resolve(identity);
+              },
+              function(response){
+                //something went wrong
+                deferred.reject(response);
+              }
+            );
+        },
+        function(response){
+            console.log(response);
+            deferred.reject(response);
+        }
       );
       return deferred.promise;
     };
@@ -303,12 +393,21 @@ angular.module('services', ['socialBattle'])
               })
               .then(
                 function(response){
-                  $localStorage.logged = true;
                   $localStorage.facebook = true;
                   $localStorage.refresh_token = response.refresh_token;
                   $localStorage.access_token = response.access_token;
-                  set_header();
-                  deferred.resolve('OK');
+                  set_header(response.access_token);
+                  IdentityService.identity(true)
+                  .then(
+                    function(identity){
+                      IdentityService.authenticate(identity);
+                      deferred.resolve(identity);
+                    },
+                    function(response){
+                      //something went wrong
+                      deferred.reject(response);
+                    }
+                  );
                 }, function(response){
                   deferred.reject(response);
                 }

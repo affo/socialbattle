@@ -9,33 +9,42 @@ angular.module('states', [])
       url: '/',
       templateUrl: 'html/home.html',
       controller: 'Auth',
+
+      onEnter: ['IdentityService', '$state',
+        function(IdentityService, $state){
+          IdentityService.identity()
+          .then(
+            function(identity){
+              $state.go('user', {username: identity.username});
+            }
+          );
+        }
+      ],
+      
     })
 
     .state('logged', {
       templateUrl: 'html/layout.html',
+      abstract: true,
       controller: 'Logged',
-
-      onEnter: ['LoginService',
-      function(LoginService){
-        LoginService.check_login();
-      }],
-
       resolve: {
-        user: ['$localStorage', 'Restangular',
-        function($localStorage, Restangular){
-          return Restangular.one('me').get()
-          .then(
-            function(response){
-              var user = Restangular.stripRestangular(response);
-              return user;
-            },
-            function(response){
-              console.log(response);
-              return undefined;
-            }
-          );
-        }], 
-      },
+        authorize: ['CheckAuthService',
+          function(CheckAuthService) {
+            return CheckAuthService.check_auth();
+          }
+        ],
+
+        user: ['IdentityService', 
+          function(IdentityService){
+            return IdentityService.identity()
+            .then(
+              function(identity){
+                return identity;
+              }
+            );
+          }
+        ]
+      }
     })
 
     .state('user', {

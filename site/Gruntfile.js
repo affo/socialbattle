@@ -44,6 +44,7 @@ module.exports = function(grunt) {
         'js/app-states.js',
         'js/services.raw.js',
         'js/controllers/*',
+        'html/partials/index.raw.html',
       ],
       tasks: ['preprocess'],
     },

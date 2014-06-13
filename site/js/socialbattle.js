@@ -7,28 +7,33 @@ var app = angular.module('socialBattle', [
   
   'services',
   'auth',
-  'main',
   'user',
   'room',
   'post',
   'search',
   'settings',
-  'logged',
   'character',
 ]);
 
 app.run(
-    ['$rootScope', '$state', '$stateParams',
-    function($rootScope, $state, $stateParams) {
+  ['$rootScope', '$state', '$stateParams', 'CheckAuthService',
+    'IdentityService', 'Restangular', '$localStorage',
+  function($rootScope, $state, $stateParams, CheckAuthService,
+            IdentityService, Restangular, $localStorage){
 
-      // It's very handy to add references to $state and $stateParams to the $rootScope
-      // so that you can access them from any scope within your applications.For example,
-      // <li ui-sref-active="active }"> will set the <li> // to active whenever
-      // 'contacts.list' or one of its decendents is active.
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
-    }
-    ]
+    $rootScope.$on('$stateChangeStart',
+      function(event, toState, toStateParams){
+        $rootScope.toState = toState;
+        $rootScope.toStateParams = toStateParams;
+
+        CheckAuthService.check_auth();
+      }
+    );
+
+    Restangular.setDefaultHeaders({Authorization: 'Bearer ' + $localStorage.access_token});
+
+  }
+  ]
 );
 
 app.config(
@@ -71,23 +76,26 @@ angular.module('states', [])
 
     .state('logged', {
       templateUrl: 'html/layout.html',
-      controller: 'Logged',
-
+      abstract: true,
+      controller: 'SelectCharacter',
       resolve: {
-        user: ['$localStorage', 'Restangular',
-        function($localStorage, Restangular){
-          return Restangular.one('me').get()
-          .then(
-            function(response){
-              var user = Restangular.stripRestangular(response);
-              return user;
-            },
-            function(response){
-              console.log(response);
-            }
-          );
-        }], 
-      },
+        authorize: ['CheckAuthService',
+          function(CheckAuthService) {
+            return CheckAuthService.check_auth();
+          }
+        ],
+
+        user: ['IdentityService', 
+          function(IdentityService){
+            return IdentityService.identity()
+            .then(
+              function(identity){
+                return identity;
+              }
+            );
+          }
+        ]
+      }
     })
 
     .state('user', {
@@ -504,16 +512,101 @@ angular.module('services', ['socialBattle'])
   ]
 )
 
-.factory('LoginService',
-  ['Facebook', '$localStorage', 'RestangularProvider', '$q', 'CLIENT_ID',
-  function(Facebook, $localStorage, Restangular, $q, CLIENT_ID){
+.factory('IdentityService',
+  ['$q', '$http', '$timeout', 'Restangular', '$localStorage',
+  function($q, $http, $timeout, Restangular, $localStorage){
+    var _identity = undefined;
+    var _authenticated = false;
     var factory = {};
 
-    factory.check_login = function(){
-      if(!$localStorage.logged){
-        $state.go('unlogged');
-        return;
+    
+    factory.isIdentityResolved = function(){
+      return angular.isDefined(_identity);
+    };
+
+    factory.isAuthenticated = function(){
+      return _authenticated;
+    };
+      
+    factory.authenticate = function(identity){
+      _identity = identity;
+      _authenticated = identity != null;
+      
+      if (identity){
+        $localStorage.user = identity;
+      } else {
+        delete $localStorage.user;
       }
+    };
+
+    factory.identity = function(force){
+      var deferred = $q.defer();
+
+      if (force === true) _identity = undefined;
+
+      // check and see if we have retrieved the identity data from the server. if we have, reuse it by immediately resolving
+      if (angular.isDefined(_identity)) {
+        deferred.resolve(_identity);
+
+        return deferred.promise;
+      }
+
+      Restangular.one('me').get()
+      .then(
+        function(response){
+          var user = Restangular.stripRestangular(response);
+          _identity = user;
+          _authenticated = true;
+          deferred.resolve(_identity);
+        },
+        function(response){
+          _identity = null;
+          _authenticated = false;
+          deferred.reject(_identity);
+        }
+      );
+      
+
+      return deferred.promise;
+    };
+
+    return factory;
+  }
+  ]
+)
+
+.factory('CheckAuthService',
+  ['$rootScope', '$state', 'IdentityService',
+  function($rootScope, $state, IdentityService){
+    var factory = {};
+
+    factory.check_auth = function(){
+      return IdentityService.identity()
+      .then(
+        function(identity){
+          //everything is ok 
+          //$state.go('user.posts', {username: identity.username});
+        },
+        function(identity){
+          $state.go('unlogged');
+        }
+      );
+    };
+
+    return factory;
+  }
+  ]
+)
+
+.factory('LoginService',
+  ['Facebook', '$localStorage', 'Restangular', '$q', '$state',
+    'CLIENT_ID', 'IdentityService',
+  function(Facebook, $localStorage, Restangular, $q, $state,
+            CLIENT_ID, IdentityService){
+    var factory = {};
+
+    var set_header = function(token){
+      Restangular.setDefaultHeaders({Authorization: 'Bearer ' + token});
     };
 
     factory.sb_login = function(username, password){
@@ -534,10 +627,20 @@ angular.module('services', ['socialBattle'])
       .then(
           function(response){
               console.log(response);
-              $localStorage.logged = true;
               $localStorage.refresh_token = response.refresh_token;
               $localStorage.access_token = response.access_token;
-              deferred.resolve('OK');
+              set_header(response.access_token);
+              IdentityService.identity()
+              .then(
+                function(identity){
+                  IdentityService.authenticate(identity);
+                  deferred.resolve(identity);
+                },
+                function(response){
+                  //something went wrong
+                  deferred.reject(response);
+                }
+              );
           },
           function(response){
               console.log(response);
@@ -570,11 +673,21 @@ angular.module('services', ['socialBattle'])
               })
               .then(
                 function(response){
-                  $localStorage.logged = true;
                   $localStorage.facebook = true;
                   $localStorage.refresh_token = response.refresh_token;
                   $localStorage.access_token = response.access_token;
-                  deferred.resolve('OK');
+                  set_header(response.access_token);
+                  IdentityService.identity()
+                  .then(
+                    function(identity){
+                      IdentityService.authenticate(identity);
+                      deferred.resolve(identity);
+                    },
+                    function(response){
+                      //something went wrong
+                      deferred.reject(response);
+                    }
+                  );
                 }, function(response){
                   deferred.reject(response);
                 }
@@ -622,10 +735,10 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     $scope.signupForm = {};
 
     $scope.fb_login = function(){
-      LoginService.fb_login($scope.signinForm.username, $scope.signinForm.password)
+      LoginService.fb_login()
       .then(
         function(result){
-          $state.go('logged');
+          $state.go('user');
         },
         function(response){
           $scope.alerts.push({type: 'danger', msg: response.data});
@@ -635,10 +748,10 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 
     $scope.sb_login = function(){
-        LoginService.sb_login()
+        LoginService.sb_login($scope.signinForm.username, $scope.signinForm.password)
         .then(
-          function(result){
-            $state.go('logged');
+          function(identity){
+            $state.go('user', {username: identity.username});
           },
           function(response){
             $scope.alerts.push({type: 'danger', msg: response.data});
@@ -670,6 +783,70 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
             function(response){
                 $scope.alerts.push({type: 'danger', msg: response.data});
             });
+    };
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
+    };
+  }
+  ]
+)
+
+.controller('SelectCharacter',
+  ['$scope', '$stateParams', 'Restangular', '$state',
+    '$localStorage', '$modal', 'user',
+  function($scope, $stateParams, Restangular, $state, $localStorage, $modal, user){
+    $scope.character_name = $localStorage.character;
+
+    if(!$localStorage.character){
+      var modalInstance = $modal.open({
+        templateUrl: 'selectCharacterModal.html',
+        controller: 'SelectCharacterModal',
+        backdrop: 'static',
+        keyboard: false,
+        resolve: {
+          characters: function(){
+            return Restangular.one('users', $localStorage.user).getList('characters').$object;
+          },
+
+          endpoint: function(){
+            return Restangular.one('users', $localStorage.user).all('characters');
+          }
+        }
+      });
+
+      modalInstance.result.then(
+        function(character){
+          $scope.character_name = character;
+        }
+      );
+    }
+  }
+  ]
+)
+
+.controller('SelectCharacterModal',
+  ['$scope', '$modalInstance', '$localStorage', 'characters', 'endpoint',
+  function($scope, $modalInstance, $localStorage, characters, endpoint){
+    $scope.characters = characters;
+    $scope.characterForm = {};
+    $scope.alerts = [];
+
+    $scope.create_character = function(){
+      endpoint.post($scope.characterForm)
+      .then(
+        function(character){
+          $scope.select(character);
+        },
+        function(response){
+          $scope.alerts.push({type: 'danger', msg: response.data});
+        }
+      );
+    };
+
+    $scope.select = function(character){
+      $localStorage.character = character.name;
+      $modalInstance.close(character.name);
     };
 
     $scope.closeAlert = function(index){
@@ -866,77 +1043,6 @@ angular.module('character', ['restangular'])
       $scope.alert = undefined;
     };
 
-  }
-  ]
-);
-angular.module('logged', ['restangular'])
-
-.controller('Logged',
-  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', '$modal',
-    'user',
-  function($scope, $stateParams, Restangular, $state, $localStorage, $modal, user) {
-    //check if logged
-    if(!$localStorage.logged){
-      $state.go('unlogged');
-      return;
-    }
-    $scope.character_name = $localStorage.character;
-    $scope.username = $localStorage.user; 
-
-    if(!$localStorage.character){
-      var modalInstance = $modal.open({
-        templateUrl: 'selectCharacterModal.html',
-        controller: 'SelectCharacterModal',
-        backdrop: 'static',
-        keyboard: false,
-        resolve: {
-          characters: function(){
-            return Restangular.one('users', $localStorage.user).getList('characters').$object;
-          },
-
-          endpoint: function(){
-            return Restangular.one('users', $localStorage.user).all('characters');
-          }
-        }
-      });
-
-      modalInstance.result.then(
-        function(character){
-          $scope.character_name = character;
-        }
-      );
-    }
-  }
-  ]
-)
-
-.controller('SelectCharacterModal',
-  ['$scope', '$modalInstance', '$localStorage', 'characters', 'endpoint',
-  function($scope, $modalInstance, $localStorage, characters, endpoint){
-    $scope.characters = characters;
-    $scope.characterForm = {};
-    $scope.alerts = [];
-
-    $scope.create_character = function(){
-      endpoint.post($scope.characterForm)
-      .then(
-        function(character){
-          $scope.select(character);
-        },
-        function(response){
-          $scope.alerts.push({type: 'danger', msg: response.data});
-        }
-      );
-    };
-
-    $scope.select = function(character){
-      $localStorage.character = character.name;
-      $modalInstance.close(character.name);
-    };
-
-    $scope.closeAlert = function(index){
-      $scope.alerts.splice(index, 1);
-    };
   }
   ]
 );
@@ -2289,17 +2395,17 @@ angular.module('settings', ['restangular', 'ngStorage', 'facebook'])
 angular.module('user', ['restangular'])
 
 .controller('UserDetail',
-  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage',
-  function($scope, $stateParams, Restangular, $state, $localStorage) {
+  ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', 'user',
+  function($scope, $stateParams, Restangular, $state, $localStorage, identity) {
     $scope.endpoint = Restangular.one('users', $stateParams.username);
     $scope.endpoint.get().then(
       function(user){
         $scope.user = user;
-        if(user.username == $localStorage.user){
+        if(user.username == identity.username){
           $scope.isMe = true;
         }
 
-        Restangular.one('users', $localStorage.user)
+        Restangular.one('users', identity.username)
           .post('isfollowing', {to_user: user.url}).then(
             function(response){
               $scope.alreadyFollowing = response.is_following;

@@ -151,6 +151,7 @@ SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'publish_actions']
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 LOGIN_URL = '/auth/login'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/me/'
 
 AUTHENTICATION_BACKENDS = (
     'social.backends.facebook.Facebook2OAuth2',
