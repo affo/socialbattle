@@ -436,4 +436,87 @@ angular.module('services', ['socialBattle'])
     return factory;
   }
   ]
+)
+
+.factory('RefreshTokenService',
+  ['$localStorage', 'Restangular', '$q', '$http', 'CLIENT_ID',
+  function($localStorage, Restangular, $q, $http, CLIENT_ID){
+    var factory = {};
+    var _refreshing = false;
+    var _deferred;
+
+    var set_header = function(token){
+      Restangular.setDefaultHeaders({Authorization: 'Bearer ' + token});
+    };
+
+    var refreshAccesstoken = function(){
+      if(!$localStorage.refresh_token){
+        //there is no refresh_token!
+        _deferred = $q.defer();
+        _deferred.reject('No refresh token');
+        return _deferred.promise;
+      }
+
+      if(_refreshing){
+        return _deferred.promise; //in case of multiple requests, if someone else is refreshing I wait
+      }else{
+        _refreshing = true;
+      }
+
+      _deferred = $q.defer();
+
+      var data = {
+        grant_type: "refresh_token",
+        client_id: CLIENT_ID,
+        refresh_token: $localStorage.refresh_token,
+      };
+
+      console.info('Token expired. Refreshing...');
+
+      //encode the request
+      data = $.param(data);
+
+      Restangular.all('oauth/token').post(data, undefined, {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      }).then(
+        function(response){
+          $localStorage.refresh_token = response.refresh_token;
+          $localStorage.access_token = response.access_token;
+          set_header(response.access_token);
+          _deferred.resolve('Refreshed');
+        },
+        function(response){
+          console.log(response);
+          _deferred.reject('Error');
+        }
+      );
+
+      return _deferred.promise;
+    };
+
+    factory.init = function(){
+      Restangular.setErrorInterceptor(
+        function(response, deferred, responseHandler){
+          if(response.status === 401) {
+              refreshAccesstoken()
+              .then(
+                function(msg){
+                  console.info(msg);
+                  // Repeat the request and then call the handlers the usual way.
+                  $http(response.config).then(responseHandler, deferred.reject);
+                  // Be aware that no request interceptors are called this way.
+                }
+              );
+
+              return false; // error handled
+          }
+
+          return true; // error not handled
+        }
+      );
+    };
+
+    return factory;
+  }
+  ]
 );

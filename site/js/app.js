@@ -16,9 +16,11 @@ var app = angular.module('socialBattle', [
 
 app.run(
   ['$rootScope', '$state', '$stateParams', 'CheckAuthService',
-    'IdentityService', 'Restangular', '$localStorage',
+    'IdentityService', 'RefreshTokenService', 'Restangular', '$localStorage',
   function($rootScope, $state, $stateParams, CheckAuthService,
-            IdentityService, Restangular, $localStorage){
+            IdentityService, RefreshTokenService, Restangular, $localStorage){
+    
+    RefreshTokenService.init();
 
     $rootScope.$on('$stateChangeStart',
       function(event, toState, toStateParams){
