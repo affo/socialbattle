@@ -163,4 +163,5 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope', 'write': 'Write scope'},
     'OAUTH2_VALIDATOR_CLASS': 'socialbattle.api.validators.MyOAuth2Validator',
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 7200,
 }
