@@ -340,16 +340,16 @@ angular.module('room', ['luegg.directives'])
             backdrop: 'static',
             keyboard: false,
             resolve: {
-              mob: function(){
-                return $scope.mob;
-              },
-
               character: function(){
                 return $scope.character;
               },
 
               room: function(){
                 return $scope.room;
+              },
+
+              mob: function(){
+                return $scope.mob;
               },
             }
           });
@@ -584,7 +584,7 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('LoseModal',
-  ['$scope', '$modalInstance', '$localStorage',
+  ['$scope', '$modalInstance', '$state', '$localStorage',
     'Facebook', 'FBStoriesService', 'Restangular',
     'character', 'room', 'mob',
   function($scope, $modalInstance, $state, $localStorage,
