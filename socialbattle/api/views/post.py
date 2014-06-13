@@ -14,10 +14,15 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 						mixins.CreateModelMixin,
 						mixins.ListModelMixin):
 	queryset = models.Post.objects
-	serializer_class = serializers.PostSerializer
 	paginate_by = 5
 	paginate_by_param = 'limit'
 	max_paginate_by = 30
+
+	def get_serializer_class(self):
+		if self.request.method == 'POST':
+			return serializers.PostCreateSerializer
+		
+		return serializers.PostGetSerializer
 
 	def get_queryset(self):
 		queryset = models.Post.objects.all()
@@ -34,7 +39,7 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 		obj.author = self.request.user
 
 class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-	serializer_class = serializers.PostSerializer
+	serializer_class = serializers.PostGetSerializer
 	paginate_by = 5
 	paginate_by_param = 'limit'
 	max_paginate_by = 30
@@ -51,8 +56,13 @@ class PostViewset(viewsets.GenericViewSet,
 					mixins.DestroyModelMixin,
 					mixins.UpdateModelMixin):
 	queryset = models.Post.objects.all()
-	serializer_class = serializers.PostSerializer
 	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
+
+	def get_serializer_class(self):
+		if self.request.method == 'PUT':
+			return serializers.PostCreateSerializer
+		
+		return serializers.PostGetSerializer
 
 ### COMMENT
 # GET, POST: /posts/{pk}/comments/

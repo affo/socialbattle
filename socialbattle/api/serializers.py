@@ -90,7 +90,13 @@ class RelaxRoomSerializer(DynamicHyperlinkedModelSerializer):
 		model = models.RelaxRoom
 		fields = ('url', 'name', 'slug', 'fb_id',)
 
-class PostSerializer(serializers.HyperlinkedModelSerializer):
+class ItemSerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = models.Item
+		fields = ('url', 'name', 'cost', 'item_type', 'power', 'description', 'fb_id',)
+		lookup_field = 'slug'
+
+class PostGetSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='post-detail',
 			lookup_field='pk',
@@ -100,10 +106,47 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 	room = RelaxRoomSerializer(fields=['url', 'name', 'slug'], read_only=True)
 
+	give_items = ItemSerializer()
+	receive_items = ItemSerializer()
+
 	class Meta:
 		model = models.Post
-		fields = ('url', 'content', 'author', 'room', 'time' )
-		read_only_fields = ('time', )
+		fields = ('url', 'content', 'author', 'room', 'time',
+					'give_items', 'give_guils', 'receive_items', 'receive_guils', 'opened')
+		read_only_fields = ('time', 'opened' )
+
+class PostCreateSerializer(serializers.HyperlinkedModelSerializer):
+	url = serializers.HyperlinkedIdentityField(
+			view_name='post-detail',
+			lookup_field='pk',
+		)
+
+	author = UserSerializer(fields=['url', 'username', 'img'], read_only=True)
+
+	room = RelaxRoomSerializer(fields=['url', 'name', 'slug'], read_only=True)
+
+	give_items = serializers.HyperlinkedRelatedField(
+		view_name='item-detail',
+		lookup_field='slug',
+		many=True,
+		required=False
+	)
+
+	receive_items = serializers.HyperlinkedRelatedField(
+		view_name='item-detail',
+		lookup_field='slug',
+		many=True,
+		required=False
+	)
+
+	give_guils = serializers.IntegerField(required=False)
+	receive_guils = serializers.IntegerField(required=False)
+
+	class Meta:
+		model = models.Post
+		fields = ('url', 'content', 'author', 'room', 'time',
+					'give_items', 'give_guils', 'receive_items', 'receive_guils', 'opened')
+		read_only_fields = ('time', 'opened' )
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -122,12 +165,6 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Comment
 		fields = ('url', 'content', 'author', 'post', 'time', )
-
-class ItemSerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = models.Item
-		fields = ('url', 'name', 'cost', 'item_type', 'power', 'description', 'fb_id',)
-		lookup_field = 'slug'
 
 class CharacterSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

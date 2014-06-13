@@ -448,6 +448,21 @@ class Post(models.Model):
 	room = models.ForeignKey(RelaxRoom)
 	time = models.DateTimeField(auto_now=True)
 
+	#exchange
+	give_items = models.ManyToManyField(Item, null=True, related_name="give_items")
+	give_guils = models.IntegerField(null=True)
+	receive_items = models.ManyToManyField(Item, null=True, related_name="receive_items")
+	receive_guils = models.IntegerField(null=True)
+
+	opened = models.BooleanField(default=True)
+
+	# def clean(self):
+	# 	give_not_receive = (self.give_items or self.give_guils) and not (self.receive_items or self.receive_guils)
+	# 	receive_not_give = not (self.give_items or self.give_guils) and (self.receive_items or self.receive_guils)
+	# 	if give_not_receive or receive_not_give:
+	# 		raise ValidationError('It is not possible to give or receive for nothing')
+
+
 class Comment(models.Model):
 	content = models.TextField(max_length=1024)
 	author = models.ForeignKey(User)
