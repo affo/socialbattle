@@ -37,6 +37,7 @@ class FBObjectMixin(models.Model):
 
 @receiver(pre_save)
 def add_to_fb_objects(sender, instance=None, **kwargs):
+	return
 	try:
 		if not instance.fb_id:
 			class_name = sender.__name__.lower()
@@ -211,6 +212,20 @@ class Character(TargetMixin, FBObjectMixin):
 			self.curr_mp = 0
 		self.save()
 		return self.curr_mp
+
+	def check_exchange(self, exchange):
+		if not exchange.given:
+			return True
+
+		try:
+			record = InventoryRecord.objects.get(owner=self, item=exchange.item)
+		except ObjectDoesNotExist:
+			return False
+		
+		if exchange.quantity > record.quantity:
+			return False
+
+		return True
 
 	@property
 	def weapon(self):
@@ -449,9 +464,16 @@ class Post(models.Model):
 	time = models.DateTimeField(auto_now=True)
 
 	#exchange
-	give_items = models.ManyToManyField(Item, null=True, related_name="give_items")
+	character = models.ForeignKey(Character, null=True)
+
+	@property
+	def exchanged_items(self):
+		try:
+			return ExchangeRecord.objects.filter(post=self).all()
+		except ObjectDoesNotExist:
+			return []
+	
 	give_guils = models.IntegerField(null=True)
-	receive_items = models.ManyToManyField(Item, null=True, related_name="receive_items")
 	receive_guils = models.IntegerField(null=True)
 
 	opened = models.BooleanField(default=True)
@@ -462,6 +484,14 @@ class Post(models.Model):
 	# 	if give_not_receive or receive_not_give:
 	# 		raise ValidationError('It is not possible to give or receive for nothing')
 
+class ExchangeRecord(models.Model):
+	post = models.ForeignKey(Post)
+	item = models.ForeignKey(Item)
+	quantity = models.IntegerField(default=1)
+	given = models.BooleanField(default=True)
+
+	class Meta:
+		unique_together = ('post', 'item')
 
 class Comment(models.Model):
 	content = models.TextField(max_length=1024)

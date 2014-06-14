@@ -96,26 +96,18 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name', 'cost', 'item_type', 'power', 'description', 'fb_id',)
 		lookup_field = 'slug'
 
-class PostGetSerializer(serializers.HyperlinkedModelSerializer):
-	url = serializers.HyperlinkedIdentityField(
-			view_name='post-detail',
-			lookup_field='pk',
-		)
-
-	author = UserSerializer(fields=['url', 'username', 'img'], read_only=True)
-
-	room = RelaxRoomSerializer(fields=['url', 'name', 'slug'], read_only=True)
-
-	give_items = ItemSerializer()
-	receive_items = ItemSerializer()
+class ExchangeRecordSerializer(serializers.HyperlinkedModelSerializer):
+	item = serializers.HyperlinkedRelatedField(
+		view_name='item-detail',
+		lookup_field='slug',
+	)
 
 	class Meta:
-		model = models.Post
-		fields = ('url', 'content', 'author', 'room', 'time',
-					'give_items', 'give_guils', 'receive_items', 'receive_guils', 'opened')
-		read_only_fields = ('time', 'opened' )
+		model = models.ExchangeRecord
+		fields = ('item', 'quantity', 'given')
 
-class PostCreateSerializer(serializers.HyperlinkedModelSerializer):
+
+class PostSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='post-detail',
 			lookup_field='pk',
@@ -123,30 +115,23 @@ class PostCreateSerializer(serializers.HyperlinkedModelSerializer):
 
 	author = UserSerializer(fields=['url', 'username', 'img'], read_only=True)
 
+	character = serializers.HyperlinkedRelatedField(
+		view_name='character-detail',
+		lookup_field='name',
+	)
+
 	room = RelaxRoomSerializer(fields=['url', 'name', 'slug'], read_only=True)
 
-	give_items = serializers.HyperlinkedRelatedField(
-		view_name='item-detail',
-		lookup_field='slug',
-		many=True,
-		required=False
-	)
-
-	receive_items = serializers.HyperlinkedRelatedField(
-		view_name='item-detail',
-		lookup_field='slug',
-		many=True,
-		required=False
-	)
+	exchanged_items = ExchangeRecordSerializer(many=True, read_only=True)
 
 	give_guils = serializers.IntegerField(required=False)
 	receive_guils = serializers.IntegerField(required=False)
 
 	class Meta:
 		model = models.Post
-		fields = ('url', 'content', 'author', 'room', 'time',
-					'give_items', 'give_guils', 'receive_items', 'receive_guils', 'opened')
-		read_only_fields = ('time', 'opened' )
+		fields = ('url', 'content', 'author', 'character', 'room', 'time',
+					'exchanged_items', 'give_guils', 'receive_guils', 'opened')
+		read_only_fields = ('time', 'opened')
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

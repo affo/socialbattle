@@ -6,6 +6,48 @@ from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsAuthor
 
+class PostMixin(object):
+	def create_update_post(self, post, request):
+
+		#cannot offer some other character's items!
+		if post.character not in request.user.character_set.all():
+			self.permission_denied(request)
+
+		exchanged_items_field = request.DATA.get('exchanged_items', None)
+		if exchanged_items_field:
+			item_serializer = serializers.ExchangeRecordSerializer(
+				data=exchanged_items_field,
+				context=self.get_serializer_context(),
+				many=True
+			)
+
+			if not item_serializer.is_valid():
+				return Response(data=item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+			items = item_serializer.object
+
+			#check exchange parameters are admissible
+			for item in items:
+				if not post.character.check_exchange(item):
+					data = {
+						'msg': 'Cannot offer %d of item %s' % (item.quantity, item.item.name)
+					}
+					return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+		self.pre_save(post)
+		self.object = post_serializer.save(force_insert=True)
+
+		if items:
+			for item in items:
+				item.post = post
+				item.save()
+
+		data = self.get_serializer(post).data
+
+		headers = self.get_success_headers(data)
+		return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
+
+
 ### POST
 # GET, POST: /rooms/relax/{room_slug}/posts/
 # GET: /users/{username}/posts/
@@ -13,16 +55,11 @@ from socialbattle.api.permissions import IsAuthor
 class RoomPostViewSet(viewsets.GenericViewSet,
 						mixins.CreateModelMixin,
 						mixins.ListModelMixin):
-	queryset = models.Post.objects
+	queryset = models.Post.objects.all()
+	serializer_class = serializers.PostSerializer
 	paginate_by = 5
 	paginate_by_param = 'limit'
 	max_paginate_by = 30
-
-	def get_serializer_class(self):
-		if self.request.method == 'POST':
-			return serializers.PostCreateSerializer
-		
-		return serializers.PostGetSerializer
 
 	def get_queryset(self):
 		queryset = models.Post.objects.all()
@@ -38,8 +75,56 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 		obj.room = room.object
 		obj.author = self.request.user
 
+	#custom create to create exchange records
+	def create(self, request, *args, **kwargs):
+		items = None
+		post_serializer = self.get_serializer(data=request.DATA)
+
+		if not post_serializer.is_valid():
+			return Response(data=post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		post = post_serializer.object
+
+		#cannot offer some other character's items!
+		if post.character not in request.user.character_set.all():
+			self.permission_denied(request)
+
+		exchanged_items_field = request.DATA.get('exchanged_items', None)
+		if exchanged_items_field:
+			item_serializer = serializers.ExchangeRecordSerializer(
+				data=exchanged_items_field,
+				context=self.get_serializer_context(),
+				many=True
+			)
+
+			if not item_serializer.is_valid():
+				return Response(data=item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+			items = item_serializer.object
+
+			#check exchange parameters are admissible
+			for item in items:
+				if not post.character.check_exchange(item):
+					data = {
+						'msg': 'Cannot offer %d of item %s' % (item.quantity, item.item.name)
+					}
+					return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+		self.pre_save(post)
+		self.object = post_serializer.save(force_insert=True)
+
+		if items:
+			for item in items:
+				item.post = post
+				item.save()
+
+		data = self.get_serializer(post).data
+
+		headers = self.get_success_headers(data)
+		return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
+
 class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-	serializer_class = serializers.PostGetSerializer
+	serializer_class = serializers.PostSerializer
 	paginate_by = 5
 	paginate_by_param = 'limit'
 	max_paginate_by = 30
@@ -56,13 +141,60 @@ class PostViewset(viewsets.GenericViewSet,
 					mixins.DestroyModelMixin,
 					mixins.UpdateModelMixin):
 	queryset = models.Post.objects.all()
-	permission_classes = [permissions.IsAuthenticated, IsAuthor, ]
+	serializer_class = serializers.PostSerializer
+	permission_classes = [permissions.IsAuthenticated, IsAuthor]
 
-	def get_serializer_class(self):
-		if self.request.method == 'PUT':
-			return serializers.PostCreateSerializer
-		
-		return serializers.PostGetSerializer
+	def update(self, request, *args, **kwargs):
+		partial = kwargs.pop('partial', False)
+		self.object = self.get_object_or_none()
+
+		post_serializer = self.get_serializer(self.object, data=request.DATA, files=request.FILES, partial=partial)
+		items = None
+
+		if not post_serializer.is_valid():
+			return Response(data=post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		post = post_serializer.object
+
+		#cannot offer some other character's items!
+		if post.character not in request.user.character_set.all():
+			self.permission_denied(request)
+
+		exchanged_items_field = request.DATA.get('exchanged_items', None)
+		if exchanged_items_field:
+			item_serializer = serializers.ExchangeRecordSerializer(
+				data=exchanged_items_field,
+				context=self.get_serializer_context(),
+				many=True
+			)
+
+			if not item_serializer.is_valid():
+				return Response(data=item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+			#delete all previous exchanges
+			previous_exchanges = list(models.ExchangeRecord.objects.filter(post=post).all())
+			for p in previous_exchanges:
+				p.delete()
+
+			items = item_serializer.object
+
+			#check exchange parameters are admissible
+			for item in items:
+				if not post.character.check_exchange(item):
+					data = {
+						'msg': 'Cannot offer %d of item %s' % (item.quantity, item.item.name)
+					}
+					return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+		self.object = post_serializer.save(force_update=True)
+
+		if items:
+			for item in items:
+				item.post = post
+				item.save()
+
+		data = self.get_serializer(post).data
+		return Response(data, status=status.HTTP_200_OK)
 
 ### COMMENT
 # GET, POST: /posts/{pk}/comments/
