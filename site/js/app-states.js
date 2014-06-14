@@ -181,7 +181,7 @@ angular.module('states', [])
      resolve: {
       character: ['$localStorage', 'Restangular', '$modal',
       function($localStorage, Restangular, $modal){
-        return Restangular.one('characters', $localStorage.character).get()
+        return Restangular.one('characters', $localStorage.character.name).get()
         .then(
           function(response){
             var character = Restangular.stripRestangular(response);

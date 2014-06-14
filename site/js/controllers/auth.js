@@ -71,7 +71,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     '$localStorage', '$modal', 'user', 'IdentityService', '$http', 'Facebook',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal, user,
             IdentityService, $http, Facebook){
-    $scope.character_name = $localStorage.character;
+    $scope.$storage = $localStorage;
     $scope.username = user.username;
     $scope.facebook = $localStorage.facebook;
 
@@ -94,7 +94,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
       modalInstance.result.then(
         function(character){
-          $scope.character_name = character;
+          $localStorage.character = character;
         }
       );
     }
@@ -152,7 +152,9 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('SelectCharacterModal',
   ['$scope', '$modalInstance', '$localStorage', 'characters', 'endpoint',
-  function($scope, $modalInstance, $localStorage, characters, endpoint){
+    'Restangular',
+  function($scope, $modalInstance, $localStorage, characters, endpoint,
+            Restangular){
     $scope.characters = characters;
     $scope.characterForm = {};
     $scope.alerts = [];
@@ -161,7 +163,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       endpoint.post($scope.characterForm)
       .then(
         function(character){
-          $scope.select(character);
+          $scope.select(Restangular.stripRestangular(character));
         },
         function(response){
           $scope.alerts.push({type: 'danger', msg: response.data});
@@ -170,8 +172,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     };
 
     $scope.select = function(character){
-      $localStorage.character = character.name;
-      $modalInstance.close(character.name);
+      $modalInstance.close(character);
     };
 
     $scope.closeAlert = function(index){

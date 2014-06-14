@@ -490,9 +490,6 @@ class ExchangeRecord(models.Model):
 	quantity = models.IntegerField(default=1)
 	given = models.BooleanField(default=True)
 
-	class Meta:
-		unique_together = ('post', 'item')
-
 class Comment(models.Model):
 	content = models.TextField(max_length=1024)
 	author = models.ForeignKey(User)

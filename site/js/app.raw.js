@@ -74,4 +74,4 @@ app.config(
   ]
 );
 
-app.constant('CLIENT_ID', 'muswW5o!U_hOlfOaK_ai7pMMHX7-1vggQY5yPGGA');
+app.constant('CLIENT_ID', '.N?CHW4tRAgfvLNrq3ThSlVL9DsRxqDnA@5Grl2R');

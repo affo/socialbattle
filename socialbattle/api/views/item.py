@@ -10,10 +10,23 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 ### ITEM
 # GET: /room/relax/{room_slug}/items/
 # GET: /items/{item_slug}/
-class ItemViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+class ItemViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
 	model = models.Item
 	serializer_class = serializers.ItemSerializer
 	lookup_field = 'slug'
+
+	def list(self, request, *args, **kwargs):
+		try:
+			query = request.QUERY_PARAMS['query']
+			if not query: raise KeyError
+		except KeyError:
+			return Response(data={'msg': 'Query param needed (?query=<query_string>)'},
+							status=status.HTTP_400_BAD_REQUEST)
+
+		items = models.Item.objects.filter(name__icontains=query)[:5]
+
+		return Response(data=self.get_serializer(items, many=True).data,
+						status=status.HTTP_200_OK)
 
 class RoomItemViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	'''

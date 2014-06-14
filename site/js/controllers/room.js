@@ -709,17 +709,17 @@ angular.module('room', ['luegg.directives'])
             Facebook, FBStoriesService,
             character, room){
     $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
-    $scope.character_endpoint = Restangular.one('characters', $localStorage.character);
+    $scope.character_endpoint = Restangular.one('characters', $localStorage.character.name);
     $scope.character = $scope.character_endpoint.get().$object;
     $scope.init_msg = 'Welcome, I am the merchant at ' + $stateParams.room_name;
     $scope.buy_items = $scope.endpoint.all('items').getList().$object;
+    $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
     $scope.msgForm = {};
     $scope.action = 'BUY';
 
     $scope.toggle_action = function(){
       if($scope.action == 'BUY'){
         $scope.action = 'SELL';
-        $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
       }else{
         $scope.action = 'BUY';
       }
@@ -826,9 +826,7 @@ angular.module('room', ['luegg.directives'])
         $scope.messages.push(msg);
         $scope.transaction_ended(msg.content);
 
-        if($scope.action == 'SELL'){
-          $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
-        }
+        $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
       },
 
       KO: function(resp){
@@ -915,50 +913,6 @@ angular.module('room', ['luegg.directives'])
       .then(
         function() {
           ai.reset();
-        }
-      );
-
-    };
-  }
-  ]
-)
-
-.controller('RelaxRoomPosts',
-  ['$scope', 'Restangular',
-  function($scope, Restangular){
-    $scope.postForm = {};
-    $scope.can_post = true;
-
-    $scope.post = function(){
-      $scope.endpoint.all('posts').post($scope.postForm).then(
-        function(post){
-          $scope.posts.unshift(post);
-          $scope.postForm = {};
-        }
-      );
-    };
-
-    //because of pagination
-    $scope.endpoint.one('posts').get().then(
-      function(response){
-        $scope.posts = response.results;
-        $scope.next = response.next;
-      }
-    );
-
-    $scope.next_page = function(){
-      Restangular.oneUrl('next_page', $scope.next).get().
-      then(
-        function(response){
-          for(var i = 0; i < response.results.length; i++){
-            $scope.posts.push(response.results[i]);
-          }
-
-          if(response.next){
-            $scope.next = response.next;
-          }else{
-            $scope.next = undefined;
-          }
         }
       );
 

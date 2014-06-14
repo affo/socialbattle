@@ -62,7 +62,8 @@
       <ul class="nav navbar-nav navbar-right">
         <li><p class="navbar-text"><a ui-sref="user.posts({ username: username})" class="navbar-link">
           {{ username }}</a>#<a
-          ui-sref="character.inventory({ name: character_name})" class="navbar-link">{{ character_name }}</a>
+          ui-sref="character.inventory({ name: $storage.character.name })" class="navbar-link">{{ $storage.character.name }}
+          </a>
           </p>
         </li>
         <li class="dropdown">

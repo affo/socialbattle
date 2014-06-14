@@ -6,48 +6,6 @@ from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsAuthor
 
-class PostMixin(object):
-	def create_update_post(self, post, request):
-
-		#cannot offer some other character's items!
-		if post.character not in request.user.character_set.all():
-			self.permission_denied(request)
-
-		exchanged_items_field = request.DATA.get('exchanged_items', None)
-		if exchanged_items_field:
-			item_serializer = serializers.ExchangeRecordSerializer(
-				data=exchanged_items_field,
-				context=self.get_serializer_context(),
-				many=True
-			)
-
-			if not item_serializer.is_valid():
-				return Response(data=item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-			items = item_serializer.object
-
-			#check exchange parameters are admissible
-			for item in items:
-				if not post.character.check_exchange(item):
-					data = {
-						'msg': 'Cannot offer %d of item %s' % (item.quantity, item.item.name)
-					}
-					return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-
-		self.pre_save(post)
-		self.object = post_serializer.save(force_insert=True)
-
-		if items:
-			for item in items:
-				item.post = post
-				item.save()
-
-		data = self.get_serializer(post).data
-
-		headers = self.get_success_headers(data)
-		return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
-
-
 ### POST
 # GET, POST: /rooms/relax/{room_slug}/posts/
 # GET: /users/{username}/posts/
@@ -56,10 +14,14 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 						mixins.CreateModelMixin,
 						mixins.ListModelMixin):
 	queryset = models.Post.objects.all()
-	serializer_class = serializers.PostSerializer
 	paginate_by = 5
 	paginate_by_param = 'limit'
 	max_paginate_by = 30
+
+	def get_serializer_class(self):
+		if self.request.method == 'POST':
+			return serializers.PostCreateSerializer
+		return serializers.PostGetSerializer
 
 	def get_queryset(self):
 		queryset = models.Post.objects.all()
@@ -91,7 +53,7 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 
 		exchanged_items_field = request.DATA.get('exchanged_items', None)
 		if exchanged_items_field:
-			item_serializer = serializers.ExchangeRecordSerializer(
+			item_serializer = serializers.ExchangeRecordCreateSerializer(
 				data=exchanged_items_field,
 				context=self.get_serializer_context(),
 				many=True
@@ -118,13 +80,13 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 				item.post = post
 				item.save()
 
-		data = self.get_serializer(post).data
+		data = serializers.PostGetSerializer(post, context=self.get_serializer_context()).data
 
 		headers = self.get_success_headers(data)
 		return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
 
 class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-	serializer_class = serializers.PostSerializer
+	serializer_class = serializers.PostGetSerializer
 	paginate_by = 5
 	paginate_by_param = 'limit'
 	max_paginate_by = 30
@@ -141,8 +103,12 @@ class PostViewset(viewsets.GenericViewSet,
 					mixins.DestroyModelMixin,
 					mixins.UpdateModelMixin):
 	queryset = models.Post.objects.all()
-	serializer_class = serializers.PostSerializer
 	permission_classes = [permissions.IsAuthenticated, IsAuthor]
+
+	def get_serializer_class(self):
+		if self.request.method == 'PUT':
+			return serializers.PostCreateSerializer
+		return serializers.PostGetSerializer
 
 	def update(self, request, *args, **kwargs):
 		partial = kwargs.pop('partial', False)
@@ -161,8 +127,8 @@ class PostViewset(viewsets.GenericViewSet,
 			self.permission_denied(request)
 
 		exchanged_items_field = request.DATA.get('exchanged_items', None)
-		if exchanged_items_field:
-			item_serializer = serializers.ExchangeRecordSerializer(
+		if exchanged_items_field is not None:
+			item_serializer = serializers.ExchangeRecordCreateSerializer(
 				data=exchanged_items_field,
 				context=self.get_serializer_context(),
 				many=True
@@ -193,7 +159,7 @@ class PostViewset(viewsets.GenericViewSet,
 				item.post = post
 				item.save()
 
-		data = self.get_serializer(post).data
+		data = serializers.PostGetSerializer(post, context=self.get_serializer_context()).data
 		return Response(data, status=status.HTTP_200_OK)
 
 ### COMMENT

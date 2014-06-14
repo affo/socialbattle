@@ -1,4 +1,8 @@
-<form class="form" ng-submit="post()" ng-if="can_post">
+<alert class="text-center" ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">
+  {{alert.msg | json}}
+</alert>
+
+<form class="form jumbotron" ng-submit="post()" ng-if="can_post">
     <div class="form-group">
       <div class="input-group">
         <input type="text" class="form-control" ng-model="postForm.content" name="content" placeholder="Post" />
@@ -7,12 +11,77 @@
         </span>
       </div>
     </div>
+
+    {{given_items}}
+    {{received_items}}
+    {{selected_received_items}}
+    {{selected_given_items}}
+    <!-- EXCHANGE -->
+    <div class="row">
+      <div class="col-md-6">
+        <!-- give -->
+        <h5 class="text-muted text-center">
+          <strong>GIVE</strong>
+          <a href="" ng-click="plus_given()"><span class="glyphicon glyphicon-plus"></span></a>
+        </h5>
+        <div class="form-group">
+          <input type="text" class="form-control" ng-model="postForm.give_guils" name="give_guils"
+            placeholder="Guils I give"/>
+        </div>
+
+        
+        <div class="form-group row" ng-repeat="i in given_items track by $index">
+          <div class="col-md-10">
+            <input type="text" class="form-control" ng-model="given_items[$index].item_name"
+            placeholder="I give you"
+            typeahead="item.item.name for item in sell_items | filter:$viewValue"
+            typeahead-on-select="select_given_item($item, $model, $label, $index)" 
+            autocomplete="off"/>
+          </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" ng-model="given_items[$index].quantity"
+            placeholder="Qt." />
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <!-- receive -->
+        <h5 class="text-muted text-center">
+          <strong>RECEIVE</strong>
+          <a href="" ng-click="plus_received()"><span class="glyphicon glyphicon-plus"></span></a>
+        </h5>
+
+        <div class="form-group">
+          <input type="text" class="form-control" ng-model="postForm.receive_guils" name="receive_guils"
+            placeholder="Guils I want to receive" />
+        </div>
+        <div class="form-group row" ng-repeat="i in received_items track by $index">
+          <div class="col-md-10">
+            <input type="text" class="form-control" ng-model="received_items[$index].item_name"
+              ng-keyup="keypressed($event, $index)"
+              typeahead="item.name for item in searched_items"
+              typeahead-on-select="select_received_item($item, $model, $label, $index)" 
+              placeholder="You give me" />
+          </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" ng-model="received_items[$index].quantity"
+              placeholder="Qt." />
+          </div>
+        </div>
+      </div>
+    </div>
+    
 </form>
 
 
 <div class="row" ng-repeat="post in posts" ng-controller="Post">
   <div class="col-md-1"></div>
   <div class="col-md-10">
+    <alert class="text-center" ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">
+      {{alert.msg | json}}
+    </alert>
+
     <div class="panel panel-default">
       <div class="panel-heading">
           <div class="panel-title">
@@ -25,7 +94,7 @@
 
               <div class="col-md-3">
                 {{ post.time }}
-                <span ng-if="$storage.user == post.author.username">
+                <span ng-if="$storage.user.username == post.author.username">
                   <a href="" ng-click="toggle_editing()"><span class="glyphicon glyphicon-pencil"></span></a>
                   <a href="" ng-click="delete_post()"><span class="glyphicon glyphicon-remove"></span></a>
                 </span>
@@ -34,7 +103,48 @@
           </div>
       </div>
       <div class="panel-body">
-        <p ng-if="!editing">{{ post.content }}</p>
+        <!-- NOT editing -->
+        <div ng-if="!editing">
+          <p>{{ post.content }}</p>
+
+          <!-- EXCHANGE -->
+          <div class="row">
+            <div class="col-md-6" style="border-right: solid 1px grey">
+              <!-- give -->
+              <h5 class="text-success text-center">
+                <strong>GIVES</strong>
+              </h5>
+              <p class="text-success text-center">Gives {{post.give_guils}} guils</p>
+
+              <ul class="nav nav-pills nav-stacked">
+                <a href="" class="text-center"><li ng-repeat="exchange in post.exchanged_items"
+                  ng-if="exchange.given"
+                  popover="{{exchange.item.description}}" popover-trigger="mouseenter">
+                  {{exchange.item.name}} x{{exchange.quantity}}
+                </li></a>
+              </ul>
+            </div>
+
+            <div class="col-md-6">
+              <!-- receive -->
+              <h5 class="text-danger text-center">
+                <strong>WANTS</strong>
+              </h5>
+
+              <p class="text-danger text-center">Wants {{post.give_guils}} guils</p>
+
+              <ul class="nav nav-pills nav-stacked">
+                <a href="" class="text-center"><li ng-repeat="exchange in post.exchanged_items"
+                  ng-if="!exchange.given"
+                  popover="{{exchange.item.description}}" popover-trigger="mouseenter">
+                  {{exchange.item.name}} x{{exchange.quantity}}
+                </li></a>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- editing -->
         <form class="form" ng-if="editing" ng-submit="edit_post()">
           <div class="input-group">
             <input type="text" class="form-control" ng-model="editPost.content" name="content"/>
@@ -42,6 +152,61 @@
                 <button type="submit" class="btn btn-default">Edit</button>
                 <button type="button" class="btn btn-default" ng-click="toggle_editing()">Cancel</button>
             </span>
+          </div>
+          <!-- EXCHANGE -->
+          <div class="row">
+            <div class="col-md-6">
+              <!-- give -->
+              <h5 class="text-muted text-center">
+                <strong>GIVE</strong>
+                <a href="" ng-click="plus_given()"><span class="glyphicon glyphicon-plus"></span></a>
+              </h5>
+              <div class="form-group">
+                <input type="text" class="form-control" ng-model="editPost.give_guils" name="give_guils"
+                  placeholder="Guils I give" />
+              </div>
+
+              
+              <div class="form-group row" ng-repeat="i in given_items track by $index">
+                <div class="col-md-10">
+                  <input type="text" class="form-control" ng-model="given_items[$index].item_name"
+                  placeholder="I give you"
+                  typeahead="item.item.name for item in sell_items | filter:$viewValue" autocomplete="off"/>
+                </div>
+                <div class="col-md-2">
+                  <input type="text" class="form-control" ng-model="given_items[$index].quantity"
+                  placeholder="Qt." />
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <!-- receive -->
+              <h5 class="text-muted text-center">
+                <strong>RECEIVE</strong>
+                <a href="" ng-click="plus_received()"><span class="glyphicon glyphicon-plus"></span></a>
+              </h5>
+
+              <div class="form-group">
+                <input type="text" class="form-control" ng-model="editPost.receive_guils" name="receive_guils"
+                  placeholder="Guils I want to receive" />
+              </div>
+
+              <div class="form-group row" ng-repeat="i in received_items track by $index">
+                <div class="col-md-10">
+                  <input type="text" class="form-control" ng-model="received_items[$index].item_name"
+                  ng-keyup="keypressed($event, $index)"
+                  typeahead="item.name for item in searched_items"
+                  typeahead-on-select="select_item($item, $model, $label, $index)" 
+                  placeholder="You give me" />
+                </div>
+
+                <div class="col-md-2">
+                  <input type="text" class="form-control" ng-model="received_items[$index].quantity"
+                  placeholder="Qt." />
+                </div>
+              </div>
+            </div>
           </div>
         </form>
 
@@ -72,7 +237,7 @@
 
             <div class="col-md-3">
               {{comment.time}}
-              <span ng-if="$storage.user == comment.author.username">
+              <span ng-if="$storage.user.username == comment.author.username">
                 <a href="" ng-click="toggle_editing()"><span class="glyphicon glyphicon-pencil"></span></a>
                 <a href="" ng-click="delete_comment()"><span class="glyphicon glyphicon-remove"></span></a>
               </span>

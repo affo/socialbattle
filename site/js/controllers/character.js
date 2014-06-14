@@ -10,7 +10,7 @@ angular.module('character', ['restangular'])
       .then(
         function(character){
           $scope.character = character;
-          if(character.name == $localStorage.character){
+          if(character.name == $localStorage.character.name){
             $scope.is_me = true;
           }
         }

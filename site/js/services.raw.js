@@ -296,8 +296,8 @@ angular.module('services', ['socialBattle'])
 )
 
 .factory('CheckAuthService',
-  ['$rootScope', '$state', 'IdentityService',
-  function($rootScope, $state, IdentityService){
+  ['$rootScope', '$state', 'IdentityService', 'RefreshTokenService',
+  function($rootScope, $state, IdentityService, RefreshTokenService){
     var factory = {};
 
     factory.check_auth = function(){
@@ -307,8 +307,11 @@ angular.module('services', ['socialBattle'])
           //everything is ok 
           //$state.go('user.posts', {username: identity.username});
         },
-        function(identity){
-          $state.go('unlogged');
+        function(error){
+          //not auth
+          if(!RefreshTokenService.refreshing){
+            $state.go('unlogged');
+          }
         }
       );
     };
@@ -490,6 +493,7 @@ angular.module('services', ['socialBattle'])
           $localStorage.refresh_token = response.refresh_token;
           $localStorage.access_token = response.access_token;
           set_header(response.access_token);
+          _refreshing = false;
           _deferred.resolve('Refreshed');
         },
         function(response){
@@ -501,6 +505,8 @@ angular.module('services', ['socialBattle'])
       return _deferred.promise;
     };
 
+    factory.refreshing = _refreshing;
+
     factory.init = function(){
       Restangular.setErrorInterceptor(
         function(response, deferred, responseHandler){
@@ -509,6 +515,8 @@ angular.module('services', ['socialBattle'])
               .then(
                 function(msg){
                   console.info(msg);
+                  // update headers
+                  response.config.headers = Restangular.defaultHeaders;
                   // Repeat the request and then call the handlers the usual way.
                   $http(response.config).then(responseHandler, deferred.reject);
                   // Be aware that no request interceptors are called this way.

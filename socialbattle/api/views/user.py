@@ -43,7 +43,7 @@ class UserViewSet(viewsets.GenericViewSet,
 				Q(username__icontains=query) |
 				Q(first_name__icontains=query) |
 				Q(last_name__icontains=query)
-			)
+			)[:5]
 
 		return Response(data=serializers.UserSerializer(users, context=self.get_serializer_context(), many=True).data,
 						status=status.HTTP_200_OK)

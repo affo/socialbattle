@@ -96,7 +96,7 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name', 'cost', 'item_type', 'power', 'description', 'fb_id',)
 		lookup_field = 'slug'
 
-class ExchangeRecordSerializer(serializers.HyperlinkedModelSerializer):
+class ExchangeRecordCreateSerializer(serializers.HyperlinkedModelSerializer):
 	item = serializers.HyperlinkedRelatedField(
 		view_name='item-detail',
 		lookup_field='slug',
@@ -106,8 +106,15 @@ class ExchangeRecordSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.ExchangeRecord
 		fields = ('item', 'quantity', 'given')
 
+class ExchangeRecordGetSerializer(serializers.HyperlinkedModelSerializer):
+	item = ItemSerializer(read_only=True)
 
-class PostSerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = models.ExchangeRecord
+		fields = ('item', 'quantity', 'given')
+
+
+class PostGetSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(
 			view_name='post-detail',
 			lookup_field='pk',
@@ -122,7 +129,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 	room = RelaxRoomSerializer(fields=['url', 'name', 'slug'], read_only=True)
 
-	exchanged_items = ExchangeRecordSerializer(many=True, read_only=True)
+	exchanged_items = ExchangeRecordGetSerializer(many=True, read_only=True)
 
 	give_guils = serializers.IntegerField(required=False)
 	receive_guils = serializers.IntegerField(required=False)
@@ -132,6 +139,9 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'content', 'author', 'character', 'room', 'time',
 					'exchanged_items', 'give_guils', 'receive_guils', 'opened')
 		read_only_fields = ('time', 'opened')
+
+class PostCreateSerializer(PostGetSerializer):
+	exchanged_items = ExchangeRecordCreateSerializer(many=True, read_only=True)
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 	url = serializers.HyperlinkedIdentityField(

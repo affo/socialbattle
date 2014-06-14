@@ -3,6 +3,7 @@ angular.module('user', ['restangular'])
 .controller('UserDetail',
   ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', 'user',
   function($scope, $stateParams, Restangular, $state, $localStorage, identity) {
+    $scope.identity = identity;
     $scope.endpoint = Restangular.one('users', $stateParams.username);
     $scope.endpoint.get().then(
       function(user){
@@ -94,13 +95,19 @@ angular.module('user', ['restangular'])
   ['$scope', 'Restangular', '$localStorage',
   function($scope, Restangular, $localStorage){
     var characters = $scope.endpoint.getList('characters').$object;
+    $scope.selected_character = $localStorage.character;
     $scope.characters = characters;
     $scope.characterForm = {};
     $scope.alerts = [];
 
     $scope.select = function(character){
-      $localStorage.character = character.name;
+      $localStorage.character = character;
+      $scope.selected_character = character;
     };
+
+    $scope.is_selected = function(character){
+      return character.name == $scope.selected_character.name;
+    }
 
     $scope.create_character = function(){
       $scope.endpoint.all('characters').post($scope.characterForm)

@@ -32,8 +32,8 @@ class RoomViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	def list(self, request, *args, **kwargs):
 		try:
 			query = request.QUERY_PARAMS['query']
-			relax = models.RelaxRoom.objects.filter(name__icontains=query)
-			pve = models.PVERoom.objects.filter(name__icontains=query)
+			relax = models.RelaxRoom.objects.filter(name__icontains=query)[:5]
+			pve = models.PVERoom.objects.filter(name__icontains=query)[:5]
 		except:
 			relax = models.RelaxRoom.objects.all()
 			pve = models.PVERoom.objects.all()
