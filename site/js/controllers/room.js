@@ -704,16 +704,16 @@ angular.module('room', ['luegg.directives'])
 .controller('RelaxRoom',
   ['$scope', 'Restangular', '$stateParams', '$localStorage', '$modal',
     'Facebook', 'FBStoriesService',
-    'character', 'room',
+    'character', 'room', 'inventory', 'buy_items',
   function($scope, Restangular, $stateParams, $localStorage, $modal,
             Facebook, FBStoriesService,
-            character, room){
+            character, room, inventory, buy_items){
     $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
     $scope.character_endpoint = Restangular.one('characters', $localStorage.character.name);
-    $scope.character = $scope.character_endpoint.get().$object;
     $scope.init_msg = 'Welcome, I am the merchant at ' + $stateParams.room_name;
-    $scope.buy_items = $scope.endpoint.all('items').getList().$object;
-    $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
+    $scope.sell_items = inventory;
+    $scope.buy_items = buy_items;
+    $scope.character = character;
     $scope.msgForm = {};
     $scope.action = 'BUY';
 
@@ -731,9 +731,9 @@ angular.module('room', ['luegg.directives'])
         //find the item by name
         var i;
         if($scope.action == 'BUY'){
-          for(i = 0; i < $scope.buy_items.length; i++){
-            if(item_name == $scope.buy_items[i].name){
-              return $scope.buy_items[i];
+          for(i = 0; i < buy_items.length; i++){
+            if(item_name == buy_items[i].name){
+              return buy_items[i];
             }
           }
           return undefined;
@@ -930,7 +930,7 @@ angular.module('room', ['luegg.directives'])
               Facebook, FBStoriesService,
               user, action, character,
               shop, item, fb_action){
-    $scope.user = user;
+    $scope.user = user.username;
     $scope.action = action;
     $scope.character = character.name;
     $scope.shop = shop.name;

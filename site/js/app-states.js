@@ -88,7 +88,7 @@ angular.module('states', [])
       resolve: {
         character: ['$localStorage', 'Restangular', '$modal',
         function($localStorage, Restangular, $modal){
-          return Restangular.one('characters', $localStorage.character).get()
+          return Restangular.one('characters', $localStorage.character.name).get()
           .then(
             function(response){
               var character = Restangular.stripRestangular(response);
@@ -102,7 +102,7 @@ angular.module('states', [])
 
         character_abilities: ['$localStorage', 'Restangular', 
         function($localStorage, Restangular){
-          return Restangular.one('characters', $localStorage.character).getList('abilities')
+          return Restangular.one('characters', $localStorage.character.name).getList('abilities')
           .then(
             function(response){
               var obj = Restangular.stripRestangular(response);
@@ -113,7 +113,7 @@ angular.module('states', [])
 
         weapons: ['$localStorage', 'Restangular',
         function($localStorage, Restangular){
-          return Restangular.one('characters', $localStorage.character).getList('weapons')
+          return Restangular.one('characters', $localStorage.character.name).getList('weapons')
           .then(
             function(response){
               var obj = Restangular.stripRestangular(response);
@@ -124,7 +124,7 @@ angular.module('states', [])
 
         armors: ['$localStorage', 'Restangular',
         function($localStorage, Restangular){
-          return Restangular.one('characters', $localStorage.character).getList('armors')
+          return Restangular.one('characters', $localStorage.character.name).getList('armors')
           .then(
             function(response){
               var obj = Restangular.stripRestangular(response);
@@ -135,7 +135,7 @@ angular.module('states', [])
 
         items: ['$localStorage', 'Restangular',
         function($localStorage, Restangular){
-          return Restangular.one('characters', $localStorage.character).getList('items')
+          return Restangular.one('characters', $localStorage.character.name).getList('items')
           .then(
             function(response){
               var obj = Restangular.stripRestangular(response);
@@ -203,6 +203,38 @@ angular.module('states', [])
             }
           );
         }],
+
+      inventory: ['$localStorage', 'Restangular',
+      function($localStorage, Restangular){
+          return Restangular.one('characters', $localStorage.character.name)
+          .getList('inventory')
+          .then(
+            function(response){
+              var inventory = Restangular.stripRestangular(response);
+              return inventory;
+            },
+            function(response){
+              console.log(response);
+            }
+          );
+        }],
+
+      buy_items: ['$stateParams', 'Restangular',
+      function($stateParams, Restangular){
+          return Restangular.one('rooms/relax', $stateParams.room_name)
+          .getList('items')
+          .then(
+            function(response){
+              var buy_items = Restangular.stripRestangular(response);
+              return buy_items;
+            },
+            function(response){
+              console.log(response);
+            }
+          );
+        }],
+
+
       },
       })
 

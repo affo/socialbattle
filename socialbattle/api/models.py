@@ -214,9 +214,6 @@ class Character(TargetMixin, FBObjectMixin):
 		return self.curr_mp
 
 	def check_exchange(self, exchange):
-		if not exchange.given:
-			return True
-
 		try:
 			record = InventoryRecord.objects.get(owner=self, item=exchange.item)
 		except ObjectDoesNotExist:
@@ -226,6 +223,22 @@ class Character(TargetMixin, FBObjectMixin):
 			return False
 
 		return True
+
+	def add_to_inventory(self, exchange):
+		try:
+			record = InventoryRecord.objects.get(owner=self, item=exchange.item)
+			record.quantity += exchange.quantity
+			record.save()
+		except ObjectDoesNotExist:
+			record = InventoryRecord.objects.create(owner=self, item=exchange.item, quantity=exchange.quantity)
+
+	def remove_from_inventory(self, exchange):
+		record = InventoryRecord.objects.get(owner=self, item=exchange.item)
+		record.quantity -= exchange.quantity
+		if record.quantity <= 0:
+			record.delete()
+		else:
+			record.save()
 
 	@property
 	def weapon(self):
@@ -473,8 +486,8 @@ class Post(models.Model):
 		except ObjectDoesNotExist:
 			return []
 	
-	give_guils = models.IntegerField(null=True)
-	receive_guils = models.IntegerField(null=True)
+	give_guils = models.IntegerField(default=0)
+	receive_guils = models.IntegerField(default=0)
 
 	opened = models.BooleanField(default=True)
 

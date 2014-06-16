@@ -34,16 +34,17 @@ angular.module('post', ['restangular'])
 )
 
 .controller('RelaxRoomPosts',
-  ['$scope', 'Restangular', '$localStorage',
-  function($scope, Restangular, $localStorage){
-    $scope.postForm = {};
-    $scope.given_items = [{}, ];
-    $scope.received_items = [{}, ];
+  ['$scope', 'Restangular', '$localStorage', 'character', 'inventory',
+  function($scope, Restangular, $localStorage, character, inventory){
+    $scope.postForm = {
+      exchanged_items: [],
+      character: $localStorage.character.url
+    };
     $scope.searched_items = [];
-    $scope.selected_received_items = [];
-    $scope.selected_given_items = [];
     $scope.alerts = [];
     $scope.can_post = true;
+    $scope.character = character;
+    $scope.inventory = inventory;
 
     var _number_given = 1;
     var _number_received = 1;
@@ -54,12 +55,12 @@ angular.module('post', ['restangular'])
 
     $scope.plus_given = function(){
       _number_given++;
-      $scope.given_items.push({});
+      $scope.postForm.exchanged_items.push({given: true});
     };
 
     $scope.plus_received = function(){
       _number_received++;
-      $scope.received_items.push({});
+      $scope.postForm.exchanged_items.push({given: false});
     };
 
     var keys = {
@@ -81,7 +82,7 @@ angular.module('post', ['restangular'])
       }else if(key == keys.DOWN){
 
       }else{
-        $scope.search($scope.received_items[$index].item_name);
+        $scope.search($scope.postForm.exchanged_items[$index].item.name);
       }
     };
 
@@ -96,79 +97,54 @@ angular.module('post', ['restangular'])
       );
     };
 
-    $scope.select_received_item = function($item, $model, $label, $index){
-      $scope.selected_received_items[$index] = $item;
+    $scope.select_given_item = function($item, $model, $label, $index){
+      $scope.postForm.exchanged_items[$index].item = $item.item;
     };
 
-    $scope.select_given_item = function($item, $model, $label, $index){
-      $scope.selected_given_items[$index] = $item;
+    $scope.select_received_item = function($item, $model, $label, $index){
+      $scope.postForm.exchanged_items[$index].item = $item;
     };
 
     $scope.post = function(){
-      //aliases
-      var given_items = $scope.given_items;
-      var received_items = $scope.received_items;
-      var exchanged_items = [];
-
-      if($scope.postForm.give_guils && isNaN($scope.postForm.give_guils)){
+      var post = $scope.postForm;
+      if(post.give_guils && isNaN(post.give_guils)){
         $scope.alerts.push({type: "danger", msg: "Given guils must be a number!"});
         return;
       }
-      if($scope.postForm.receive_guils && isNaN($scope.postForm.receive_guils)){
+      if(post.receive_guils && isNaN(post.receive_guils)){
         $scope.alerts.push({type: "danger", msg: "Received guils must be a number!"});
         return;
       }
 
-      var find_item = function(item_name){
-        for(i = 0; i < $scope.sell_items.length; i++){
-          if(item_name == $scope.sell_items[i].item.name){
-            return $scope.sell_items[i].item;
-          }
-        }
-        return undefined;
-      };
-
-      for(var i = 0; i < $scope.given_items.length; i++){
-        var items = $scope.selected_given_items;
-        if(items[i]){
-          var quantity = received_items[i].quantity;
-          if(quantity && isNaN(quantity)){
-            $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
-            return;
-          }
-          exchanged_items.push({
-            given: true,
-            item: items[i].url,
-            quantity: quantity,
-          });
+      for(var i = 0; i < post.exchanged_items.length; i++){
+        var ex = post.exchanged_items[i];
+        if(ex.quantity && isNaN(ex.quantity)){
+          $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
+          return;
         }
       }
 
-      for(var i = 0; i < $scope.received_items.length; i++){
-        var items = $scope.selected_received_items;
-        if(items[i]){
-          var quantity = received_items[i].quantity;
-          if(quantity && isNaN(quantity)){
-            $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
-            return;
+      post.exchanged_items = post.exchanged_items
+      .filter(
+        function(ex){
+          if(ex.item){
+            return true;
           }
-          exchanged_items.push({
-            given: false,
-            item: items[i].url,
-            quantity: quantity,
-          });
+          return false;
         }
-      }
+      );
 
-      var data = {
-        content: $scope.postForm.content,
-        character: $localStorage.character.url,
-        exchanged_items: exchanged_items,
-        give_guils: $scope.postForm.give_guils,
-        receive_guils: $scope.postForm.receive_guils,
-      }
+      post.exchanged_items = post.exchanged_items
+      .map(
+        function(ex){
+          ex.item = ex.item.url;
+          if(!ex.quantity) delete ex.quantity;
+          if(!ex.given) delete ex.given;
+          return ex;
+        }
+      );
 
-      $scope.endpoint.all('posts').post(data).then(
+      $scope.endpoint.all('posts').post(post).then(
         function(post){
           $scope.posts.unshift(post);
           $scope.postForm = {};
@@ -214,39 +190,10 @@ angular.module('post', ['restangular'])
 .controller('Post',
   ['$scope', 'Restangular',
   function($scope, Restangular){
+    var character = $scope.character;
+    var inventory = $scope.inventory;
     $scope.comment = {};
     $scope.searched_items = [];
-
-    var init_post_vars = function(post){
-      var _given_items = post.exchanged_items
-      .filter(
-        function(exchange){
-          return exchange.given;
-        }
-      );
-      var _received_items = post.exchanged_items
-      .filter(
-        function(exchange){
-          return !exchange.given;
-        }
-      );
-      $scope.given_items = _given_items.map(
-        function(exchange){
-            return {item_name: exchange.item, quantity: exchange.quantity};
-        }
-      );
-      $scope.received_items = _received_items.map(
-        function(exchange){
-          return {item_name: exchange.item, quantity: exchange.quantity};
-        }
-      );
-      $scope.selected_received_items = _received_items.map(
-        function(exchange){
-          return exchange.item;
-        }
-      );
-    }
-    init_post_vars($scope.post);
     $scope.alerts = [];
     $scope.showing = false;
     $scope.editing = false;
@@ -267,16 +214,60 @@ angular.module('post', ['restangular'])
 
     $scope.plus_given = function(){
       _number_given++;
-      $scope.given_items.push({});
+      $scope.editPost.exchanged_items.push({given: true});
     };
 
     $scope.plus_received = function(){
       _number_received++;
-      $scope.received_items.push({});
+      $scope.editPost.exchanged_items.push({given: false});
     };
+
+    var acceptable = function(post){
+      console.log(post); //rem
+      if(!post.opened){
+        return false;
+      }
+
+      if(post.character == character.url){
+        return false;
+      }
+      //check guils!
+      if(post.receive_guils > character.guils){
+        return false;
+      }
+
+      exchanges = post.exchanged_items;
+      var found = false;
+      for(var i = 0; i < exchanges.length; i++){
+        var ex = exchanges[i];
+        if(!ex.given){
+          for(var j = 0; j < inventory.length; j++){
+            var record = inventory[j];
+            if(record.item.url == ex.item && record.quantity < ex.quantity){
+              return false;
+            }
+            if(record.item.url == ex.item && record.quantity >= ex.quantity){
+              console.log('ok for item ' + record.item.name);
+              found = true;
+            }
+          }
+
+          if(!found){
+            return false;
+          }
+          found = false;
+        }
+      }
+
+      return true;
+    }
+
+    $scope.acceptable = acceptable($scope.post);
 
     $scope.toggle_editing = function(){
       $scope.editing = !$scope.editing;
+      $scope.editPost = $scope.post;
+      $scope.editPost.character = character.url;
     };
 
     var keys = {
@@ -298,7 +289,7 @@ angular.module('post', ['restangular'])
       }else if(key == keys.DOWN){
 
       }else{
-        $scope.search($scope.received_items[$index].item_name);
+        $scope.search($scope.editPost.exchanged_items[$index].item.name);
       }
     };
 
@@ -313,8 +304,12 @@ angular.module('post', ['restangular'])
       );
     };
 
-    $scope.select_item = function($item, $model, $label, $index){
-      $scope.selected_received_items[$index] = $item;
+    $scope.select_received_item = function($item, $model, $label, $index){
+      $scope.editPost.exchanged_items[$index].item = $item;
+    };
+
+    $scope.select_given_item = function($item, $model, $label, $index){
+      $scope.editPost.exchanged_items[$index].item = $item.item;
     };
 
     $scope.delete_post = function(){
@@ -332,75 +327,41 @@ angular.module('post', ['restangular'])
     };
 
     $scope.edit_post = function(){
-      var given_items = $scope.given_items;
-      var received_items = $scope.received_items;
-      var exchanged_items = [];
-
-      if($scope.editPost.give_guils && isNaN($scope.editPost.give_guils)){
+      var post = $scope.editPost;
+      if(post.give_guils && isNaN(post.give_guils)){
         $scope.alerts.push({type: "danger", msg: "Given guils must be a number!"});
         return;
       }
-      if($scope.editPost.receive_guils && isNaN($scope.editPost.receive_guils)){
+      if(post.receive_guils && isNaN(post.receive_guils)){
         $scope.alerts.push({type: "danger", msg: "Received guils must be a number!"});
         return;
       }
 
-      var find_item = function(item_name){
-        for(i = 0; i < $scope.sell_items.length; i++){
-          if(item_name == $scope.sell_items[i].item.name){
-            return $scope.sell_items[i].item;
+      post.exchanged_items = post.exchanged_items
+      .filter(
+        function(ex){
+          if(ex.item){
+            return true;
           }
+          return false;
         }
-        return undefined;
-      };
+      );
 
-      for(var i = 0; i < $scope.given_items.length; i++){
-        if(given_items[i].item_name){
-          var item = find_item(given_items[i].item_name);
-          if(!item){
-            $scope.alerts.push({type: "danger", msg: "Item not found!"});
-            return;
-          }
-          var quantity = given_items[i].quantity;
-          if(quantity && isNaN(quantity)){
-            $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
-            return;
-          }
-          exchanged_items.push({
-            given: true,
-            item: item.url,
-            quantity: quantity,
-          });
+      post.exchanged_items = post.exchanged_items
+      .map(
+        function(ex){
+          ex.item = ex.item.url;
+          if(!ex.quantity) delete ex.quantity;
+          return ex;
         }
-      }
+      );
 
-      for(var i = 0; i < $scope.received_items.length; i++){
-          var items = $scope.selected_received_items;
-        if(items[i]){
-          var quantity = received_items[i].quantity;
-          if(quantity && isNaN(quantity)){
-            $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
-            return;
-          }
-          exchanged_items.push({
-            given: false,
-            item: items[i].url,
-            quantity: quantity,
-          });
-        }
-      }
-
-      var post = Restangular.oneUrl('posts', $scope.post.url);
-      post.content = $scope.editPost.content;
-      post.receive_guils = $scope.editPost.receive_guils;
-      post.give_guils = $scope.editPost.give_guils;
-      post.exchanged_items = exchanged_items;
-      post.character = $scope.post.character;
-      post.put().then(
+      Restangular.oneUrl('post', post.url)
+      .customPUT(post).then(
         function(post){
           //update what you are seeing
           $scope.post = Restangular.stripRestangular(post);
-          init_post_vars($scope.post);
+          $scope.editPost = $scope.post;
           $scope.toggle_editing();
         },
         function(response){
@@ -409,6 +370,22 @@ angular.module('post', ['restangular'])
         }
       );
     };
+
+    $scope.accept = function(){
+      Restangular.oneUrl('post', $scope.post.url)
+      .all('accept')
+      .post({character: $scope.character.url})
+      .then(
+        function(response){
+          $scope.post = Restangular.stripRestangular(response);
+          $scope.acceptable = false;
+        },
+        function(response){
+          $scope.alerts.push({type: 'danger', msg: response.data});
+        }
+      );
+
+    }
 
     $scope.load_comments = function(){
       Restangular.oneUrl('post', $scope.post.url).one('comments').get()
@@ -430,7 +407,6 @@ angular.module('post', ['restangular'])
       Restangular.oneUrl('post', $scope.post.url).all('comments').post($scope.comment)
       .then(
         function(response){//success
-          console.log(response);
           $scope.comment = {};
           if($scope.showing){
             $scope.comments.unshift(response);

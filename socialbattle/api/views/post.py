@@ -2,6 +2,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsAuthor
@@ -51,6 +52,10 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 		if post.character not in request.user.character_set.all():
 			self.permission_denied(request)
 
+		if post.give_guils > post.character.guils:
+			return Response(data={'msg': 'Too much guils'},
+									status=status.HTTP_400_BAD_REQUEST)
+
 		exchanged_items_field = request.DATA.get('exchanged_items', None)
 		if exchanged_items_field:
 			item_serializer = serializers.ExchangeRecordCreateSerializer(
@@ -66,7 +71,7 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 
 			#check exchange parameters are admissible
 			for item in items:
-				if not post.character.check_exchange(item):
+				if item.given and not post.character.check_exchange(item):
 					data = {
 						'msg': 'Cannot offer %d of item %s' % (item.quantity, item.item.name)
 					}
@@ -98,6 +103,18 @@ class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 			queryset = queryset.filter(author__username=username).order_by('-time').all()
 		return queryset	
 
+## Fake models and serializers to handle accpetance of an offer
+from django.db.models import Model, ForeignKey
+class Accept(Model):
+	character = ForeignKey(models.Character)
+
+from rest_framework.serializers import HyperlinkedModelSerializer, HyperlinkedRelatedField
+class AcceptSerializer(HyperlinkedModelSerializer):
+	character = HyperlinkedRelatedField(view_name='character-detail', lookup_field="name")
+	class Meta:
+		model = Accept
+		fields = ('character', )
+
 class PostViewset(viewsets.GenericViewSet,
 					mixins.RetrieveModelMixin,
 					mixins.DestroyModelMixin,
@@ -106,6 +123,9 @@ class PostViewset(viewsets.GenericViewSet,
 	permission_classes = [permissions.IsAuthenticated, IsAuthor]
 
 	def get_serializer_class(self):
+		if self.serializer_class:
+			return self.serializer_class
+
 		if self.request.method == 'PUT':
 			return serializers.PostCreateSerializer
 		return serializers.PostGetSerializer
@@ -125,6 +145,10 @@ class PostViewset(viewsets.GenericViewSet,
 		#cannot offer some other character's items!
 		if post.character not in request.user.character_set.all():
 			self.permission_denied(request)
+
+		if post.give_guils > post.character.guils:
+			return Response(data={'msg': 'Too much guils'},
+									status=status.HTTP_400_BAD_REQUEST)
 
 		exchanged_items_field = request.DATA.get('exchanged_items', None)
 		if exchanged_items_field is not None:
@@ -146,7 +170,7 @@ class PostViewset(viewsets.GenericViewSet,
 
 			#check exchange parameters are admissible
 			for item in items:
-				if not post.character.check_exchange(item):
+				if item.given and not post.character.check_exchange(item):
 					data = {
 						'msg': 'Cannot offer %d of item %s' % (item.quantity, item.item.name)
 					}
@@ -161,6 +185,65 @@ class PostViewset(viewsets.GenericViewSet,
 
 		data = serializers.PostGetSerializer(post, context=self.get_serializer_context()).data
 		return Response(data, status=status.HTTP_200_OK)
+
+	@action(methods=['POST'], serializer_class=AcceptSerializer,
+				permission_classes=[permissions.IsAuthenticated])
+	def accept(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.DATA)
+		if not serializer.is_valid():
+			return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		acceptor = serializer.object.character
+		if acceptor not in request.user.character_set.all():
+			self.permission_denied(request)
+
+		post = self.get_object()
+		offerer = post.character
+
+		if not post.opened:
+			return Response(data={'msg': 'The offer has already been closed'},
+									status=status.HTTP_400_BAD_REQUEST)
+
+		if acceptor == offerer:
+			return Response(data={'msg': 'You cannot accept your own offer'},
+									status=status.HTTP_400_BAD_REQUEST)
+
+		#check if the one that posted can still give items
+		bad_response = Response(data={'msg': 'The offerer cannot satisfy the offer'},
+									status=status.HTTP_400_BAD_REQUEST)
+		if post.give_guils > offerer.guils:
+			return bad_response
+
+		given_items = list(post.exchanged_items.filter(given=True).all())
+		for exchange in given_items:
+			if not offerer.check_exchange(exchange):
+				return bad_response
+
+		#check if the acceptor can give the items required
+		bad_response = Response(data={'msg': 'You cannot satisfy the offer'},
+									status=status.HTTP_400_BAD_REQUEST)
+		if post.receive_guils > acceptor.guils:
+			return bad_response
+
+		received_items = list(post.exchanged_items.filter(given=False).all())
+		for exchange in received_items:
+			if not acceptor.check_exchange(exchange):
+				data = {'msg': 'You cannot satisfy the offer'}
+				return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+		#Ok, apply changes
+		from socialbattle.api.tasks import apply_exchange
+		try:
+			apply_exchange.delay(offerer, acceptor, post)
+		except:
+			apply_exchange(offerer, acceptor, post)
+
+		post.opened = False
+		post.save()
+
+		data = serializers.PostGetSerializer(post, context=self.get_serializer_context()).data
+		return Response(data, status=status.HTTP_200_OK)
+
 
 ### COMMENT
 # GET, POST: /posts/{pk}/comments/
@@ -183,8 +266,7 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 	def pre_save(self, obj):
 		post_pk = self.kwargs.get('pk')
 		post = get_object_or_404(models.Post.objects.all(), pk=post_pk)
-		post = serializers.PostSerializer(post, context=self.get_serializer_context())
-		obj.post = post.object
+		obj.post = post
 		obj.author = self.request.user
 
 

@@ -61,7 +61,7 @@ app.config(
   ]
 );
 
-app.constant('CLIENT_ID', 'e@QRP6E@;XEE_VnRc9H9kv.cXM8?DiJWbfg_K2iX');
+app.constant('CLIENT_ID', '.N?CHW4tRAgfvLNrq3ThSlVL9DsRxqDnA@5Grl2R');
 angular.module('states', [])
 
 .config(
@@ -152,7 +152,7 @@ angular.module('states', [])
       resolve: {
         character: ['$localStorage', 'Restangular', '$modal',
         function($localStorage, Restangular, $modal){
-          return Restangular.one('characters', $localStorage.character).get()
+          return Restangular.one('characters', $localStorage.character.name).get()
           .then(
             function(response){
               var character = Restangular.stripRestangular(response);
@@ -166,7 +166,7 @@ angular.module('states', [])
 
         character_abilities: ['$localStorage', 'Restangular', 
         function($localStorage, Restangular){
-          return Restangular.one('characters', $localStorage.character).getList('abilities')
+          return Restangular.one('characters', $localStorage.character.name).getList('abilities')
           .then(
             function(response){
               var obj = Restangular.stripRestangular(response);
@@ -177,7 +177,7 @@ angular.module('states', [])
 
         weapons: ['$localStorage', 'Restangular',
         function($localStorage, Restangular){
-          return Restangular.one('characters', $localStorage.character).getList('weapons')
+          return Restangular.one('characters', $localStorage.character.name).getList('weapons')
           .then(
             function(response){
               var obj = Restangular.stripRestangular(response);
@@ -188,7 +188,7 @@ angular.module('states', [])
 
         armors: ['$localStorage', 'Restangular',
         function($localStorage, Restangular){
-          return Restangular.one('characters', $localStorage.character).getList('armors')
+          return Restangular.one('characters', $localStorage.character.name).getList('armors')
           .then(
             function(response){
               var obj = Restangular.stripRestangular(response);
@@ -199,7 +199,7 @@ angular.module('states', [])
 
         items: ['$localStorage', 'Restangular',
         function($localStorage, Restangular){
-          return Restangular.one('characters', $localStorage.character).getList('items')
+          return Restangular.one('characters', $localStorage.character.name).getList('items')
           .then(
             function(response){
               var obj = Restangular.stripRestangular(response);
@@ -245,7 +245,7 @@ angular.module('states', [])
      resolve: {
       character: ['$localStorage', 'Restangular', '$modal',
       function($localStorage, Restangular, $modal){
-        return Restangular.one('characters', $localStorage.character).get()
+        return Restangular.one('characters', $localStorage.character.name).get()
         .then(
           function(response){
             var character = Restangular.stripRestangular(response);
@@ -589,8 +589,8 @@ angular.module('services', ['socialBattle'])
 )
 
 .factory('CheckAuthService',
-  ['$rootScope', '$state', 'IdentityService',
-  function($rootScope, $state, IdentityService){
+  ['$rootScope', '$state', 'IdentityService', 'RefreshTokenService',
+  function($rootScope, $state, IdentityService, RefreshTokenService){
     var factory = {};
 
     factory.check_auth = function(){
@@ -600,8 +600,11 @@ angular.module('services', ['socialBattle'])
           //everything is ok 
           //$state.go('user.posts', {username: identity.username});
         },
-        function(identity){
-          $state.go('unlogged');
+        function(error){
+          //not auth
+          if(!RefreshTokenService.refreshing){
+            $state.go('unlogged');
+          }
         }
       );
     };
@@ -783,6 +786,7 @@ angular.module('services', ['socialBattle'])
           $localStorage.refresh_token = response.refresh_token;
           $localStorage.access_token = response.access_token;
           set_header(response.access_token);
+          _refreshing = false;
           _deferred.resolve('Refreshed');
         },
         function(response){
@@ -794,6 +798,8 @@ angular.module('services', ['socialBattle'])
       return _deferred.promise;
     };
 
+    factory.refreshing = _refreshing;
+
     factory.init = function(){
       Restangular.setErrorInterceptor(
         function(response, deferred, responseHandler){
@@ -802,6 +808,8 @@ angular.module('services', ['socialBattle'])
               .then(
                 function(msg){
                   console.info(msg);
+                  // update headers
+                  response.config.headers = Restangular.defaultHeaders;
                   // Repeat the request and then call the handlers the usual way.
                   $http(response.config).then(responseHandler, deferred.reject);
                   // Be aware that no request interceptors are called this way.
@@ -893,7 +901,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     '$localStorage', '$modal', 'user', 'IdentityService', '$http', 'Facebook',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal, user,
             IdentityService, $http, Facebook){
-    $scope.character_name = $localStorage.character;
+    $scope.$storage = $localStorage;
     $scope.username = user.username;
     $scope.facebook = $localStorage.facebook;
 
@@ -916,7 +924,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
       modalInstance.result.then(
         function(character){
-          $scope.character_name = character;
+          $localStorage.character = character;
         }
       );
     }
@@ -974,7 +982,9 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('SelectCharacterModal',
   ['$scope', '$modalInstance', '$localStorage', 'characters', 'endpoint',
-  function($scope, $modalInstance, $localStorage, characters, endpoint){
+    'Restangular',
+  function($scope, $modalInstance, $localStorage, characters, endpoint,
+            Restangular){
     $scope.characters = characters;
     $scope.characterForm = {};
     $scope.alerts = [];
@@ -983,7 +993,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       endpoint.post($scope.characterForm)
       .then(
         function(character){
-          $scope.select(character);
+          $scope.select(Restangular.stripRestangular(character));
         },
         function(response){
           $scope.alerts.push({type: 'danger', msg: response.data});
@@ -992,8 +1002,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     };
 
     $scope.select = function(character){
-      $localStorage.character = character.name;
-      $modalInstance.close(character.name);
+      $modalInstance.close(character);
     };
 
     $scope.closeAlert = function(index){
@@ -1014,7 +1023,7 @@ angular.module('character', ['restangular'])
       .then(
         function(character){
           $scope.character = character;
-          if(character.name == $localStorage.character){
+          if(character.name == $localStorage.character.name){
             $scope.is_me = true;
           }
         }
@@ -1198,6 +1207,156 @@ angular.module('post', ['restangular'])
 .controller('UserPosts',
   ['$scope', 'Restangular',
   function($scope, Restangular){
+    $scope.can_post = false;
+    //because of pagination
+    $scope.endpoint.one('posts').get().then(
+      function(response){
+        $scope.posts = response.results;
+        $scope.next = response.next;
+      }
+    );
+
+    $scope.next_page = function(){
+      Restangular.oneUrl('next_page', $scope.next).get().
+      then(
+        function(response){
+          for(var i = 0; i < response.results.length; i++){
+            $scope.posts.push(response.results[i]);
+          }
+
+          if(response.next){
+            $scope.next = response.next;
+          }else{
+            $scope.next = undefined;
+          }
+        }
+      );
+
+    };
+  }
+  ]
+)
+
+.controller('RelaxRoomPosts',
+  ['$scope', 'Restangular', '$localStorage',
+  function($scope, Restangular, $localStorage){
+    $scope.postForm = {
+      exchanged_items: []
+    };
+    $scope.searched_items = [];
+    $scope.alerts = [];
+    $scope.can_post = true;
+
+    var _number_given = 1;
+    var _number_received = 1;
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
+    };
+
+    $scope.plus_given = function(){
+      _number_given++;
+      $scope.postForm.exchanged_items.push({given: true});
+    };
+
+    $scope.plus_received = function(){
+      _number_received++;
+      $scope.postForm.exchanged_items.push({given: false});
+    };
+
+    var keys = {
+      LEFT: 37,
+      UP: 38,
+      RIGHT: 39,
+      DOWN: 40,
+      ENTER: 13,
+      ESC: 27,
+    };
+
+    $scope.keypressed = function($event, $index){
+      //console.log($event.which);
+      var key = $event.which;
+      if(key == keys.LEFT || key == keys.RIGHT){
+        //does nothing
+      }else if(key == keys.UP){
+
+      }else if(key == keys.DOWN){
+
+      }else{
+        $scope.search($scope.postForm.exchanged_items[$index].item.name);
+      }
+    };
+
+    $scope.search = function(query){
+      if(!query) return;
+      Restangular.all('items').customGET('', {query: query})
+      .then(
+        function(response){
+          var items = Restangular.stripRestangular(response);
+          $scope.searched_items = items;
+        }
+      );
+    };
+
+    $scope.select_given_item = function($item, $model, $label, $index){
+      $scope.postForm.exchanged_items[$index].item = $item.item;
+    };
+
+    $scope.select_received_item = function($item, $model, $label, $index){
+      $scope.postForm.exchanged_items[$index].item = $item;
+    };
+
+    $scope.post = function(){
+      var post = $scope.postForm;
+      if(post.give_guils && isNaN(post.give_guils)){
+        $scope.alerts.push({type: "danger", msg: "Given guils must be a number!"});
+        return;
+      }
+      if(post.receive_guils && isNaN(post.receive_guils)){
+        $scope.alerts.push({type: "danger", msg: "Received guils must be a number!"});
+        return;
+      }
+
+      for(var i = 0; i < post.exchanged_items.length; i++){
+        var ex = post.exchanged_items[i];
+        if(ex.quantity && isNaN(ex.quantity)){
+          $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
+          return;
+        }
+      }
+
+      post.exchanged_items = post.exchanged_items
+      .filter(
+        function(ex){
+          if(ex.item){
+            return true;
+          }
+          return false;
+        }
+      );
+
+      post.exchanged_items = post.exchanged_items
+      .map(
+        function(ex){
+          ex.item = ex.item.url;
+          return ex;
+        }
+      );
+
+      $scope.endpoint.all('posts').post(post).then(
+        function(post){
+          $scope.posts.unshift(post);
+          $scope.postForm = {};
+          $scope.given_items = [{}, ];
+          $scope.received_items = [{}, ];
+        },
+        function(response){
+          console.log(response);
+          $scope.alerts.push({type: "danger", msg: response.data});
+        }
+      );
+    };
+
     //because of pagination
     $scope.endpoint.one('posts').get().then(
       function(response){
@@ -1231,13 +1390,115 @@ angular.module('post', ['restangular'])
   ['$scope', 'Restangular',
   function($scope, Restangular){
     $scope.comment = {};
-    $scope.editPost = { content: $scope.post.content };
+    $scope.searched_items = [];
+
+    var init_post_vars = function(post){
+      var _given_items = post.exchanged_items
+      .filter(
+        function(exchange){
+          return exchange.given;
+        }
+      );
+      var _received_items = post.exchanged_items
+      .filter(
+        function(exchange){
+          return !exchange.given;
+        }
+      );
+      $scope.given_items = _given_items.map(
+        function(exchange){
+            return {item_name: exchange.item.name, quantity: exchange.quantity};
+        }
+      );
+      $scope.received_items = _received_items.map(
+        function(exchange){
+          return {item_name: exchange.item.name, quantity: exchange.quantity};
+        }
+      );
+      $scope.selected_given_items = _given_items.map(
+        function(exchange){
+          return exchange.item;
+        }
+      );
+      $scope.selected_received_items = _received_items.map(
+        function(exchange){
+          return exchange.item;
+        }
+      );
+    }
+    init_post_vars($scope.post);
+    $scope.alerts = [];
     $scope.showing = false;
     $scope.editing = false;
     $scope.next = undefined;
 
+    $scope.editPost = $scope.post;
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
+    };
+
+    var _number_given = 1;
+    var _number_received = 1;
+
+    $scope.closeAlert = function(index){
+      $scope.alerts.splice(index, 1);
+    };
+
+    $scope.plus_given = function(){
+      _number_given++;
+      $scope.given_items.push({});
+    };
+
+    $scope.plus_received = function(){
+      _number_received++;
+      $scope.received_items.push({});
+    };
+
     $scope.toggle_editing = function(){
       $scope.editing = !$scope.editing;
+    };
+
+    var keys = {
+      LEFT: 37,
+      UP: 38,
+      RIGHT: 39,
+      DOWN: 40,
+      ENTER: 13,
+      ESC: 27,
+    };
+
+    $scope.keypressed = function($event, $index){
+      //console.log($event.which);
+      var key = $event.which;
+      if(key == keys.LEFT || key == keys.RIGHT){
+        //does nothing
+      }else if(key == keys.UP){
+
+      }else if(key == keys.DOWN){
+
+      }else{
+        $scope.search($scope.received_items[$index].item_name);
+      }
+    };
+
+    $scope.search = function(query){
+      if(!query) return;
+      Restangular.all('items').customGET('', {query: query})
+      .then(
+        function(response){
+          var items = Restangular.stripRestangular(response);
+          $scope.searched_items = items;
+        }
+      );
+    };
+
+    $scope.select_received_item = function($item, $model, $label, $index){
+      $scope.selected_received_items[$index] = $item;
+    };
+
+    $scope.select_given_item = function($item, $model, $label, $index){
+      $scope.selected_given_items[$index] = $item.item;
     };
 
     $scope.delete_post = function(){
@@ -1255,14 +1516,67 @@ angular.module('post', ['restangular'])
     };
 
     $scope.edit_post = function(){
-      var post =  Restangular.oneUrl('posts', $scope.post.url);
-      console.log(post);
+      var given_items = $scope.given_items;
+      var received_items = $scope.received_items;
+      var exchanged_items = [];
+
+      if($scope.editPost.give_guils && isNaN($scope.editPost.give_guils)){
+        $scope.alerts.push({type: "danger", msg: "Given guils must be a number!"});
+        return;
+      }
+      if($scope.editPost.receive_guils && isNaN($scope.editPost.receive_guils)){
+        $scope.alerts.push({type: "danger", msg: "Received guils must be a number!"});
+        return;
+      }
+
+      for(var i = 0; i < $scope.given_items.length; i++){
+        var items = $scope.selected_given_items;
+        if(items[i]){
+          var quantity = $scope.given_items[i].quantity;
+          if(quantity && isNaN(quantity)){
+            $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
+            return;
+          }
+          exchanged_items.push({
+            given: true,
+            item: items[i].url,
+            quantity: quantity,
+          });
+        }
+      }
+
+      for(var i = 0; i < $scope.received_items.length; i++){
+        var items = $scope.selected_received_items;
+        if(items[i]){
+          var quantity = $scope.received_items[i].quantity;
+          if(quantity && isNaN(quantity)){
+            $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
+            return;
+          }
+          exchanged_items.push({
+            given: false,
+            item: items[i].url,
+            quantity: quantity,
+          });
+        }
+      }
+
+      var post = Restangular.oneUrl('posts', $scope.post.url);
       post.content = $scope.editPost.content;
+      post.receive_guils = $scope.editPost.receive_guils;
+      post.give_guils = $scope.editPost.give_guils;
+      post.exchanged_items = exchanged_items;
+      post.character = $scope.post.character;
       post.put().then(
-        function(response){
+        function(post){
           //update what you are seeing
-          $scope.post.content = post.content;
+          $scope.post = Restangular.stripRestangular(post);
+          init_post_vars($scope.post);
           $scope.toggle_editing();
+        },
+        function(response){
+          console.log(response);
+          $scope.alerts.push({type: "danger", msg: response.data});
         }
       );
     };
@@ -1287,7 +1601,6 @@ angular.module('post', ['restangular'])
       Restangular.oneUrl('post', $scope.post.url).all('comments').post($scope.comment)
       .then(
         function(response){//success
-          console.log(response);
           $scope.comment = {};
           if($scope.showing){
             $scope.comments.unshift(response);
@@ -2073,17 +2386,17 @@ angular.module('room', ['luegg.directives'])
             Facebook, FBStoriesService,
             character, room){
     $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
-    $scope.character_endpoint = Restangular.one('characters', $localStorage.character);
+    $scope.character_endpoint = Restangular.one('characters', $localStorage.character.name);
     $scope.character = $scope.character_endpoint.get().$object;
     $scope.init_msg = 'Welcome, I am the merchant at ' + $stateParams.room_name;
     $scope.buy_items = $scope.endpoint.all('items').getList().$object;
+    $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
     $scope.msgForm = {};
     $scope.action = 'BUY';
 
     $scope.toggle_action = function(){
       if($scope.action == 'BUY'){
         $scope.action = 'SELL';
-        $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
       }else{
         $scope.action = 'BUY';
       }
@@ -2190,9 +2503,7 @@ angular.module('room', ['luegg.directives'])
         $scope.messages.push(msg);
         $scope.transaction_ended(msg.content);
 
-        if($scope.action == 'SELL'){
-          $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
-        }
+        $scope.sell_items = $scope.character_endpoint.getList('inventory').$object;
       },
 
       KO: function(resp){
@@ -2279,50 +2590,6 @@ angular.module('room', ['luegg.directives'])
       .then(
         function() {
           ai.reset();
-        }
-      );
-
-    };
-  }
-  ]
-)
-
-.controller('RelaxRoomPosts',
-  ['$scope', 'Restangular',
-  function($scope, Restangular){
-    $scope.postForm = {};
-    $scope.can_post = true;
-
-    $scope.post = function(){
-      $scope.endpoint.all('posts').post($scope.postForm).then(
-        function(post){
-          $scope.posts.unshift(post);
-          $scope.postForm = {};
-        }
-      );
-    };
-
-    //because of pagination
-    $scope.endpoint.one('posts').get().then(
-      function(response){
-        $scope.posts = response.results;
-        $scope.next = response.next;
-      }
-    );
-
-    $scope.next_page = function(){
-      Restangular.oneUrl('next_page', $scope.next).get().
-      then(
-        function(response){
-          for(var i = 0; i < response.results.length; i++){
-            $scope.posts.push(response.results[i]);
-          }
-
-          if(response.next){
-            $scope.next = response.next;
-          }else{
-            $scope.next = undefined;
-          }
         }
       );
 
@@ -2485,6 +2752,7 @@ angular.module('user', ['restangular'])
 .controller('UserDetail',
   ['$scope', '$stateParams', 'Restangular', '$state', '$localStorage', 'user',
   function($scope, $stateParams, Restangular, $state, $localStorage, identity) {
+    $scope.identity = identity;
     $scope.endpoint = Restangular.one('users', $stateParams.username);
     $scope.endpoint.get().then(
       function(user){
@@ -2576,13 +2844,19 @@ angular.module('user', ['restangular'])
   ['$scope', 'Restangular', '$localStorage',
   function($scope, Restangular, $localStorage){
     var characters = $scope.endpoint.getList('characters').$object;
+    $scope.selected_character = $localStorage.character;
     $scope.characters = characters;
     $scope.characterForm = {};
     $scope.alerts = [];
 
     $scope.select = function(character){
-      $localStorage.character = character.name;
+      $localStorage.character = character;
+      $scope.selected_character = character;
     };
+
+    $scope.is_selected = function(character){
+      return character.name == $scope.selected_character.name;
+    }
 
     $scope.create_character = function(){
       $scope.endpoint.all('characters').post($scope.characterForm)

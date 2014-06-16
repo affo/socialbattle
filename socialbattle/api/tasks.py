@@ -40,3 +40,22 @@ def end_battle(character, mob):
 		character.vit = mechanics.get_stat(character.level, 'VIT')
 
 	character.save()
+
+@shared_task
+def apply_exchange(offerer, acceptor, post):
+	exchanges = list(post.exchanged_items.all())
+	for exchange in exchanges:
+		if exchange.given:
+			offerer.remove_from_inventory(exchange)
+			acceptor.add_to_inventory(exchange)
+		else:
+			acceptor.remove_from_inventory(exchange)
+			offerer.add_to_inventory(exchange)
+
+	offerer.guils -= post.give_guils
+	acceptor.guils += post.give_guils
+	acceptor.guils -= post.receive_guils
+	offerer.guils += post.receive_guils
+
+	acceptor.save()
+	offerer.save()
