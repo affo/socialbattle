@@ -476,6 +476,11 @@ class Post(models.Model):
 	room = models.ForeignKey(RelaxRoom)
 	time = models.DateTimeField(auto_now=True)
 
+	@property
+	def no_comments(self):
+		return self.comment_set.count();
+
+
 	#exchange
 	character = models.ForeignKey(Character, null=True)
 

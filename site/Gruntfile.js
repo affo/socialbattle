@@ -23,6 +23,7 @@ module.exports = function(grunt) {
           'js/app.js',
           'js/app-states.js',
           'js/services.js',
+          'js/directives.js',
           'js/controllers/*',
         ],
 
@@ -41,9 +42,7 @@ module.exports = function(grunt) {
     watch: {
       files: [
         'js/app.raw.js',
-        'js/app-states.js',
         'js/services.raw.js',
-        'js/controllers/*',
         'html/partials/index.raw.html',
       ],
       tasks: ['preprocess'],
@@ -53,6 +52,7 @@ module.exports = function(grunt) {
       app: 'js/app.raw.js',
       states: 'js/app-states.js',
       services: 'js/services.raw.js',
+      directives: 'js/directives.js',
       auth: 'js/controllers/auth.js',
       character: 'js/controllers/character.js',
       logged: 'js/controllers/logged.js',
@@ -67,6 +67,7 @@ module.exports = function(grunt) {
         'js/app.raw.js',
         'js/app-states.js',
         'js/services.raw.js',
+        'js/directives.js',
         'js/controllers/auth.js',
         'js/controllers/character.js',
         'js/controllers/logged.js',

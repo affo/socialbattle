@@ -1,8 +1,10 @@
 angular.module('post', ['restangular'])
 
 .controller('UserPosts',
-  ['$scope', 'Restangular',
-  function($scope, Restangular){
+  ['$scope', 'Restangular', 'character', 'inventory',
+  function($scope, Restangular, character, inventory){
+    $scope.character = character;
+    $scope.inventory = inventory;
     $scope.can_post = false;
     //because of pagination
     $scope.endpoint.one('posts').get().then(
@@ -191,8 +193,8 @@ angular.module('post', ['restangular'])
 )
 
 .controller('Post',
-  ['$scope', 'Restangular',
-  function($scope, Restangular){
+  ['$scope', 'Restangular', '$state',
+  function($scope, Restangular, $state){
     var character = $scope.character;
     var inventory = $scope.inventory;
     $scope.comment = {};
@@ -227,18 +229,22 @@ angular.module('post', ['restangular'])
 
     var acceptable = function(post){
       if(post.exchanged_items.length === 0){
+        $scope.not_acceptable_why = 'No exchange';
         return false;
       }
 
       if(!post.opened){
+        $scope.not_acceptable_why = 'Closed';
         return false;
       }
 
       if(post.character == character.url){
+        $scope.not_acceptable_why = 'Post of yours';
         return false;
       }
       //check guils!
       if(post.receive_guils > character.guils){
+        $scope.not_acceptable_why = 'Not enough guils';
         return false;
       }
 
@@ -249,11 +255,11 @@ angular.module('post', ['restangular'])
         if(!ex.given){
           for(var j = 0; j < inventory.length; j++){
             var record = inventory[j];
-            if(record.item.url == ex.item && record.quantity < ex.quantity){
+            if(record.item.url == ex.item.url && record.quantity < ex.quantity){
+              $scope.not_acceptable_why = 'Not enough ' + ex.item.name;
               return false;
             }
-            if(record.item.url == ex.item && record.quantity >= ex.quantity){
-              console.log('ok for item ' + record.item.name);
+            if(record.item.url == ex.item.url && record.quantity >= ex.quantity){
               found = true;
             }
           }
@@ -271,9 +277,9 @@ angular.module('post', ['restangular'])
     $scope.acceptable = acceptable($scope.post);
 
     $scope.toggle_editing = function(){
+      //reload post:
+      $scope.editPost = Restangular.oneUrl('post', $scope.post.url).get().$object;
       $scope.editing = !$scope.editing;
-      $scope.editPost = $scope.post;
-      $scope.editPost.character = character.url;
     };
 
     var keys = {

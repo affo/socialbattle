@@ -6,6 +6,7 @@ var app = angular.module('socialBattle', [
   'ui.bootstrap',
   
   'services',
+  'directives',
   'auth',
   'user',
   'room',

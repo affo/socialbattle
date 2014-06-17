@@ -122,6 +122,8 @@ class PostGetSerializer(serializers.HyperlinkedModelSerializer):
 
 	author = UserSerializer(fields=['url', 'username', 'img'], read_only=True)
 
+	no_comments = serializers.Field(source='no_comments')
+
 	character = serializers.HyperlinkedRelatedField(
 		view_name='character-detail',
 		lookup_field='name',
@@ -137,7 +139,7 @@ class PostGetSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = models.Post
 		fields = ('url', 'content', 'author', 'character', 'room', 'time',
-					'exchanged_items', 'give_guils', 'receive_guils', 'opened')
+					'exchanged_items', 'give_guils', 'receive_guils', 'opened', 'no_comments')
 		read_only_fields = ('time', 'opened')
 
 class PostCreateSerializer(PostGetSerializer):

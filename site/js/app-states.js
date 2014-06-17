@@ -70,7 +70,38 @@ angular.module('states', [])
       .state('user.posts', {
         url: '/posts',
         templateUrl: 'html/partials/posts.html',
-        controller: 'UserPosts'
+        controller: 'UserPosts',
+
+        resolve: {
+          character: ['$localStorage', 'Restangular',
+          function($localStorage, Restangular){
+            return Restangular.one('characters', $localStorage.character.name).get()
+            .then(
+              function(response){
+                var character = Restangular.stripRestangular(response);
+                return character;
+              },
+              function(response){
+                console.log(response);
+              }
+            );
+          }],
+
+          inventory: ['$localStorage', 'Restangular',
+          function($localStorage, Restangular){
+            return Restangular.one('characters', $localStorage.character.name)
+            .getList('inventory')
+            .then(
+              function(response){
+                var inventory = Restangular.stripRestangular(response);
+                return inventory;
+              },
+              function(response){
+                console.log(response);
+              }
+            );
+          }],
+        }
       })
 
       .state('user.characters', {
@@ -179,8 +210,8 @@ angular.module('states', [])
       controller: 'RelaxRoom',
 
      resolve: {
-      character: ['$localStorage', 'Restangular', '$modal',
-      function($localStorage, Restangular, $modal){
+      character: ['$localStorage', 'Restangular',
+      function($localStorage, Restangular){
         return Restangular.one('characters', $localStorage.character.name).get()
         .then(
           function(response){
@@ -243,6 +274,14 @@ angular.module('states', [])
         templateUrl: 'html/partials/posts.html',
         controller: 'RelaxRoomPosts'
       })
+
+    .state('post', {
+      parent: 'logged',
+
+      url: '/posts/:id',
+      templateUrl: 'html/partials/post.html',
+      controller: 'Post',
+    })
 
     .state('character', {
       parent: 'logged',
