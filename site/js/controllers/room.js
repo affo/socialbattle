@@ -311,9 +311,9 @@ angular.module('room', ['luegg.directives'])
             m.result.then(
               function(){
                 //re-resolve
-                $scope.weapons = Restangular.one('characters', $localStorage.character).getList('weapons').$object;
-                $scope.armors = Restangular.one('characters', $localStorage.character).getList('armors').$object;
-                $scope.items = Restangular.one('characters', $localStorage.character).getList('items').$object;
+                $scope.weapons = Restangular.one('characters', $localStorage.character.name).getList('weapons').$object;
+                $scope.armors = Restangular.one('characters', $localStorage.character.name).getList('armors').$object;
+                $scope.items = Restangular.one('characters', $localStorage.character.name).getList('items').$object;
                 Restangular.one('characters', $localStorage.character).get().then(
                   function(response){
                     $scope.character = Restangular.stripRestangular(response);
@@ -931,7 +931,7 @@ angular.module('room', ['luegg.directives'])
               user, action, character,
               shop, item, fb_action){
     $scope.user = user.username;
-    $scope.action = action;
+    $scope.action = action.name;
     $scope.character = character.name;
     $scope.shop = shop.name;
     $scope.item = item.name;

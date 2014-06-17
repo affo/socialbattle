@@ -30,7 +30,7 @@
         <div class="form-group row" ng-repeat="exchange in postForm.exchanged_items track by $index"
           ng-if="exchange.given">
           <div class="col-md-10">
-            <input type="text" class="form-control" ng-model="exchange.item.name"
+            <input type="text" class="form-control" ng-model="exchange.item_name"
             placeholder="I give you"
             typeahead="item.item.name for item in sell_items | filter:$viewValue"
             typeahead-on-select="select_given_item($item, $model, $label, $index)" 
@@ -57,7 +57,7 @@
         <div class="form-group row" ng-repeat="exchange in postForm.exchanged_items track by $index"
           ng-if="!exchange.given">
           <div class="col-md-10">
-            <input type="text" class="form-control" ng-model="exchange.item.name"
+            <input type="text" class="form-control" ng-model="exchange.item_name"
               ng-keyup="keypressed($event, $index)"
               typeahead="item.name for item in searched_items"
               typeahead-on-select="select_received_item($item, $model, $label, $index)" 

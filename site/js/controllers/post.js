@@ -82,7 +82,7 @@ angular.module('post', ['restangular'])
       }else if(key == keys.DOWN){
 
       }else{
-        $scope.search($scope.postForm.exchanged_items[$index].item.name);
+        $scope.search($scope.postForm.exchanged_items[$index].item_name);
       }
     };
 
@@ -139,7 +139,6 @@ angular.module('post', ['restangular'])
         function(ex){
           ex.item = ex.item.url;
           if(!ex.quantity) delete ex.quantity;
-          if(!ex.given) delete ex.given;
           return ex;
         }
       );
@@ -147,12 +146,16 @@ angular.module('post', ['restangular'])
       $scope.endpoint.all('posts').post(post).then(
         function(post){
           $scope.posts.unshift(post);
-          $scope.postForm = {};
-          $scope.given_items = [{}, ];
-          $scope.received_items = [{}, ];
+          $scope.postForm = {
+            exchanged_items: [],
+            character: $localStorage.character.url
+          };
         },
         function(response){
-          console.log(response);
+          $scope.postForm = {
+            exchanged_items: [],
+            character: $localStorage.character.url
+          };
           $scope.alerts.push({type: "danger", msg: response.data});
         }
       );
@@ -223,7 +226,10 @@ angular.module('post', ['restangular'])
     };
 
     var acceptable = function(post){
-      console.log(post); //rem
+      if(post.exchanged_items.length === 0){
+        return false;
+      }
+
       if(!post.opened){
         return false;
       }
@@ -337,6 +343,14 @@ angular.module('post', ['restangular'])
         return;
       }
 
+      for(var i = 0; i < post.exchanged_items.length; i++){
+        var ex = post.exchanged_items[i];
+        if(ex.quantity && isNaN(ex.quantity)){
+          $scope.alerts.push({type: "danger", msg: "Quantity must be a number!"});
+          return;
+        }
+      }
+
       post.exchanged_items = post.exchanged_items
       .filter(
         function(ex){
@@ -366,6 +380,8 @@ angular.module('post', ['restangular'])
         },
         function(response){
           console.log(response);
+          //reload post:
+          $scope.editPost = Restangular.oneUrl('post', $scope.post.url).get().$object;
           $scope.alerts.push({type: "danger", msg: response.data});
         }
       );

@@ -161,11 +161,6 @@ class PostViewset(viewsets.GenericViewSet,
 			if not item_serializer.is_valid():
 				return Response(data=item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-			#delete all previous exchanges
-			previous_exchanges = list(models.ExchangeRecord.objects.filter(post=post).all())
-			for p in previous_exchanges:
-				p.delete()
-
 			items = item_serializer.object
 
 			#check exchange parameters are admissible
@@ -175,6 +170,11 @@ class PostViewset(viewsets.GenericViewSet,
 						'msg': 'Cannot offer %d of item %s' % (item.quantity, item.item.name)
 					}
 					return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+			# ok delete all previous exchanges
+			previous_exchanges = list(models.ExchangeRecord.objects.filter(post=post).all())
+			for p in previous_exchanges:
+				p.delete()
 
 		self.object = post_serializer.save(force_update=True)
 
