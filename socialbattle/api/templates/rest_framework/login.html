@@ -1,0 +1,12 @@
+{% extends "rest_framework/login_base.html" %}
+
+{% block branding %}
+	<div class="text-center">
+	    <h3>SocialBattle</h3>
+	    <form action="/sa/default/login/facebook/">
+		    <button type="submit" class="btn btn-danger text-center">
+				Login with Facebook
+			</button>
+		</form>
+	</div>
+{% endblock %}

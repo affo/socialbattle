@@ -314,7 +314,7 @@ angular.module('room', ['luegg.directives'])
                 $scope.weapons = Restangular.one('characters', $localStorage.character.name).getList('weapons').$object;
                 $scope.armors = Restangular.one('characters', $localStorage.character.name).getList('armors').$object;
                 $scope.items = Restangular.one('characters', $localStorage.character.name).getList('items').$object;
-                Restangular.one('characters', $localStorage.character).get().then(
+                Restangular.one('characters', $localStorage.character.name).get().then(
                   function(response){
                     $scope.character = Restangular.stripRestangular(response);
                     //re-spawn
@@ -594,7 +594,7 @@ angular.module('room', ['luegg.directives'])
     $scope.alerts = [];
 
     var redirect = function(){
-      $state.go('character.inventory', {name: $localStorage.character});
+      $state.go('character.inventory', {name: $localStorage.character.name});
     };
 
     $scope.tweet_text = 'Lose a battle against ' + mob.name;

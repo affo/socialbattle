@@ -193,8 +193,8 @@ angular.module('post', ['restangular'])
 )
 
 .controller('Post',
-  ['$scope', 'Restangular', '$state',
-  function($scope, Restangular, $state){
+  ['$scope', 'Restangular', '$state', '$stateParams',
+  function($scope, Restangular, $state, $stateParams){
     var character = $scope.character;
     var inventory = $scope.inventory;
     $scope.comment = {};
@@ -401,6 +401,7 @@ angular.module('post', ['restangular'])
         function(response){
           $scope.post = Restangular.stripRestangular(response);
           $scope.acceptable = false;
+          $scope.alerts.push({type: 'success', msg: 'Successfully accepted'});
         },
         function(response){
           $scope.alerts.push({type: 'danger', msg: response.data});

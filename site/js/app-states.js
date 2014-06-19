@@ -275,14 +275,6 @@ angular.module('states', [])
         controller: 'RelaxRoomPosts'
       })
 
-    .state('post', {
-      parent: 'logged',
-
-      url: '/posts/:id',
-      templateUrl: 'html/partials/post.html',
-      controller: 'Post',
-    })
-
     .state('character', {
       parent: 'logged',
 
@@ -301,7 +293,69 @@ angular.module('states', [])
         url: '/inventory',
         templateUrl: 'html/partials/character.inventory.html',
         controller: 'CharacterInventory'
-      });
+      })
+
+  .state('post', {
+    parent: 'logged',
+
+    url: '/posts/:id/',
+    resolve: {
+      character: ['$localStorage', 'Restangular',
+      function($localStorage, Restangular){
+        return Restangular.one('characters', $localStorage.character.name).get()
+        .then(
+          function(response){
+            var character = Restangular.stripRestangular(response);
+            return character;
+          },
+          function(response){
+            console.log(response);
+          }
+        );
+      }],
+
+      inventory: ['$localStorage', 'Restangular',
+      function($localStorage, Restangular){
+        return Restangular.one('characters', $localStorage.character.name)
+        .getList('inventory')
+        .then(
+          function(response){
+            var inventory = Restangular.stripRestangular(response);
+            return inventory;
+          },
+          function(response){
+            console.log(response);
+          }
+        );
+      }],
+
+      post: ['$stateParams', 'Restangular',
+      function($stateParams, Restangular){
+        return Restangular.one('posts', $stateParams.id)
+        .get()
+        .then(
+          function(response){
+            var post = Restangular.stripRestangular(response);
+            return post;
+          },
+          function(response){
+            console.log(response);
+          }
+        );
+      }]
+    },
+
+    controller: [
+      '$scope', 'character', 'inventory', 'post',
+      function($scope, character, inventory, post){
+        $scope.character = character;
+        $scope.inventory = inventory;
+        $scope.post = post;
+      }
+    ],
+    template: '<post post="post" ng-controller="Post"/>'
+  });
+
 	}
   ]
 );

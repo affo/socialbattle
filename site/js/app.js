@@ -1,4 +1,5 @@
 var app = angular.module('socialBattle', [
+  'angular-loading-bar',
   'ui.router', 'states',
   'restangular',
   'facebook',
@@ -62,4 +63,12 @@ app.config(
   ]
 );
 
+app.config(['cfpLoadingBarProvider',
+  function(cfpLoadingBarProvider) {
+    cfpLoadingBarProvider.includeSpinner = false;
+  }
+  ]
+);
+
 app.constant('CLIENT_ID', '.N?CHW4tRAgfvLNrq3ThSlVL9DsRxqDnA@5Grl2R');
+app.constant('API_URL', 'http://localhost.socialbattle:8000/');

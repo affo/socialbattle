@@ -71,8 +71,11 @@
             Settings <span class="glyphicon glyphicon-wrench"></span>
           </a>
           <ul class="dropdown-menu">
-            <li ng-if="!facebook"><a href="" class="text-primary disabled" data-ng-click="ass_facebook()">Connect with Facebook</a>
-            <li><a href="" class="text-danger" data-ng-click="logout()">Log out</a>
+            <li ng-if="!facebook"><a href="" class="text-primary disabled" data-ng-click="ass_facebook()">Connect with Facebook</a></li>
+            <li class="text-danger"><a href="" ng-click="logout()">Log out</a></li>
+            <li class="text-success">
+              <a href="{{devcenter_url}}">DevCenter</a>
+            </li>
           </ul>
         </li>
        </ul>

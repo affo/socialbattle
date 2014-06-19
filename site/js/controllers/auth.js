@@ -1,8 +1,10 @@
 angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Auth',
-  ['$scope', 'Restangular', '$localStorage', 'Facebook', '$state', 'LoginService',
-  function($scope, Restangular, $localStorage, Facebook, $state, LoginService) {
+  ['$scope', 'Restangular', '$localStorage', 'Facebook',
+    '$state', 'LoginService',
+  function($scope, Restangular, $localStorage, Facebook,
+            $state, LoginService){
     $scope.$storage = $localStorage;
     $scope.alerts = [];
     $scope.signinForm = {};
@@ -68,12 +70,15 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
 .controller('Logged',
   ['$scope', '$stateParams', 'Restangular', '$state',
-    '$localStorage', '$modal', 'user', 'IdentityService', '$http', 'Facebook',
+    '$localStorage', '$modal', 'user', 'IdentityService',
+    '$http', 'Facebook', 'API_URL',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal, user,
-            IdentityService, $http, Facebook){
+            IdentityService, $http, Facebook, API_URL){
     $scope.$storage = $localStorage;
     $scope.username = user.username;
     $scope.facebook = $localStorage.facebook;
+
+    $scope.devcenter_url = API_URL + 'oauth/applications/';
 
     if(!$localStorage.character){
       var modalInstance = $modal.open({
