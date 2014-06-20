@@ -45,3 +45,12 @@ class StatSerializer(serializers.Serializer):
 			instance.stat = attrs.get('stat', instance.ct)
 			return instance
 		return fake_models.Stat(**attrs)
+
+
+## Fake models and serializers to handle accpetance of an offer
+from rest_framework.serializers import HyperlinkedModelSerializer, HyperlinkedRelatedField
+class AcceptSerializer(HyperlinkedModelSerializer):
+	character = HyperlinkedRelatedField(view_name='character-detail', lookup_field="name")
+	class Meta:
+		model = fake_models.Accept
+		fields = ('character', )

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from rest_framework.urlpatterns import format_suffix_patterns
-from socialbattle.api.views import user, ability, character, item, mob, post, room, transaction, auth, action
+from socialbattle.api.views import user, ability, character, item, mob, post, room, transaction, auth, action, gift
 from rest_framework.routers import SimpleRouter
 router = SimpleRouter()
 
@@ -48,17 +48,7 @@ router.register(r'inventory', item.InventoryRecordViewSet)
 router.register(r'abilities', ability.AbilityViewSet)
 router.register(r'signup', auth.SignupViewSet)
 
-from rest_framework import viewsets, permissions
-from oauth2_provider.ext.rest_framework import TokenHasScope
-from socialbattle.api.serializers import MobSerializer
-from socialbattle.api.models import Mob
-class SecretViewSet(viewsets.ModelViewSet):
-	queryset = Mob.objects.all()
-	serializer_class = MobSerializer
-	permission_classes = [permissions.IsAuthenticated, TokenHasScope]
-	required_scopes = ['read', 'write']
-
-router.register(r'secret', SecretViewSet)
+router.register(r'gifts', gift.GiftViewSet)
 
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),

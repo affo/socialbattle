@@ -104,16 +104,7 @@ class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 		return queryset	
 
 ## Fake models and serializers to handle accpetance of an offer
-from django.db.models import Model, ForeignKey
-class Accept(Model):
-	character = ForeignKey(models.Character)
-
-from rest_framework.serializers import HyperlinkedModelSerializer, HyperlinkedRelatedField
-class AcceptSerializer(HyperlinkedModelSerializer):
-	character = HyperlinkedRelatedField(view_name='character-detail', lookup_field="name")
-	class Meta:
-		model = Accept
-		fields = ('character', )
+from socialbattle.api.fake_serializers import AcceptSerializer
 
 class PostViewset(viewsets.GenericViewSet,
 					mixins.RetrieveModelMixin,

@@ -1,6 +1,6 @@
 # fake models to serialize, real models are in socialbattle.api.models
 from django.db import models
-from socialbattle.api.models import Ability
+from socialbattle.api.models import Ability, Character
 
 class Target(models.Model):
 	atk = models.IntegerField(default=0)
@@ -32,3 +32,7 @@ class Stat(object):
 	def __init__(self, lvl, stat):
 		self.lvl = lvl
 		self.stat = stat
+
+## Fake models and serializers to handle accpetance of an offer
+class Accept(models.Model):
+	character = models.ForeignKey(Character)
