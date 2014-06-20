@@ -50,6 +50,25 @@ router.register(r'signup', auth.SignupViewSet)
 
 router.register(r'gifts', gift.GiftViewSet)
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK
+@api_view(['GET'])
+def push(request):
+	from socialbattle.api import __p
+	msg = request.QUERY_PARAMS.get('msg', None)
+
+	if msg is None:
+		msg = "empty msg"
+
+	data = {'message': msg}
+
+	__p['test_channel'].trigger('api_event', data)
+
+	return Response(data, status=HTTP_200_OK)
+
+
+
 urlpatterns = patterns('',
 	url(r'^', include(router.urls)),
 	url(r'^me/$', user.me),
@@ -62,6 +81,8 @@ urlpatterns = patterns('',
 	url(r'^rpg/exp/$', action.exp),
 	url(r'^rpg/ct/$', action.ct),
 	url(r'^rpg/stat/$', action.stat),
+
+	url(r'^push/$', push),
 )
 
 #use in the future for a personal template!
