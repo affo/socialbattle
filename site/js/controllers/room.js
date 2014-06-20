@@ -702,10 +702,10 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('RelaxRoom',
-  ['$scope', 'Restangular', '$stateParams', '$localStorage', '$modal',
+  ['$scope', 'Restangular', '$state', '$stateParams', '$localStorage', '$modal',
     'Facebook', 'FBStoriesService',
     'character', 'room', 'inventory', 'buy_items',
-  function($scope, Restangular, $stateParams, $localStorage, $modal,
+  function($scope, Restangular, $state, $stateParams, $localStorage, $modal,
             Facebook, FBStoriesService,
             character, room, inventory, buy_items){
     $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
@@ -913,6 +913,11 @@ angular.module('room', ['luegg.directives'])
       .then(
         function() {
           ai.reset();
+          $state.transitionTo($state.current, $stateParams, {
+              reload: true,
+              inherit: false,
+              notify: true
+          });
         }
       );
 

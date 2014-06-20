@@ -265,6 +265,7 @@ angular.module('post', ['restangular'])
           }
 
           if(!found){
+            $scope.not_acceptable_why = 'Missing item(s)';
             return false;
           }
           found = false;
@@ -368,6 +369,11 @@ angular.module('post', ['restangular'])
       );
 
       post.exchanged_items = post.exchanged_items
+      .filter(
+        function(ex){
+          return ex.item.name.length > 0;
+        }
+      )
       .map(
         function(ex){
           ex.item = ex.item.url;
@@ -401,6 +407,13 @@ angular.module('post', ['restangular'])
         function(response){
           $scope.post = Restangular.stripRestangular(response);
           $scope.acceptable = false;
+          //reload state
+          $state.transitionTo($state.current, $stateParams, {
+              reload: true,
+              inherit: false,
+              notify: true
+          });
+
           $scope.alerts.push({type: 'success', msg: 'Successfully accepted'});
         },
         function(response){
