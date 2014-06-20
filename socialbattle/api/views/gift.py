@@ -7,9 +7,16 @@ from socialbattle.api.models import Item
 from socialbattle.api.serializers import ItemSerializer
 from socialbattle.api.models import ExchangeRecord
 
+from rest_framework.throttling import UserRateThrottle
+
+class GiftRateThrottle(UserRateThrottle):
+	scope = 'gifts'
+	rate = '4/day'
+
 class GiftViewSet(GenericViewSet, CreateModelMixin):
 	model = Item
 	serializer_class = AcceptSerializer
+	throttle_classes = (GiftRateThrottle, )
 	
 	def create(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.DATA)
