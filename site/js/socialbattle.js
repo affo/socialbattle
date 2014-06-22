@@ -5,6 +5,7 @@ var app = angular.module('socialBattle', [
   'facebook',
   'ngStorage',
   'ui.bootstrap',
+  'doowb.angular-pusher',
   
   'services',
   'directives',
@@ -70,7 +71,15 @@ app.config(['cfpLoadingBarProvider',
   ]
 );
 
-app.constant('CLIENT_ID', '.N?CHW4tRAgfvLNrq3ThSlVL9DsRxqDnA@5Grl2R');
+app.config(['PusherServiceProvider',
+  function(PusherServiceProvider){
+    PusherServiceProvider
+      .setToken('3863968fa562d8ec8569')
+      .setOptions({});
+  }
+]);
+
+app.constant('CLIENT_ID', 'hHH7dFdb=KpR0gpJVSiEO6rKArllw9e@=w=-?Gl1');
 app.constant('API_URL', 'http://localhost.socialbattle:8000/');
 
 angular.module('states', [])
@@ -1056,14 +1065,22 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 .controller('Logged',
   ['$scope', '$stateParams', 'Restangular', '$state',
     '$localStorage', '$modal', 'user', 'IdentityService',
-    '$http', 'Facebook', 'API_URL',
+    '$http', 'Facebook', 'API_URL', 'Pusher',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal, user,
-            IdentityService, $http, Facebook, API_URL){
+            IdentityService, $http, Facebook, API_URL, Pusher){
     $scope.$storage = $localStorage;
     $scope.username = user.username;
     $scope.facebook = $localStorage.facebook;
 
     $scope.devcenter_url = API_URL + 'oauth/applications/';
+
+    $scope.notifications = [];
+    //subscribe to pusher channel(s)
+    Pusher.subscribe(user.username, 'fellow',
+      function(notification){
+        $scope.notifications.push(notification);
+      }
+    );
 
     if(!$localStorage.character){
       var modalInstance = $modal.open({
@@ -1629,6 +1646,7 @@ angular.module('post', ['restangular'])
           }
 
           if(!found){
+            $scope.not_acceptable_why = 'Missing item(s)';
             return false;
           }
           found = false;
@@ -1732,6 +1750,11 @@ angular.module('post', ['restangular'])
       );
 
       post.exchanged_items = post.exchanged_items
+      .filter(
+        function(ex){
+          return ex.item.name.length > 0;
+        }
+      )
       .map(
         function(ex){
           ex.item = ex.item.url;
@@ -1765,6 +1788,13 @@ angular.module('post', ['restangular'])
         function(response){
           $scope.post = Restangular.stripRestangular(response);
           $scope.acceptable = false;
+          //reload state
+          $state.transitionTo($state.current, $stateParams, {
+              reload: true,
+              inherit: false,
+              notify: true
+          });
+
           $scope.alerts.push({type: 'success', msg: 'Successfully accepted'});
         },
         function(response){
@@ -2184,7 +2214,7 @@ angular.module('room', ['luegg.directives'])
                 $scope.weapons = Restangular.one('characters', $localStorage.character.name).getList('weapons').$object;
                 $scope.armors = Restangular.one('characters', $localStorage.character.name).getList('armors').$object;
                 $scope.items = Restangular.one('characters', $localStorage.character.name).getList('items').$object;
-                Restangular.one('characters', $localStorage.character).get().then(
+                Restangular.one('characters', $localStorage.character.name).get().then(
                   function(response){
                     $scope.character = Restangular.stripRestangular(response);
                     //re-spawn
@@ -2464,7 +2494,7 @@ angular.module('room', ['luegg.directives'])
     $scope.alerts = [];
 
     var redirect = function(){
-      $state.go('character.inventory', {name: $localStorage.character});
+      $state.go('character.inventory', {name: $localStorage.character.name});
     };
 
     $scope.tweet_text = 'Lose a battle against ' + mob.name;
@@ -2572,10 +2602,10 @@ angular.module('room', ['luegg.directives'])
 )
 
 .controller('RelaxRoom',
-  ['$scope', 'Restangular', '$stateParams', '$localStorage', '$modal',
+  ['$scope', 'Restangular', '$state', '$stateParams', '$localStorage', '$modal',
     'Facebook', 'FBStoriesService',
     'character', 'room', 'inventory', 'buy_items',
-  function($scope, Restangular, $stateParams, $localStorage, $modal,
+  function($scope, Restangular, $state, $stateParams, $localStorage, $modal,
             Facebook, FBStoriesService,
             character, room, inventory, buy_items){
     $scope.endpoint = Restangular.one('rooms/relax', $stateParams.room_name);
@@ -2783,6 +2813,11 @@ angular.module('room', ['luegg.directives'])
       .then(
         function() {
           ai.reset();
+          $state.transitionTo($state.current, $stateParams, {
+              reload: true,
+              inherit: false,
+              notify: true
+          });
         }
       );
 

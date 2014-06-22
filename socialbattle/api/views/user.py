@@ -8,6 +8,7 @@ from rest_framework.decorators import action, permission_classes, api_view
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsFromUser, IsAuthor, IsLoggedUser
+from socialbattle.api import tasks
 
 ### USER
 # GET: /users/
@@ -94,8 +95,8 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 		return queryset
 
 	def pre_save(self, obj):
-		if obj.to_user in self.get_queryset():
-			raise self.AlreadyFollowingError('The fellowship specified already exists')
+		if obj.to_user in self.request.user.follows.all():
+			raise self.AlreadyFollowingError('The sepcified fellowship already exists')
 
 		obj.from_user = self.request.user
 
@@ -105,6 +106,22 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 		except self.AlreadyFollowingError as e:
 			return Response(data={'msg': e.msg}, status=status.HTTP_400_BAD_REQUEST)
 
+	# send realtime notification to user
+	def post_save(self, obj, created=False):
+		if created:
+			data = {
+				'user': serializers.UserSerializer(
+					obj.from_user,
+					context=self.get_serializer_context(),
+					fields=['url', 'username', 'img']
+				).data
+			}
+
+			try:
+				tasks.notify_user.delay(user=obj.to_user, data=data, event='fellow', create=True)
+			except:
+				tasks.notify_user(user=obj.to_user, data=data, event='fellow', create=True)
+			
 
 	def list(self, request, username, *args, **kwargs):
 		try:

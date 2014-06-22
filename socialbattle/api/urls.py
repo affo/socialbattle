@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from rest_framework.urlpatterns import format_suffix_patterns
-from socialbattle.api.views import user, ability, character, item, mob, post, room, transaction, auth, action, gift
+from socialbattle.api.views import user, ability, character, item, mob, \
+		post, room, transaction, auth, action, gift, notification
 from rest_framework.routers import SimpleRouter
 router = SimpleRouter()
 
@@ -49,23 +50,32 @@ router.register(r'abilities', ability.AbilityViewSet)
 router.register(r'signup', auth.SignupViewSet)
 
 router.register(r'gifts', gift.GiftViewSet)
+router.register(r'notifications', notification.NotificationViewSet)
+router.register(r'users/(?P<username>[a-zA-Z0-9-_]+)/notifications',
+		notification.UserNotificationViewSet,
+		base_name='usernotification'
+)
+router.register(r'users/(?P<username>[a-zA-Z0-9-_]+)/notifications/unread',
+		notification.UserUnreadNotificationViewSet,
+		base_name='userunreadnotification'
+)
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
-@api_view(['GET'])
-def push(request):
-	from socialbattle.api import __p
-	msg = request.QUERY_PARAMS.get('msg', None)
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from rest_framework.status import HTTP_200_OK
+# @api_view(['GET'])
+# def push(request):
+# 	from socialbattle.api import pusher
+# 	msg = request.QUERY_PARAMS.get('msg', None)
 
-	if msg is None:
-		msg = "empty msg"
+# 	if msg is None:
+# 		msg = "empty msg"
 
-	data = {'message': msg}
+# 	data = {'message': msg}
 
-	__p['test_channel'].trigger('api_event', data)
+# 	pusher['test_channel'].trigger('api_event', data)
 
-	return Response(data, status=HTTP_200_OK)
+# 	return Response(data, status=HTTP_200_OK)
 
 
 

@@ -71,14 +71,22 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 .controller('Logged',
   ['$scope', '$stateParams', 'Restangular', '$state',
     '$localStorage', '$modal', 'user', 'IdentityService',
-    '$http', 'Facebook', 'API_URL',
+    '$http', 'Facebook', 'API_URL', 'Pusher',
   function($scope, $stateParams, Restangular, $state, $localStorage, $modal, user,
-            IdentityService, $http, Facebook, API_URL){
+            IdentityService, $http, Facebook, API_URL, Pusher){
     $scope.$storage = $localStorage;
     $scope.username = user.username;
     $scope.facebook = $localStorage.facebook;
 
     $scope.devcenter_url = API_URL + 'oauth/applications/';
+
+    $scope.notifications = [];
+    //subscribe to pusher channel(s)
+    Pusher.subscribe(user.username, 'fellow',
+      function(notification){
+        $scope.notifications.push(notification);
+      }
+    );
 
     if(!$localStorage.character){
       var modalInstance = $modal.open({

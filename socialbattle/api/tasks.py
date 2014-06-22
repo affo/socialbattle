@@ -59,3 +59,25 @@ def apply_exchange(offerer, acceptor, post):
 
 	acceptor.save()
 	offerer.save()
+
+from socialbattle.api import pusher
+from socialbattle.api.models import Activity, Notification
+
+@shared_task
+def notify_followers(user, data, event, create=False):
+	followers = list(user.followers.all())
+
+	for f in followers:
+		if create:
+			activity = Activity.objects.create(data=data, event=event)
+			Notification.objects.create(user=f, activity=activity)
+
+		pusher[f.username].trigger(event, data)
+
+@shared_task
+def notify_user(user, event, data, create=False):
+	if create:
+		activity = Activity.objects.create(data=data, event=event)
+		Notification.objects.create(user=user, activity=activity)
+
+	pusher[user.username].trigger(event, data)

@@ -5,6 +5,7 @@ var app = angular.module('socialBattle', [
   'facebook',
   'ngStorage',
   'ui.bootstrap',
+  'doowb.angular-pusher',
   
   'services',
   'directives',
@@ -83,7 +84,15 @@ app.config(['cfpLoadingBarProvider',
   ]
 );
 
-app.constant('CLIENT_ID', '.N?CHW4tRAgfvLNrq3ThSlVL9DsRxqDnA@5Grl2R');
+app.config(['PusherServiceProvider',
+  function(PusherServiceProvider){
+    PusherServiceProvider
+      .setToken('3863968fa562d8ec8569')
+      .setOptions({});
+  }
+]);
+
+app.constant('CLIENT_ID', 'hHH7dFdb=KpR0gpJVSiEO6rKArllw9e@=w=-?Gl1');
 //@ifdef HEROKU
 app.constant('API_URL', 'https://socialbattle-api.herokuapp.com/');
 //@endif

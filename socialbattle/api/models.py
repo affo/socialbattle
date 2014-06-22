@@ -75,7 +75,8 @@ class User(AbstractUser):
 		Up to now we use the standard django user.
 		In addition we have:
 	'''
-	follows = models.ManyToManyField('self', related_name='followss', symmetrical=False, through='Fellowship')
+	follows = models.ManyToManyField('self', related_name='followers', symmetrical=False, through='Fellowship')
+	notifications = models.ManyToManyField('Activity', through='Notification')
 	img = models.URLField()
 
 	@property
@@ -84,7 +85,7 @@ class User(AbstractUser):
 
 	@property
 	def no_followers(self):
-		return self.followss.count();
+		return self.followers.count();
 
 
 # @receiver(post_save, sender=User)
@@ -513,4 +514,15 @@ class Comment(models.Model):
 	author = models.ForeignKey(User)
 	post = models.ForeignKey(Post)
 	time = models.DateTimeField(auto_now=True)
+
+from jsonfield import JSONField
+class Activity(models.Model):
+	event = models.CharField(max_length=20)
+	data = JSONField()
+
+class Notification(models.Model):
+	user = models.ForeignKey(User)
+	activity = models.ForeignKey(Activity)
+	read = models.BooleanField(default=False)
+	time = models.DateTimeField(auto_now_add=True)
 

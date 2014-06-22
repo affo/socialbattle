@@ -259,3 +259,16 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 		model = models.Mob
 		fields = ('url', 'name', 'slug', 'hp',
 					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', 'level', 'fb_id', )
+
+class ActivitySerializer(serializers.ModelSerializer):
+	class Meta:
+		model = models.Activity
+		fields = ('event', 'data', )
+
+class NotificationSerializer(serializers.HyperlinkedModelSerializer):
+	user = UserSerializer(fields=['url', 'username', 'img'], read_only=True)
+	activity = ActivitySerializer(read_only=True)
+
+	class Meta:
+		model = models.Notification
+		fields = ('url', 'user', 'activity', 'read')
