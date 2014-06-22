@@ -84,7 +84,26 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     //subscribe to pusher channel(s)
     Pusher.subscribe(user.username, 'fellow',
       function(notification){
-        $scope.notifications.push(notification);
+        $scope.notifications.push({
+          type: 'fellow',
+          data: notification,
+        });
+      }
+    );
+    Pusher.subscribe(user.username, 'comment',
+      function(notification){
+        $scope.notifications.push({
+          type: 'comment',
+          data: notification,
+        });
+      }
+    );
+    Pusher.subscribe(user.username, 'accept',
+      function(notification){
+        $scope.notifications.push({
+          type: 'accept',
+          data: notification,
+        });
       }
     );
 
@@ -111,6 +130,24 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
         }
       );
     }
+
+    //get notifications
+    Restangular.one('users', $localStorage.user.username)
+    .one('notifications/unread').get()
+    .then(
+      function(response){
+        var notifications = Restangular.stripRestangular(response);
+        $scope.notifications = notifications.results.map(
+          function(n){
+            return {
+              type: n.activity.event,
+              data: n.activity.data
+            };
+          }
+        );
+        $scope.no_unread = notifications.count;
+      }
+    );
 
     $scope.logout = function(){
       IdentityService.authenticate(undefined);

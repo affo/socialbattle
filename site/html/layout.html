@@ -60,11 +60,23 @@
         </form>
 
       <ul class="nav navbar-nav navbar-right">
-        <li><p class="navbar-text"><a ui-sref="user.posts({ username: username})" class="navbar-link">
+        <li><p class="navbar-text"><a ui-sref="user.posts({username: username})" class="navbar-link">
           {{ username }}</a>#<a
           ui-sref="character.inventory({ name: $storage.character.name })" class="navbar-link">{{ $storage.character.name }}
           </a>
           </p>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-envelope"></span>  <span class="badge">{{no_unread}}</span>
+          </a>
+          <ul class="dropdown-menu">
+            <li ng-repeat="n in notifications">
+              <a class="notification" notification="n"></a>
+            </li>
+            <li class="divider"></li>
+            <li class="text-center"><a ui-sref="user.notifications()">Show all</a></li>
+          </ul>
         </li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -106,7 +118,6 @@
     </nav>
   </div>
   <div class="col-md-10">
-    {{notifications|json}}
     <div ui-view></div>
   </div>
 </div> 

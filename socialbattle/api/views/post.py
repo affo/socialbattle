@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsAuthor
+from socialbattle.api import tasks
 
 ### POST
 # GET, POST: /rooms/relax/{room_slug}/posts/
@@ -232,6 +233,22 @@ class PostViewset(viewsets.GenericViewSet,
 		post.opened = False
 		post.save()
 
+		#notify
+		n_data = {
+			'user': serializers.UserSerializer(
+				request.user,
+				context=self.get_serializer_context(),
+				fields=['url', 'username', 'img']
+			).data,
+
+			'post_id': post.pk
+		}
+
+		try:
+			tasks.notify_user.delay(user=post.author, data=n_data, event='accept', create=True)
+		except:
+			tasks.notify_user(user=post.author, data=n_data, event='accept', create=True)
+
 		data = serializers.PostGetSerializer(post, context=self.get_serializer_context()).data
 		return Response(data, status=status.HTTP_200_OK)
 
@@ -259,6 +276,24 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 		post = get_object_or_404(models.Post.objects.all(), pk=post_pk)
 		obj.post = post
 		obj.author = self.request.user
+
+	# send realtime notification to user
+	def post_save(self, obj, created=False):
+		if created:
+			data = {
+				'user': serializers.UserSerializer(
+					obj.author,
+					context=self.get_serializer_context(),
+					fields=['url', 'username', 'img']
+				).data,
+
+				'post_id': obj.post.pk
+			}
+
+			try:
+				tasks.notify_user.delay(user=obj.post.author, data=data, event='comment', create=True)
+			except:
+				tasks.notify_user(user=obj.post.author, data=data, event='comment', create=True)
 
 
 class CommentViewSet(viewsets.GenericViewSet,

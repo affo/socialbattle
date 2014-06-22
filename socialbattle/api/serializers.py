@@ -260,7 +260,12 @@ class MobSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name', 'slug', 'hp',
 					'stre', 'atk', 'mag', 'spd', 'defense', 'mdefense', 'vit', 'img', 'level', 'fb_id', )
 
+class JSONField(serializers.WritableField):
+	def to_native(self, obj):
+		return obj
+
 class ActivitySerializer(serializers.ModelSerializer):
+	data = JSONField()
 	class Meta:
 		model = models.Activity
 		fields = ('event', 'data', )

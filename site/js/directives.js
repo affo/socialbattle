@@ -16,4 +16,13 @@ angular.module('directives', [])
       scope: true,
     };
   }
-);
+)
+
+.directive('notification',
+  function(){
+    return {
+      templateUrl: 'html/templates/notification.html',
+      scope: true,
+    };
+  }
+)

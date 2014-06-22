@@ -1,0 +1,9 @@
+<a ng-if="n.type == 'fellow'" ui-sref="user({username: n.data.user.username})">
+	<strong>{{n.data.user.username}}</strong> started following you
+</a>
+<a ng-if="n.type == 'comment'" ui-sref="post({id: n.data.post_id})">
+	<strong>{{n.data.user.username}}</strong> commented on your post
+</a>
+<a ng-if="n.type == 'accept'" ui-sref="post({id: n.data.post_id})">
+	<strong>{{n.data.user.username}}</strong> accepted your post
+</a>

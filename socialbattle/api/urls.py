@@ -91,8 +91,6 @@ urlpatterns = patterns('',
 	url(r'^rpg/exp/$', action.exp),
 	url(r'^rpg/ct/$', action.ct),
 	url(r'^rpg/stat/$', action.stat),
-
-	url(r'^push/$', push),
 )
 
 #use in the future for a personal template!

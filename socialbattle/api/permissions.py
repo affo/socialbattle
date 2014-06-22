@@ -33,3 +33,14 @@ class IsLoggedUser(permissions.BasePermission):
 		if request.method in permissions.SAFE_METHODS:
 			return True
 		return view.kwargs.get('username', None) == request.user.username
+
+class IsLoggedUserNoSafeMethods(permissions.BasePermission):
+	def has_permission(self, request, view):
+		username = view.kwargs.get('username', None)
+		if username is None:
+			return True
+		
+		return view.kwargs.get('username', None) == request.user.username
+
+	def has_object_permission(self, request, view, obj):
+		return obj.user == request.user

@@ -67,6 +67,12 @@ angular.module('states', [])
         controller: 'UserFollowers'
       })
 
+      .state('user.notifications', {
+        url: '/notifications',
+        templateUrl: 'html/partials/user.notifications.html',
+        controller: 'UserNotifications'
+      })
+
       .state('user.posts', {
         url: '/posts',
         templateUrl: 'html/partials/posts.html',
