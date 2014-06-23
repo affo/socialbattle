@@ -108,6 +108,11 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
         notify(notification, 'accept');
       }
     );
+    Pusher.subscribe(user.username, 'post',
+      function(notification){
+        notify(notification, 'post');
+      }
+    );
 
     if(!$localStorage.character){
       var modalInstance = $modal.open({

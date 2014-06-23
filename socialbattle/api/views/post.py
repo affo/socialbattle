@@ -14,7 +14,8 @@ from socialbattle.api.utils import NotifyMixin
 # GET, PUT, DELETE: /posts/{pk}/
 class RoomPostViewSet(viewsets.GenericViewSet,
 						mixins.CreateModelMixin,
-						mixins.ListModelMixin):
+						mixins.ListModelMixin,
+						NotifyMixin):
 	queryset = models.Post.objects.all()
 	paginate_by = 5
 	paginate_by_param = 'limit'
@@ -80,6 +81,7 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 
 		self.pre_save(post)
 		self.object = post_serializer.save(force_insert=True)
+		self.post_save(post, created=True)
 
 		if items:
 			for item in items:
@@ -90,6 +92,20 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 
 		headers = self.get_success_headers(data)
 		return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
+
+	def post_save(self, post, created=False):
+		#notify
+		if created:
+			data = {
+				'user': serializers.UserSerializer(
+					post.author,
+					context=self.get_serializer_context(),
+					fields=['url', 'username', 'img']
+				).data,
+
+				'post_id': post.pk
+			}
+			self.notify_followers(user=post.author, event='post', data=data)
 
 class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	serializer_class = serializers.PostGetSerializer

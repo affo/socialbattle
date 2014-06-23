@@ -7,3 +7,6 @@
 <a ng-if="n.type == 'accept'" ui-sref="post({id: n.data.post_id})">
 	<strong>{{n.data.user.username}}</strong> accepted your post
 </a>
+<a ng-if="n.type == 'post'" ui-sref="post({id: n.data.post_id})">
+	<strong>{{n.data.user.username}}</strong> wrote a post
+</a>

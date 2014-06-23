@@ -68,9 +68,13 @@ from socialbattle.api.models import Activity, Notification
 def notify_followers(user, data, event, ctx, create=False):
 	followers = list(user.followers.all())
 
+	if followers:
+		activity = Activity.objects.create(data=data, event=event)
+	else:
+		return;
+
 	for f in followers:
 		if create:
-			activity = Activity.objects.create(data=data, event=event)
 			n = Notification.objects.create(user=f, activity=activity)
 			n = NotificationSerializer(n, context=ctx).data
 			data['url'] = n['url']
