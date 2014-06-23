@@ -55,6 +55,7 @@
               autocomplete="off"
               typeahead="user.username for user in results"
               typeahead-template-url="customTemplate.html"
+              typeahead-on-select="go_to_user($item, $model, $label)"
               placeholder="Search">
           </div>
         </form>

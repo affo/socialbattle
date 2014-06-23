@@ -54,6 +54,10 @@ angular.module('search', [])
         }
       );
     };
+
+    $scope.go_to_user = function($item, $model, $label){
+      $state.go('user', {username: $item.username});
+    };
   }
   ]
 );

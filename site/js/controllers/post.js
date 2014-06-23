@@ -447,6 +447,7 @@ angular.module('post', ['restangular'])
           if($scope.showing){
             $scope.comments.unshift(response);
           }
+          $scope.post.no_comments++;
         },
         function(response){//fail
           console.log(response);
