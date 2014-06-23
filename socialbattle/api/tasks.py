@@ -4,6 +4,7 @@ from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from socialbattle.api.models import InventoryRecord
 from socialbattle.api import mechanics
+from socialbattle.api.serializers import NotificationSerializer
 import random, time
 
 @shared_task
@@ -64,20 +65,24 @@ from socialbattle.api import pusher
 from socialbattle.api.models import Activity, Notification
 
 @shared_task
-def notify_followers(user, data, event, create=False):
+def notify_followers(user, data, event, ctx, create=False):
 	followers = list(user.followers.all())
 
 	for f in followers:
 		if create:
 			activity = Activity.objects.create(data=data, event=event)
-			Notification.objects.create(user=f, activity=activity)
+			n = Notification.objects.create(user=f, activity=activity)
+			n = NotificationSerializer(n, context=ctx).data
+			data['url'] = n['url']
 
 		pusher[f.username].trigger(event, data)
 
 @shared_task
-def notify_user(user, event, data, create=False):
+def notify_user(user, event, data, ctx, create=False):
 	if create:
 		activity = Activity.objects.create(data=data, event=event)
-		Notification.objects.create(user=user, activity=activity)
+		n = Notification.objects.create(user=user, activity=activity)
+		n = NotificationSerializer(n, context=ctx).data
+		data['url'] = n['url']
 
 	pusher[user.username].trigger(event, data)

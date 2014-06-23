@@ -81,29 +81,31 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     $scope.devcenter_url = API_URL + 'oauth/applications/';
 
     $scope.notifications = [];
+
+    var notify = function(n, type){
+      $scope.no_unread++;
+      $scope.notifications.unshift({
+        url: n.url,
+        type: type,
+        data: n,
+        read: false,
+      });
+    };
+
     //subscribe to pusher channel(s)
     Pusher.subscribe(user.username, 'fellow',
       function(notification){
-        $scope.notifications.push({
-          type: 'fellow',
-          data: notification,
-        });
+        notify(notification, 'fellow');
       }
     );
     Pusher.subscribe(user.username, 'comment',
       function(notification){
-        $scope.notifications.push({
-          type: 'comment',
-          data: notification,
-        });
+        notify(notification, 'comment');
       }
     );
     Pusher.subscribe(user.username, 'accept',
       function(notification){
-        $scope.notifications.push({
-          type: 'accept',
-          data: notification,
-        });
+        notify(notification, 'accept');
       }
     );
 
@@ -131,23 +133,48 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       );
     }
 
-    //get notifications
+    //load unread notifications
     Restangular.one('users', $localStorage.user.username)
     .one('notifications/unread').get()
     .then(
       function(response){
         var notifications = Restangular.stripRestangular(response);
+        $scope.no_unread = notifications.count;
         $scope.notifications = notifications.results.map(
           function(n){
             return {
+              url: n.url,
               type: n.activity.event,
-              data: n.activity.data
+              data: n.activity.data,
+              read: false
             };
           }
         );
-        $scope.no_unread = notifications.count;
       }
     );
+
+
+    $scope.read = function(){
+      var n_endpoint;
+      var n;
+      for(var i = 0; i < $scope.notifications.length; i++){
+        n = $scope.notifications[i];
+        if(!n.read){
+          n_endpoint = Restangular.oneUrl('notification', n.url);
+          n_endpoint.read = true;
+          n.read = true;
+          n_endpoint.put()
+          .then(
+            function(response){
+              $scope.no_unread--;
+            },
+            function(response){
+              console.log(response);
+            }
+          );
+        }
+      }
+    };
 
     $scope.logout = function(){
       IdentityService.authenticate(undefined);

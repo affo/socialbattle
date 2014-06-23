@@ -245,9 +245,9 @@ class PostViewset(viewsets.GenericViewSet,
 		}
 
 		try:
-			tasks.notify_user.delay(user=post.author, data=n_data, event='accept', create=True)
+			tasks.notify_user.delay(user=post.author, data=n_data, ctx=self.get_serializer_context(), event='accept', create=True)
 		except:
-			tasks.notify_user(user=post.author, data=n_data, event='accept', create=True)
+			tasks.notify_user(user=post.author, data=n_data, ctx=self.get_serializer_context(), event='accept', create=True)
 
 		data = serializers.PostGetSerializer(post, context=self.get_serializer_context()).data
 		return Response(data, status=status.HTTP_200_OK)
@@ -279,7 +279,9 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 
 	# send realtime notification to user
 	def post_save(self, obj, created=False):
-		if created:
+		if created and not obj.author == obj.post.author:
+			print obj.author
+			print self.request.user
 			data = {
 				'user': serializers.UserSerializer(
 					obj.author,
@@ -291,9 +293,9 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 			}
 
 			try:
-				tasks.notify_user.delay(user=obj.post.author, data=data, event='comment', create=True)
+				tasks.notify_user.delay(user=obj.post.author, data=data, ctx=self.get_serializer_context(), event='comment', create=True)
 			except:
-				tasks.notify_user(user=obj.post.author, data=data, event='comment', create=True)
+				tasks.notify_user(user=obj.post.author, data=data, ctx=self.get_serializer_context(), event='comment', create=True)
 
 
 class CommentViewSet(viewsets.GenericViewSet,

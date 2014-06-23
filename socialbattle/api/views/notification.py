@@ -29,6 +29,7 @@ class UserNotificationViewSet(viewsets.GenericViewSet,
 class UserUnreadNotificationViewSet(viewsets.GenericViewSet,
 							mixins.ListModelMixin):
 	serializer_class = serializers.NotificationSerializer
+	permission_classes = [permissions.IsAuthenticated, IsLoggedUserNoSafeMethods]
 	paginate_by = 7
 	paginate_by_param = 'limit'
 	max_paginate_by = 30

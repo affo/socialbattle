@@ -118,9 +118,9 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 			}
 
 			try:
-				tasks.notify_user.delay(user=obj.to_user, data=data, event='fellow', create=True)
+				tasks.notify_user.delay(user=obj.to_user, data=data, ctx=self.get_serializer_context(), event='fellow', create=True)
 			except:
-				tasks.notify_user(user=obj.to_user, data=data, event='fellow', create=True)
+				tasks.notify_user(user=obj.to_user, data=data, ctx=self.get_serializer_context(), event='fellow', create=True)
 			
 
 	def list(self, request, username, *args, **kwargs):
