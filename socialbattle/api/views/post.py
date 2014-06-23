@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsAuthor
-from socialbattle.api import tasks
+from socialbattle.api.utils import NotifyMixin
 
 ### POST
 # GET, POST: /rooms/relax/{room_slug}/posts/
@@ -110,7 +110,8 @@ from socialbattle.api.fake_serializers import AcceptSerializer
 class PostViewset(viewsets.GenericViewSet,
 					mixins.RetrieveModelMixin,
 					mixins.DestroyModelMixin,
-					mixins.UpdateModelMixin):
+					mixins.UpdateModelMixin,
+					NotifyMixin):
 	queryset = models.Post.objects.all()
 	permission_classes = [permissions.IsAuthenticated, IsAuthor]
 
@@ -244,10 +245,7 @@ class PostViewset(viewsets.GenericViewSet,
 			'post_id': post.pk
 		}
 
-		try:
-			tasks.notify_user.delay(user=post.author, data=n_data, ctx=self.get_serializer_context(), event='accept', create=True)
-		except:
-			tasks.notify_user(user=post.author, data=n_data, ctx=self.get_serializer_context(), event='accept', create=True)
+		self.notify(user=post.author, event='accept', data=n_data)
 
 		data = serializers.PostGetSerializer(post, context=self.get_serializer_context()).data
 		return Response(data, status=status.HTTP_200_OK)
@@ -258,7 +256,8 @@ class PostViewset(viewsets.GenericViewSet,
 # GET, PUT, DELETE: /comments/{pk}/
 class PostCommentViewSet(viewsets.GenericViewSet,
 							mixins.ListModelMixin,
-							mixins.CreateModelMixin):
+							mixins.CreateModelMixin,
+							NotifyMixin):
 	serializer_class = serializers.CommentSerializer
 	paginate_by = 5
 	paginate_by_param = 'limit'
@@ -280,8 +279,6 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 	# send realtime notification to user
 	def post_save(self, obj, created=False):
 		if created and not obj.author == obj.post.author:
-			print obj.author
-			print self.request.user
 			data = {
 				'user': serializers.UserSerializer(
 					obj.author,
@@ -292,10 +289,7 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 				'post_id': obj.post.pk
 			}
 
-			try:
-				tasks.notify_user.delay(user=obj.post.author, data=data, ctx=self.get_serializer_context(), event='comment', create=True)
-			except:
-				tasks.notify_user(user=obj.post.author, data=data, ctx=self.get_serializer_context(), event='comment', create=True)
+			self.notify(user=obj.post.author, event='comment', data=data)
 
 
 class CommentViewSet(viewsets.GenericViewSet,

@@ -8,7 +8,7 @@ from rest_framework.decorators import action, permission_classes, api_view
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsFromUser, IsAuthor, IsLoggedUser
-from socialbattle.api import tasks
+from socialbattle.api.utils import NotifyMixin
 
 ### USER
 # GET: /users/
@@ -74,7 +74,8 @@ class UserViewSet(viewsets.GenericViewSet,
 # GET, DELETE: /fellowship/{pk}/
 class UserFollowingViewSet(viewsets.GenericViewSet, 
 						mixins.CreateModelMixin,
-						mixins.ListModelMixin):
+						mixins.ListModelMixin,
+						NotifyMixin):
 	serializer_class = serializers.FollowingSerializer
 	permission_classes = [permissions.IsAuthenticated, IsLoggedUser]
 
@@ -117,10 +118,7 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 				).data
 			}
 
-			try:
-				tasks.notify_user.delay(user=obj.to_user, data=data, ctx=self.get_serializer_context(), event='fellow', create=True)
-			except:
-				tasks.notify_user(user=obj.to_user, data=data, ctx=self.get_serializer_context(), event='fellow', create=True)
+			self.notify(user=obj.to_user, event='fellow', data=data)
 			
 
 	def list(self, request, username, *args, **kwargs):
