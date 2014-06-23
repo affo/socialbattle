@@ -86,6 +86,7 @@ urlpatterns = patterns('',
 	url(r'^oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 	url(r'^sa/default/', include('social.apps.django_app.urls', namespace='social')),
 	url(r'^sa/associate/(?P<backend>[a-z]+)/', auth.associate_by_access_token),
+	url(r'^pusher/auth/$', auth.pusher_auth),
 
 	url(r'^rpg/dmg/$', action.damage),
 	url(r'^rpg/exp/$', action.exp),

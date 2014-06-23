@@ -29,6 +29,18 @@ def associate_by_access_token(request, backend, *args, **kwargs):
 		return Response(data, status=status.HTTP_200_OK)
 	return Response(status=status.HTTP_400_BAD_REQUEST)
 
+from socialbattle.api import pusher
+from pusher import Channel
+@api_view(['POST', ])
+@permission_classes([IsAuthenticated, ])
+def pusher_auth(request, *args, **kwargs):
+	channel_name = request.DATA['channel_name']
+	socket_id = request.DATA['socket_id']
+	
+	channel = Channel(channel_name, pusher)
+	r = channel.authenticate(socket_id)
+	return Response(r, status=status.HTTP_200_OK)
+
 class SignupViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 	model = User
 	serializer_class = UserSerializer

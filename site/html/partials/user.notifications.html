@@ -1,5 +1,6 @@
 <div class="well" ng-repeat="n in notifications">
 	<notification notification="n"/>
+	<span ng-if="!n.read" class="label label-success">New</span>
 </div>
 
 <p class="text-center">

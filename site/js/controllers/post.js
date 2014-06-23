@@ -442,7 +442,7 @@ angular.module('post', ['restangular'])
     $scope.submit = function(){
       Restangular.oneUrl('post', $scope.post.url).all('comments').post($scope.comment)
       .then(
-        function(response){//success
+        function(response){
           $scope.comment = {};
           if($scope.showing){
             $scope.comments.unshift(response);
