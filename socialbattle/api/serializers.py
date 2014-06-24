@@ -138,7 +138,7 @@ class PostGetSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.Post
-		fields = ('url', 'content', 'author', 'character', 'room', 'time',
+		fields = ('url', 'id', 'content', 'author', 'character', 'room', 'time',
 					'exchanged_items', 'give_guils', 'receive_guils', 'opened', 'no_comments')
 		read_only_fields = ('time', 'opened')
 

@@ -17,9 +17,9 @@ class NotifyMixin(object):
 		self._task = tasks.notify_followers
 		self._notify(user, event, data, create)
 
-	def push_comment(self, comment):
+	def push_comment(self, comment, post_id):
 		self._task = tasks.push_comment
-		self._notify(comment)
+		self._notify(comment, post_id)
 
 	def push_post(self, post):
 		self._task = tasks.push_post

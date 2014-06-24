@@ -46,6 +46,7 @@ angular.module('post', ['restangular'])
     };
     $scope.searched_items = [];
     $scope.posts = [];
+    $scope.new_posts = [];
     $scope.alerts = [];
     $scope.can_post = true;
     $scope.character = character;
@@ -57,9 +58,26 @@ angular.module('post', ['restangular'])
     //subscribe to room channel
     Pusher.subscribe(room.slug, 'new-post',
       function(post){
-        $scope.posts.unshift(post);
+        if($localStorage.user.url != post.author.url){
+          //the post is not mine
+          $scope.new_posts.push(post);
+        }
       }
     );
+
+    //unsubscribe on exit
+    $scope.$on('$stateChangeStart', 
+      function(event, toState, toParams, fromState, fromParams){
+        Pusher.unsubscribe(room.slug);
+      }
+    );
+
+    $scope.add_new_posts = function(){
+      for(var i = 0; i < $scope.new_posts.length; i++){
+        $scope.posts.unshift($scope.new_posts[i]);
+      }
+      $scope.new_posts = [];
+    };
 
     $scope.closeAlert = function(index){
       $scope.alerts.splice(index, 1);
@@ -157,7 +175,7 @@ angular.module('post', ['restangular'])
 
       $scope.endpoint.all('posts').post(post).then(
         function(post){
-          //$scope.posts.unshift(post);
+          $scope.posts.unshift(post);
           $scope.postForm = {
             exchanged_items: [],
             character: $localStorage.character.url
@@ -203,8 +221,10 @@ angular.module('post', ['restangular'])
 )
 
 .controller('Post',
-  ['$scope', 'Restangular', '$state', '$stateParams',
-  function($scope, Restangular, $state, $stateParams){
+  ['$scope', 'Restangular', '$state',
+    '$stateParams', 'Pusher', '$localStorage',
+  function($scope, Restangular, $state,
+            $stateParams, Pusher, $localStorage){
     var character = $scope.character;
     var inventory = $scope.inventory;
     $scope.comment = {};
@@ -215,6 +235,26 @@ angular.module('post', ['restangular'])
     $scope.next = undefined;
 
     $scope.editPost = $scope.post;
+
+    //subscribe to post event
+    Pusher.subscribe('post-' + $scope.post.id, 'new-comment',
+      function(comment){
+        if($localStorage.user.url != comment.author.url){
+          //the comment is not mine
+          if($scope.showing){
+            $scope.comments.unshift(comment);
+          }
+          $scope.post.no_comments++;
+        }
+      }
+    );
+
+    //unsubscribe on exit
+    $scope.$on('$stateChangeStart', 
+      function(event, toState, toParams, fromState, fromParams){
+        Pusher.unsubscribe('post-' + $scope.post.id);
+      }
+    );
 
     $scope.closeAlert = function(index){
       $scope.alerts.splice(index, 1);

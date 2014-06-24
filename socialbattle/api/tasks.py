@@ -65,7 +65,7 @@ from socialbattle.api import pusher
 from socialbattle.api.models import Activity, Notification
 
 @shared_task
-def notify_followers(user, event, data, create=False, **kwargs):
+def notify_followers(user, event, data, create=False):
 	followers = list(user.followers.all())
 	if followers:
 		if create:
@@ -79,7 +79,7 @@ def notify_followers(user, event, data, create=False, **kwargs):
 			pusher[f.username].trigger(event, data)
 
 @shared_task
-def notify_user(user, event, data, create=False, **kwargs):
+def notify_user(user, event, data, create=False):
 	if create:
 		activity = Activity.objects.create(data=data, event=event)
 		n = Notification.objects.create(user=user, activity=activity)
@@ -88,7 +88,7 @@ def notify_user(user, event, data, create=False, **kwargs):
 	pusher[user.username].trigger(event, data)
 
 @shared_task
-def notify_commentors(user, post, data, event, create=False, **kwargs):
+def notify_commentors(user, post, data, event, create=False):
 	commentors = [comment.author for comment in post.comment_set.all()]
 	commentors = set(filter((lambda c: c != post.author and c != user), commentors))
 
@@ -106,9 +106,9 @@ def notify_commentors(user, post, data, event, create=False, **kwargs):
 
 #room channels
 @shared_task
-def push_comment(comment, **kwargs):
-	pusher[comment.post.room.slug].trigger('new-comment', comment)
+def push_comment(comment, post_id):
+	pusher['post-%d' % post_id].trigger('new-comment', comment)
 
 @shared_task
-def push_post(post, **kwargs):
+def push_post(post):
 	pusher[post['room']['slug']].trigger('new-post', post)

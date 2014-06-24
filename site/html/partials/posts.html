@@ -72,6 +72,11 @@
     
 </form>
 
+<p class="text-center">
+  <button class="btn btn-warning" ng-if="new_posts.length > 0" ng-click="add_new_posts()">
+    NEW POSTS <span class="badge">{{new_posts.length}}</span>
+  </button>
+</p>
 
 <div class="row" ng-repeat="post in posts">
   <post post="post" ng-controller="Post"></post>

@@ -310,6 +310,9 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 			self.notify_commentors(post=obj.post, user=obj.author, data=data, event='commentor', create=True)
 			if not obj.author == obj.post.author:
 				self.notify(user=obj.post.author, event='comment', data=data, create=True)
+			self.push_comment(
+				serializers.CommentSerializer(obj, context=self.get_serializer_context()).data,
+				obj.post.pk)
 
 
 class CommentViewSet(viewsets.GenericViewSet,

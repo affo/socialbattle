@@ -82,6 +82,8 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
     $scope.notifications = [];
 
+    var MAX_UNREAD = 7;
+
     var notify = function(n, type){
       $scope.no_unread++;
       $scope.notifications.unshift({
@@ -90,6 +92,10 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
         data: n,
         read: false,
       });
+
+      if($scope.notifications.length > MAX_UNREAD){
+        $scope.notifications.pop();
+      }
     };
 
     //subscribe to pusher channel(s)
