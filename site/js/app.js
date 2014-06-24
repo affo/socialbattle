@@ -76,7 +76,9 @@ app.config(['PusherServiceProvider',
   function(PusherServiceProvider){
     PusherServiceProvider
       .setToken('3863968fa562d8ec8569')
-      .setOptions({});
+      .setOptions({
+        //authEndpoint: 'http://localhost.socialbattle:8000/pusher/auth/',
+      });
   }
 ]);
 

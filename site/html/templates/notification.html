@@ -10,3 +10,6 @@
 <a ng-if="n.type == 'post'" ui-sref="post({id: n.data.post_id})">
 	<strong>{{n.data.user.username}}</strong> wrote a post
 </a>
+<a ng-if="n.type == 'commentor'" ui-sref="post({id: n.data.post_id})">
+	<strong>{{n.data.user.username}}</strong> commented on a post you contributed to
+</a>

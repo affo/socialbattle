@@ -72,11 +72,17 @@ app.config(['cfpLoadingBarProvider',
   ]
 );
 
-app.config(['PusherServiceProvider',
-  function(PusherServiceProvider){
+app.config(['PusherServiceProvider', 'RestangularProvider',
+  function(PusherServiceProvider, RestangularProvider){
+    console.log(RestangularProvider.defaultHeaders);
     PusherServiceProvider
       .setToken('3863968fa562d8ec8569')
-      .setOptions({});
+      .setOptions({
+        authEndpoint: 'http://localhost.socialbattle:8000/pusher/auth/',
+        auth: {
+          headers: RestangularProvider.defaultHeaders
+        }
+      });
   }
 ]);
 
@@ -1091,29 +1097,42 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     $scope.devcenter_url = API_URL + 'oauth/applications/';
 
     $scope.notifications = [];
+
+    var notify = function(n, type){
+      $scope.no_unread++;
+      $scope.notifications.unshift({
+        url: n.url,
+        type: type,
+        data: n,
+        read: false,
+      });
+    };
+
     //subscribe to pusher channel(s)
     Pusher.subscribe(user.username, 'fellow',
       function(notification){
-        $scope.notifications.push({
-          type: 'fellow',
-          data: notification,
-        });
+        notify(notification, 'fellow');
       }
     );
     Pusher.subscribe(user.username, 'comment',
       function(notification){
-        $scope.notifications.push({
-          type: 'comment',
-          data: notification,
-        });
+        notify(notification, 'comment');
       }
     );
     Pusher.subscribe(user.username, 'accept',
       function(notification){
-        $scope.notifications.push({
-          type: 'accept',
-          data: notification,
-        });
+        notify(notification, 'accept');
+      }
+    );
+    Pusher.subscribe(user.username, 'post',
+      function(notification){
+        notify(notification, 'post');
+      }
+    );
+
+    Pusher.subscribe('private-lol', 'lol',
+      function(notification){
+        console.log(notification);
       }
     );
 
@@ -1141,23 +1160,48 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       );
     }
 
-    //get notifications
+    //load unread notifications
     Restangular.one('users', $localStorage.user.username)
     .one('notifications/unread').get()
     .then(
       function(response){
         var notifications = Restangular.stripRestangular(response);
+        $scope.no_unread = notifications.count;
         $scope.notifications = notifications.results.map(
           function(n){
             return {
+              url: n.url,
               type: n.activity.event,
-              data: n.activity.data
+              data: n.activity.data,
+              read: false
             };
           }
         );
-        $scope.no_unread = notifications.count;
       }
     );
+
+
+    $scope.read = function(){
+      var n_endpoint;
+      var n;
+      for(var i = 0; i < $scope.notifications.length; i++){
+        n = $scope.notifications[i];
+        if(!n.read){
+          n_endpoint = Restangular.oneUrl('notification', n.url);
+          n_endpoint.read = true;
+          n.read = true;
+          n_endpoint.put()
+          .then(
+            function(response){
+              $scope.no_unread--;
+            },
+            function(response){
+              console.log(response);
+            }
+          );
+        }
+      }
+    };
 
     $scope.logout = function(){
       IdentityService.authenticate(undefined);
@@ -1435,9 +1479,9 @@ angular.module('character', ['restangular'])
 angular.module('notification', [])
 
 .controller('UserNotifications',
-	['$scope', '$localStorage', 'Restangular',
-	function($scope, $localStorage, Restangular){
-		Restangular.one('users', $localStorage.user.username)
+  ['$scope', '$localStorage', 'Restangular',
+  function($scope, $localStorage, Restangular){
+    Restangular.one('users', $localStorage.user.username)
     .one('notifications').get()
     .then(
       function(response){
@@ -1447,32 +1491,61 @@ angular.module('notification', [])
           function(n){
             return {
               type: n.activity.event,
-              data: n.activity.data
+              data: n.activity.data,
+              url: n.url,
+              read: n.read,
             };
           }
         );
+
+        //sign as read the first notifications
+        $scope.read();
       }
     );
 
     $scope.next_page = function(){
-	    Restangular.oneUrl('next_page', $scope.next).get().
-	    then(
-	      function(response){
-	        for(var i = 0; i < response.results.length; i++){
-	          $scope.posts.push(response.results[i]);
-	        }
+      Restangular.oneUrl('next_page', $scope.next).get().
+      then(
+        function(response){
+          var n;
+          for(var i = 0; i < response.results.length; i++){
+            n = response.results[i];
+            $scope.notifications.push(
+              {
+                type: n.activity.event,
+                data: n.activity.data,
+                url: n.url,
+                read: n.read,
+              }
+            );
+          }
 
-	        if(response.next){
-	          $scope.next = response.next;
-	        }else{
-	          $scope.next = undefined;
-	        }
-	      }
-	    );
-	  };
+          if(response.next){
+            $scope.next = response.next;
+          }else{
+            $scope.next = undefined;
+          }
 
-	}
-	]
+          $scope.read();
+        }
+      );
+    };
+
+    $scope.read = function(){
+      var n_endpoint;
+      var n;
+      for(var i = 0; i < $scope.notifications.length; i++){
+        n = $scope.notifications[i];
+        if(!n.read){
+          n_endpoint = Restangular.oneUrl('notification', n.url);
+          n_endpoint.read = true;
+          n_endpoint.put();
+        }
+      }
+    };
+
+  }
+  ]
 );
 angular.module('post', ['restangular'])
 
@@ -1918,11 +1991,12 @@ angular.module('post', ['restangular'])
     $scope.submit = function(){
       Restangular.oneUrl('post', $scope.post.url).all('comments').post($scope.comment)
       .then(
-        function(response){//success
+        function(response){
           $scope.comment = {};
           if($scope.showing){
             $scope.comments.unshift(response);
           }
+          $scope.post.no_comments++;
         },
         function(response){//fail
           console.log(response);
@@ -3066,6 +3140,10 @@ angular.module('search', [])
           $scope.results = users;
         }
       );
+    };
+
+    $scope.go_to_user = function($item, $model, $label){
+      $state.go('user', {username: $item.username});
     };
   }
   ]

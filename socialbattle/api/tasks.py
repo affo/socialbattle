@@ -65,10 +65,12 @@ from socialbattle.api import pusher
 from socialbattle.api.models import Activity, Notification
 
 @shared_task
-def notify_followers(user, data, event, ctx, create=False):
+def notify_followers(user, data, event, create=False, **kwargs):
+	ctx = kwargs.get('ctx', None)
+
 	followers = list(user.followers.all())
 
-	if followers:
+	if followers and create:
 		activity = Activity.objects.create(data=data, event=event)
 	else:
 		return;
@@ -82,7 +84,8 @@ def notify_followers(user, data, event, ctx, create=False):
 		pusher[f.username].trigger(event, data)
 
 @shared_task
-def notify_user(user, event, data, ctx, create=False):
+def notify_user(user, event, data, create=False, **kwargs):
+	ctx = kwargs.get('ctx', None)
 	if create:
 		activity = Activity.objects.create(data=data, event=event)
 		n = Notification.objects.create(user=user, activity=activity)
@@ -90,3 +93,31 @@ def notify_user(user, event, data, ctx, create=False):
 		data['url'] = n['url']
 
 	pusher[user.username].trigger(event, data)
+
+@shared_task
+def notify_commentors(user, post, data, event, create=False, **kwargs):
+	ctx = kwargs.get('ctx', None)
+	commentors = [comment.author for comment in post.comment_set.all()]
+	commentors = set(filter((lambda c: c != post.author and c != user), commentors))
+
+	if commentors and create:
+		activity = Activity.objects.create(data=data, event=event)
+	else:
+		return;
+
+	for commentor in commentors:
+		if create:
+			n = Notification.objects.create(user=commentor, activity=activity)
+			n = NotificationSerializer(n, context=ctx).data
+			data['url'] = n['url']
+
+		pusher[commentor.username].trigger(event, data)
+
+#room channels
+@shared_task
+def push_comment(comment, **kwargs):
+	pusher[comment.post.room.slug].trigger('comment', comment)
+
+@shared_task
+def push_post(post, **kwargs):
+	pusher[post.room.slug].trigger('post', post)

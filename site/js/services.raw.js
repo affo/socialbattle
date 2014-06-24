@@ -520,6 +520,10 @@ angular.module('services', ['socialBattle'])
                   // Repeat the request and then call the handlers the usual way.
                   $http(response.config).then(responseHandler, deferred.reject);
                   // Be aware that no request interceptors are called this way.
+                },
+                function(msg){
+                  console.log(msg);
+                  $http(response.config).then(responseHandler, deferred.reject);
                 }
               );
 

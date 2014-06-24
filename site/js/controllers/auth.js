@@ -30,7 +30,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
             $state.go('user', {username: identity.username});
           },
           function(response){
-            $scope.alerts.push({type: 'danger', msg: response.data});
+            $scope.alerts.push({type: 'danger', msg: 'Incorrect Log in'});
           }
         );
     };
@@ -111,6 +111,11 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     Pusher.subscribe(user.username, 'post',
       function(notification){
         notify(notification, 'post');
+      }
+    );
+    Pusher.subscribe(user.username, 'commentor',
+      function(notification){
+        notify(notification, 'commentor');
       }
     );
 

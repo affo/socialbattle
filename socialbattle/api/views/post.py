@@ -294,7 +294,8 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 
 	# send realtime notification to user
 	def post_save(self, obj, created=False):
-		if created and not obj.author == obj.post.author:
+
+		if created:
 			data = {
 				'user': serializers.UserSerializer(
 					obj.author,
@@ -305,7 +306,9 @@ class PostCommentViewSet(viewsets.GenericViewSet,
 				'post_id': obj.post.pk
 			}
 
-			self.notify(user=obj.post.author, event='comment', data=data)
+			self.notify_commentors(post=obj.post, user=obj.author, data=data, event='commentor', create=True)
+			if not obj.author == obj.post.author:
+				self.notify(user=obj.post.author, event='comment', data=data, create=True)
 
 
 class CommentViewSet(viewsets.GenericViewSet,
