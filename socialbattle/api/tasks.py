@@ -4,7 +4,7 @@ from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from socialbattle.api.models import InventoryRecord
 from socialbattle.api import mechanics
-from socialbattle.api.serializers import NotificationSerializer
+from socialbattle.api.serializers import NotificationSerializer, PostGetSerializer, CommentSerializer
 import random, time
 
 @shared_task
@@ -66,8 +66,6 @@ from socialbattle.api.models import Activity, Notification
 
 @shared_task
 def notify_followers(user, event, data, create=False, **kwargs):
-	ctx = kwargs.get('ctx', None)
-
 	followers = list(user.followers.all())
 	if followers:
 		if create:
@@ -76,25 +74,21 @@ def notify_followers(user, event, data, create=False, **kwargs):
 		for f in followers:
 			if create:
 				n = Notification.objects.create(user=f, activity=activity)
-				n = NotificationSerializer(n, context=ctx).data
-				data['url'] = n['url']
+				data['id'] = n.pk
 
 			pusher[f.username].trigger(event, data)
 
 @shared_task
 def notify_user(user, event, data, create=False, **kwargs):
-	ctx = kwargs.get('ctx', None)
 	if create:
 		activity = Activity.objects.create(data=data, event=event)
 		n = Notification.objects.create(user=user, activity=activity)
-		n = NotificationSerializer(n, context=ctx).data
-		data['url'] = n['url']
+		data['id'] = n.pk
 
 	pusher[user.username].trigger(event, data)
 
 @shared_task
 def notify_commentors(user, post, data, event, create=False, **kwargs):
-	ctx = kwargs.get('ctx', None)
 	commentors = [comment.author for comment in post.comment_set.all()]
 	commentors = set(filter((lambda c: c != post.author and c != user), commentors))
 
@@ -106,8 +100,7 @@ def notify_commentors(user, post, data, event, create=False, **kwargs):
 		for commentor in commentors:
 			if create:
 				n = Notification.objects.create(user=commentor, activity=activity)
-				n = NotificationSerializer(n, context=ctx).data
-				data['url'] = n['url']
+				data['id'] = n.pk
 
 			pusher[commentor.username].trigger(event, data)
 
@@ -118,4 +111,4 @@ def push_comment(comment, **kwargs):
 
 @shared_task
 def push_post(post, **kwargs):
-	pusher[post.room.slug].trigger('new-post', post)
+	pusher[post['room']['slug']].trigger('new-post', post)

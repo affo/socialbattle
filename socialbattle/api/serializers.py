@@ -276,4 +276,4 @@ class NotificationSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.Notification
-		fields = ('url', 'user', 'activity', 'read')
+		fields = ('url', 'id', 'user', 'activity', 'read')

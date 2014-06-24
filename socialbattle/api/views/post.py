@@ -106,6 +106,7 @@ class RoomPostViewSet(viewsets.GenericViewSet,
 				'post_id': post.pk
 			}
 			self.notify_followers(user=post.author, event='post', data=data, create=True)
+			self.push_post(serializers.PostGetSerializer(post, context=self.get_serializer_context()).data)
 
 class UserPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 	serializer_class = serializers.PostGetSerializer

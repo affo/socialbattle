@@ -14,7 +14,7 @@ angular.module('notification', [])
             return {
               type: n.activity.event,
               data: n.activity.data,
-              url: n.url,
+              id: n.id,
               read: n.read,
             };
           }
@@ -36,7 +36,7 @@ angular.module('notification', [])
               {
                 type: n.activity.event,
                 data: n.activity.data,
-                url: n.url,
+                id: n.id,
                 read: n.read,
               }
             );
@@ -59,7 +59,7 @@ angular.module('notification', [])
       for(var i = 0; i < $scope.notifications.length; i++){
         n = $scope.notifications[i];
         if(!n.read){
-          n_endpoint = Restangular.oneUrl('notification', n.url);
+          n_endpoint = Restangular.one('notifications', n.id);
           n_endpoint.read = true;
           n_endpoint.put();
         }

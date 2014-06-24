@@ -4,11 +4,10 @@ class NotifyMixin(object):
 	_task = None
 
 	def _notify(self, *args):
-		ctx = self.get_serializer_context()
 		try:
-			self._task.delay(*args, ctx=ctx)
+			self._task.delay(*args)
 		except:
-			self._task(*args, ctx=ctx)
+			self._task(*args)
 
 	def notify(self, user, event, data, create=False):
 		self._task = tasks.notify_user

@@ -85,7 +85,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
     var notify = function(n, type){
       $scope.no_unread++;
       $scope.notifications.unshift({
-        url: n.url,
+        id: n.id,
         type: type,
         data: n,
         read: false,
@@ -153,7 +153,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
         $scope.notifications = notifications.results.map(
           function(n){
             return {
-              url: n.url,
+              id: n.id,
               type: n.activity.event,
               data: n.activity.data,
               read: false
@@ -170,7 +170,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       for(var i = 0; i < $scope.notifications.length; i++){
         n = $scope.notifications[i];
         if(!n.read){
-          n_endpoint = Restangular.oneUrl('notification', n.url);
+          n_endpoint = Restangular.one('notifications', n.id);
           n_endpoint.read = true;
           n.read = true;
           n_endpoint.put()

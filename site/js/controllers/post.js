@@ -36,13 +36,16 @@ angular.module('post', ['restangular'])
 )
 
 .controller('RelaxRoomPosts',
-  ['$scope', 'Restangular', '$localStorage', 'character', 'inventory',
-  function($scope, Restangular, $localStorage, character, inventory){
+  ['$scope', 'Restangular', '$localStorage',
+    'character', 'inventory', 'room', 'Pusher',
+  function($scope, Restangular, $localStorage,
+            character, inventory, room, Pusher){
     $scope.postForm = {
       exchanged_items: [],
       character: $localStorage.character.url
     };
     $scope.searched_items = [];
+    $scope.posts = [];
     $scope.alerts = [];
     $scope.can_post = true;
     $scope.character = character;
@@ -50,6 +53,13 @@ angular.module('post', ['restangular'])
 
     var _number_given = 1;
     var _number_received = 1;
+
+    //subscribe to room channel
+    Pusher.subscribe(room.slug, 'new-post',
+      function(post){
+        $scope.posts.unshift(post);
+      }
+    );
 
     $scope.closeAlert = function(index){
       $scope.alerts.splice(index, 1);
@@ -147,7 +157,7 @@ angular.module('post', ['restangular'])
 
       $scope.endpoint.all('posts').post(post).then(
         function(post){
-          $scope.posts.unshift(post);
+          //$scope.posts.unshift(post);
           $scope.postForm = {
             exchanged_items: [],
             character: $localStorage.character.url
