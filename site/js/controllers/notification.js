@@ -68,4 +68,43 @@ angular.module('notification', [])
 
   }
   ]
+)
+
+.controller('Activities',
+  ['$scope', 'Pusher',
+  function($scope, Pusher){
+    $scope.activities = [];
+    var MAX_ACTIVITIES = 7;
+
+    var push_activity = function(activity, type){
+      var verb;
+      if(activity.op == 'B'){
+        verb = 'bought';
+      }else if(activity.op == 'S'){
+        verb = 'sold';
+      }
+
+      $scope.activities.unshift({
+        type: type,
+        data: activity,
+        verb: verb,
+      });
+
+      if($scope.activities.length > MAX_ACTIVITIES){
+        $scope.activities.pop();
+      }
+    };
+
+    Pusher.subscribe($scope.username, 'activity-endbattle',
+      function(activity){
+        push_activity(activity, 'activity-endbattle');
+      }
+    );
+    Pusher.subscribe($scope.username, 'activity-transaction',
+      function(activity){
+        push_activity(activity, 'activity-transaction');
+      }
+    );
+  }
+  ]
 );

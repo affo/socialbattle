@@ -13,3 +13,14 @@
 <a ng-if="n.type == 'commentor'" ui-sref="post({id: n.data.post_id})">
 	<strong>{{n.data.user.username}}</strong> commented on a post you contributed to
 </a>
+
+
+<li class="list-group-item" ng-if="n.type == 'activity-endbattle'">
+	<strong>{{n.data.username}}</strong> defeated <strong>{{n.data.mob_name}}</strong>
+	 using <strong>{{n.data.character_name}}</strong>
+</li>
+
+<li class="list-group-item" ng-if="n.type == 'activity-transaction'">
+	<strong>{{n.data.username}}</strong> {{n.verb}} some <strong>{{n.data.item_name}}</strong>
+	 using <strong>{{n.data.character_name}}</strong>
+</li>

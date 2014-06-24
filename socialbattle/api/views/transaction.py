@@ -8,6 +8,7 @@ from socialbattle.api import serializers
 from socialbattle.api.permissions import IsOwner
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+from socialbattle.api.utils import NotifyMixin
 
 class Transaction(models.Model):
 	OPERATION_TYPE = (('B', 'Buy'), ('S', 'Sell'), )
@@ -30,7 +31,7 @@ class TransactionSerializer(HyperlinkedModelSerializer):
 
 ### TRANSACTION
 # POST: /characters/{character_name}/transactions/
-class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, NotifyMixin):
 	'''
 		From this view it is possible for a character to buy and sell items.
 	'''
@@ -99,5 +100,13 @@ class TransactionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 			'inventory_record': record,
 			'guils_left': character.guils,
 		}
+
+		#notify
+		self.notify_followers(user=request.user, event='activity-transaction', data={
+				'username': request.user.username,
+				'character_name': character.name,
+				'op': transaction.operation,
+				'item_name': transaction.item.name,
+			})
 
 		return Response(data=data, status=status.HTTP_201_CREATED, headers=self.get_success_headers(data))

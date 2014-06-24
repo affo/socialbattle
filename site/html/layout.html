@@ -106,7 +106,7 @@
 <div class="container-fluid">
 <div class="row">
   <div class="col-md-2" ng-controller="Rooms">
-    <nav class=" navbar navbar-default" role="navigation">
+    <nav class="navbar navbar-default" role="navigation">
       <!-- room bar -->
       <ul class="nav nav-pills nav-stacked">
         <li class="disabled"><a href="">PVE</a></li>
@@ -121,8 +121,15 @@
       </ul>
     </nav>
   </div>
-  <div class="col-md-10">
+  <div class="col-md-8">
     <div ui-view></div>
+  </div>
+  <div class="col-md-2" ng-controller="Activities">
+  <!-- ACTIVITIES -->
+    <p class="text-muted text-center" tooltip="The activities of users you are following">ACTIVITIES</p>
+    <ul class="list-group">
+      <notification ng-repeat="n in activities" notification="n"/>
+    </ul>
   </div>
 </div> 
 </div>

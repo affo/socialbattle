@@ -118,7 +118,7 @@ class UserFollowingViewSet(viewsets.GenericViewSet,
 				).data
 			}
 
-			self.notify(user=obj.to_user, event='fellow', data=data)
+			self.notify(user=obj.to_user, event='fellow', data=data, create=True)
 			
 
 	def list(self, request, username, *args, **kwargs):

@@ -65,23 +65,21 @@ from socialbattle.api import pusher
 from socialbattle.api.models import Activity, Notification
 
 @shared_task
-def notify_followers(user, data, event, create=False, **kwargs):
+def notify_followers(user, event, data, create=False, **kwargs):
 	ctx = kwargs.get('ctx', None)
 
 	followers = list(user.followers.all())
-
-	if followers and create:
-		activity = Activity.objects.create(data=data, event=event)
-	else:
-		return;
-
-	for f in followers:
+	if followers:
 		if create:
-			n = Notification.objects.create(user=f, activity=activity)
-			n = NotificationSerializer(n, context=ctx).data
-			data['url'] = n['url']
+			activity = Activity.objects.create(data=data, event=event)
 
-		pusher[f.username].trigger(event, data)
+		for f in followers:
+			if create:
+				n = Notification.objects.create(user=f, activity=activity)
+				n = NotificationSerializer(n, context=ctx).data
+				data['url'] = n['url']
+
+			pusher[f.username].trigger(event, data)
 
 @shared_task
 def notify_user(user, event, data, create=False, **kwargs):
@@ -100,24 +98,24 @@ def notify_commentors(user, post, data, event, create=False, **kwargs):
 	commentors = [comment.author for comment in post.comment_set.all()]
 	commentors = set(filter((lambda c: c != post.author and c != user), commentors))
 
-	if commentors and create:
-		activity = Activity.objects.create(data=data, event=event)
-	else:
-		return;
-
-	for commentor in commentors:
+	if commentors:
 		if create:
-			n = Notification.objects.create(user=commentor, activity=activity)
-			n = NotificationSerializer(n, context=ctx).data
-			data['url'] = n['url']
+			activity = Activity.objects.create(data=data, event=event)
+		
 
-		pusher[commentor.username].trigger(event, data)
+		for commentor in commentors:
+			if create:
+				n = Notification.objects.create(user=commentor, activity=activity)
+				n = NotificationSerializer(n, context=ctx).data
+				data['url'] = n['url']
+
+			pusher[commentor.username].trigger(event, data)
 
 #room channels
 @shared_task
 def push_comment(comment, **kwargs):
-	pusher[comment.post.room.slug].trigger('comment', comment)
+	pusher[comment.post.room.slug].trigger('new-comment', comment)
 
 @shared_task
 def push_post(post, **kwargs):
-	pusher[post.room.slug].trigger('post', post)
+	pusher[post.room.slug].trigger('new-post', post)

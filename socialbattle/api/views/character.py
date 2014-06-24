@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from socialbattle.api import models
 from socialbattle.api import serializers
 from socialbattle.api.permissions import IsOwner, IsLoggedUser
+from socialbattle.api.utils import NotifyMixin
 
 ### CHARACTER
 # GET, POST: /users/{username}/characters/
@@ -92,7 +93,8 @@ class BattleSerializer(drf_serializers.HyperlinkedModelSerializer):
 class CharacterViewSet(viewsets.GenericViewSet,
 						mixins.RetrieveModelMixin,
 						mixins.DestroyModelMixin,
-						mixins.ListModelMixin):
+						mixins.ListModelMixin,
+						NotifyMixin):
 	queryset = models.Character.objects.all()
 	serializer_class = serializers.CharacterSerializer
 	permission_classes = [permissions.IsAuthenticated, IsOwner]
@@ -187,5 +189,12 @@ class CharacterViewSet(viewsets.GenericViewSet,
 
 		character = self.get_object()
 		mob = serializer.object.mob
+
+		#notify
+		self.notify_followers(user=request.user, event='activity-endbattle', data={
+				'username': request.user.username,
+				'character_name': character.name,
+				'mob_name': mob.name,
+			})
 
 		return end_battle(character, mob, self.get_serializer_context())
