@@ -95,7 +95,17 @@ app.config(['PusherServiceProvider',
   }
 ]);
 
+
+//CLIENT_ID for official app
+//modify the heroku part only if you know what you are doing
+//@ifdef HEROKU
+app.constant('CLIENT_ID', 'auIvhY1oX43U2mpCTJvEM4WzHVH.q-d@TBblLyw7');
+//@endif
+
+//@ifndef HEROKU
 app.constant('CLIENT_ID', 'hHH7dFdb=KpR0gpJVSiEO6rKArllw9e@=w=-?Gl1');
+//@endif
+
 //@ifdef HEROKU
 app.constant('API_URL', 'https://socialbattle-api.herokuapp.com/');
 //@endif

@@ -82,5 +82,8 @@ app.config(['PusherServiceProvider',
   }
 ]);
 
+
+//CLIENT_ID for official app
+//modify the heroku part only if you know what you are doing
 app.constant('CLIENT_ID', 'hHH7dFdb=KpR0gpJVSiEO6rKArllw9e@=w=-?Gl1');
 app.constant('API_URL', 'http://localhost.socialbattle:8000/');
