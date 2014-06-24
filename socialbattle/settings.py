@@ -21,8 +21,8 @@ SECRET_KEY = 'elsv&hoox@mko0(27^m^z=_14ph$49s@a^&rl5jxkly-va5cjj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if os.environ.get('HEROKU'):
-	DEBUG = True
-	#ALLOWED_HOSTS = ['socialbattle-api.herokuapp.com']
+	DEBUG = False
+	ALLOWED_HOSTS = ['socialbattle-api.herokuapp.com']
 else:
 	DEBUG = True
 
@@ -166,6 +166,11 @@ OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 7200,
 }
 
-PUSHER_APP_ID = '78784'
-PUSHER_APP_KEY = '3863968fa562d8ec8569'
-PUSHER_APP_SECRET = '07f21f2ae04214ee41d3'
+if os.environ.get('HEROKU'):
+	PUSHER_APP_ID = '78031'
+	PUSHER_APP_KEY = 'b6ea44ef5489a5f95e11'
+	PUSHER_APP_SECRET = 'bd1215371284d4b6f227'
+else:
+	PUSHER_APP_ID = '78784'
+	PUSHER_APP_KEY = '3863968fa562d8ec8569'
+	PUSHER_APP_SECRET = '07f21f2ae04214ee41d3'
