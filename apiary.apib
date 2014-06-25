@@ -6,41 +6,39 @@ A fusion between a common social network and an RPG game
 
 #Group OAuth2
 OAuth endpoints are RFC compliant. If there is any doubt, see the specification
-## Authorization [/oauth/authorize]
-Endpoint to handle *Authorization Requests* as in :rfc:`4.1.1` and prompting the  
+## Authorization [/oauth/authorize{?client_id&response_type}]
+Endpoint to handle *Authorization Requests* as in `RFC:4.1.1` and prompting the  
 user with a form to determine if she authorizes the client application to access her data.
 
 The endpoint is used in the following flows:
 
-    * Authorization code
-    * Implicit grant
++ Authorization code
++ Implicit grant
 
 ### Authorization code [GET]
+After the authorization has been confirmed by the user, a request  
+will be sent to the endpoint specified on app registration (`redirect_uri`) 
+in this form:
+    
+    <redirect_uri>?code=<your_authorization_code> 
+
+The obtained `code` will be used to obtain a token.
+
 + Parameters
     + client_id (required, string)... Your app's client id
     + response_type (required, string)... Must be set to `code`
 
-+ Response
-    After the authorization has been confirmed by the user, a request  
-    will be sent to the endpoint specified on app registration (`redirect_uri`) 
-    in this form:
-        
-        <redirect_uri>?code=<your_authorization_code> 
-
-    The obtained `code` will be used to obtain a token.
-
 
 ### Implicit [GET]
+After the authorization has been confirmed by the user, a request  
+will be sent to the endpoint specified on app registration (`redirect_uri`) 
+in this form:
+    
+    <redirect_uri>#access_token=<access_token>&token_type=Bearer&expires_in=<seconds>&scope=read+write
+
 + Parameters
     + client_id (required, string)... Your app's client id
     + response_type (required, string)... Must be set to `token`
-
-+ Response
-    After the authorization has been confirmed by the user, a request  
-    will be sent to the endpoint specified on app registration (`redirect_uri`) 
-    in this form:
-        
-        <redirect_uri>#access_token=<access_token>&token_type=Bearer&expires_in=<seconds>&scope=read+write
 
 
 
@@ -50,10 +48,10 @@ If the app type is `Public`, `client_secret` should be omitted in any request.
 
 The endpoint is used in the following flows:
 
-    * Authorization code
-    * Password
-    * Client credentials
-    * Refresh
++ Authorization code
++ Password
++ Client credentials
++ Refresh
 
 ### Authorization Code [POST]
 + Request (application/x-www-form-urlencoded)
@@ -127,7 +125,7 @@ The endpoint is used in the following flows:
     }
 
 
-    
+
 
 # Group User
 ## User [/users/{username}]
