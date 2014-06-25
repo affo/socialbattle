@@ -56,73 +56,73 @@ The endpoint is used in the following flows:
 ### Authorization Code [POST]
 + Request (application/x-www-form-urlencoded)
     
-    grant_type: authorization_code
-    code: <code_obtained_through_authorization>
-    client_id: <client_id>
-    client_secret: <client_secret>
+        grant_type: authorization_code
+        code: <code_obtained_through_authorization>
+        client_id: <client_id>
+        client_secret: <client_secret>
 
 + Response 200 (application/json)
 
-    {
-        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
-        "token_type": "Bearer",
-        "expires_in": 7200,
-        "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
-        "scope": "read write"
-    }
+        {
+            "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+            "token_type": "Bearer",
+            "expires_in": 7200,
+            "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
+            "scope": "read write"
+        }
 
 ### Resource Owner Password Based [POST]
 + Request (application/x-www-form-urlencoded)
     
-    grant_type: password
-    username: <username>
-    password: <password>
-    client_id: <client_id>
-    client_secret: <client_secret>
+        grant_type: password
+        username: <username>
+        password: <password>
+        client_id: <client_id>
+        client_secret: <client_secret>
 
 + Response 200 (application/json)
 
-    {
-        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
-        "token_type": "Bearer",
-        "expires_in": 7200,
-        "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
-        "scope": "read write"
-    }
+        {
+            "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+            "token_type": "Bearer",
+            "expires_in": 7200,
+            "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
+            "scope": "read write"
+        }
 
 ### Client Credentials [POST]
 + Request (application/x-www-form-urlencoded)
     
-    grant_type: client_credentials
-    client_id: <client_id>
-    client_secret: <client_secret>
+        grant_type: client_credentials
+        client_id: <client_id>
+        client_secret: <client_secret>
 
 + Response 200 (application/json)
 
-    {
-        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
-        "token_type": "Bearer",
-        "expires_in": 7200,
-        "scope": "read write"
-    }
+        {
+            "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+            "token_type": "Bearer",
+            "expires_in": 7200,
+            "scope": "read write"
+        }
 
 ### Token Refreshing [POST]
 + Request (application/x-www-form-urlencoded)
     
-    grant_type: refresh_token
-    refresh_token: <refresh_token>
-    client_id: <client_id>
-    client_secret: <client_secret>
+        grant_type: refresh_token
+        refresh_token: <refresh_token>
+        client_id: <client_id>
+        client_secret: <client_secret>
 
 + Response 200 (application/json)
 
-    {
-        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
-        "token_type": "Bearer",
-        "expires_in": 7200,
-        "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
-        "scope": "read write"
-    }
+        {
+            "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+            "token_type": "Bearer",
+            "expires_in": 7200,
+            "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
+            "scope": "read write"
+        }
 
 ### Obtaning Token Using Facebook Access Token [POST]
 This can be done using `password based` grant type and inserting fake password and username  
@@ -130,22 +130,22 @@ This can be done using `password based` grant type and inserting fake password a
 
 + Request (application/x-www-form-urlencoded)
     
-    grant_type: password
-    username: "fake username"
-    password: "fake password"
-    client_id: <client_id>
-    client_secret: <client_secret>
-    fb_token: <facebook_access_token>
+        grant_type: password
+        username: "fake username"
+        password: "fake password"
+        client_id: <client_id>
+        client_secret: <client_secret>
+        fb_token: <facebook_access_token>
 
 + Response 200 (application/json)
 
-    {
-        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
-        "token_type": "Bearer",
-        "expires_in": 7200,
-        "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
-        "scope": "read write"
-    }
+        {
+            "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+            "token_type": "Bearer",
+            "expires_in": 7200,
+            "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
+            "scope": "read write"
+        }
 
 
 
