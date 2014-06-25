@@ -4,23 +4,130 @@ HOST: http://socialbattle-api.herokuapp.com
 # SocialBattle
 A fusion between a common social network and an RPG game
 
-# Group Login
-## Login [/auth]
-### Login [POST]
-+ Request (application/json)
+#Group OAuth2
+OAuth endpoints are RFC compliant. If there is any doubt, see the specification
+## Authorization [/oauth/authorize]
+Endpoint to handle *Authorization Requests* as in :rfc:`4.1.1` and prompting the  
+user with a form to determine if she authorizes the client application to access her data.
 
-        {
-            "username": "sb_user",
-            "password": "socialbattle"
-        }
+The endpoint is used in the following flows:
+
+    * Authorization code
+    * Implicit grant
+
+### Authorization code [GET]
++ Parameters
+    + client_id (required, string)... Your app's client id
+    + response_type (required, string)... Must be set to `code`
+
++ Response
+    After the authorization has been confirmed by the user, a request  
+    will be sent to the endpoint specified on app registration (`redirect_uri`) 
+    in this form:
+        
+        <redirect_uri>?code=<your_authorization_code> 
+
+    The obtained `code` will be used to obtain a token.
+
+
+### Implicit [GET]
++ Parameters
+    + client_id (required, string)... Your app's client id
+    + response_type (required, string)... Must be set to `token`
+
++ Response
+    After the authorization has been confirmed by the user, a request  
+    will be sent to the endpoint specified on app registration (`redirect_uri`) 
+    in this form:
+        
+        <redirect_uri>#access_token=<access_token>&token_type=Bearer&expires_in=<seconds>&scope=read+write
+
+
+
+## Obtaining Token [/oauth/token]
+Endpoint to provide access tokens.
+If the app type is `Public`, `client_secret` should be omitted in any request.
+
+The endpoint is used in the following flows:
+
+    * Authorization code
+    * Password
+    * Client credentials
+    * Refresh
+
+### Authorization Code [POST]
++ Request (application/x-www-form-urlencoded)
+    
+    grant_type: authorization_code
+    code: <code_obtained_through_authorization>
+    client_id: <client_id>
+    client_secret: <client_secret>
 
 + Response 200 (application/json)
 
-        {
-            "token": "d548578adf03dd89d6145ecb142eb923d18cffd4"
-        }
+    {
+        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+        "token_type": "Bearer",
+        "expires_in": 7200,
+        "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
+        "scope": "read write"
+    }
+
+### Resource Owner Password Based [POST]
++ Request (application/x-www-form-urlencoded)
+    
+    grant_type: password
+    username: <username>
+    password: <password>
+    client_id: <client_id>
+    client_secret: <client_secret>
+
++ Response 200 (application/json)
+
+    {
+        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+        "token_type": "Bearer",
+        "expires_in": 7200,
+        "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
+        "scope": "read write"
+    }
+
+### Client Credentials [POST]
++ Request (application/x-www-form-urlencoded)
+    
+    grant_type: client_credentials
+    client_id: <client_id>
+    client_secret: <client_secret>
+
++ Response 200 (application/json)
+
+    {
+        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+        "token_type": "Bearer",
+        "expires_in": 7200,
+        "scope": "read write"
+    }
+
+### Token Refreshing [POST]
++ Request (application/x-www-form-urlencoded)
+    
+    grant_type: refresh_token
+    refresh_token: <refresh_token>
+    client_id: <client_id>
+    client_secret: <client_secret>
+
++ Response 200 (application/json)
+
+    {
+        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+        "token_type": "Bearer",
+        "expires_in": 7200,
+        "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
+        "scope": "read write"
+    }
 
 
+    
 
 # Group User
 ## User [/users/{username}]
