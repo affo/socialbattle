@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: http://socialbattle-api.herokuapp.com
+HOST: https://socialbattle-api.herokuapp.com/
 
 # SocialBattle
 A fusion between a common social network and an RPG game
@@ -611,12 +611,15 @@ The number of returned resources can be limited using `?limit={integer}`.
 
 
 # Group Comment
-## Post Comments [/post/{id}/comments]
+## Post Comments [/post/{id}/comments{?limit}]
 Comments for the specified Post
 ### List Comments [GET]
 This resource uses paging.  
 Pages can explored using `previous` and `next` fields of the response.  
 The number of returned resources can be limited using `?limit={integer}`.
+
++ Parameters
+    + limit (optional, integer)... The number of posts per page
 
 + Response 200 (application/json)
 
@@ -709,7 +712,7 @@ The number of returned resources can be limited using `?limit={integer}`.
 The characters owned by the specified user.
 
 ### List characters [GET]
-+ Reponse 200 (application/json)
++ Response 200 (application/json)
 
         [
             {
@@ -1043,6 +1046,42 @@ It is not possible to equip restorative items.
         }
 
 
+# Group Transaction
+## Transaction [/characters/{character-name}/transactions]
+### Perform a transaction [POST]
++ Parameters
+    + operation (required, char)... Can be `B` (Buy) or `S` (Sell)
+
++ Request (application/json)
+
+        {
+            "item": "http://socialbattle-api.herokuapp.com/items/potion/", 
+            "quantity": 1, 
+            "operation": "B"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "inventory_record": {
+                "url": "http://socialbattle-api.herokuapp.com/inventory/3/", 
+                "owner": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+                "item": {
+                    "url": "http://socialbattle-api.herokuapp.com/items/potion/", 
+                    "name": "potion", 
+                    "cost": 50, 
+                    "item_type": "R", 
+                    "power": 20, 
+                    "description": "Restores minor HP", 
+                    "fb_id": "309189315911666"
+                }, 
+                "quantity": 4, 
+                "equipped": false
+            }, 
+            "guils_left": 950
+        }
+
+
 
 # Group Ability
 ## Ability [/abilities/{ability-slug}]
@@ -1319,6 +1358,31 @@ The mobs that can spawn in the specified PVE room.
                 "fb_id": "474231496043919"
             }
         ]
+
+# Group Gifts
+An endpoint which can be used to obtain random items for free.
+
+## Gift [/gifts/]
+This endpoint is throttled, only 3 requests per day per user are allowed
+### Receive a gift [POST]
+
++ Request (application/json)
+
+        {
+            "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "url": "http://localhost:8000/items/potion/", 
+            "name": "sunflower", 
+            "cost": 50, 
+            "item_type": "W", 
+            "power": 50, 
+            "description": "", 
+            "fb_id": "645513308852469"
+        }
 
 
 # Group Mechanics
