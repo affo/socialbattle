@@ -72,21 +72,21 @@ app.config(['cfpLoadingBarProvider',
   ]
 );
 
-app.config(['PusherServiceProvider', 'RestangularProvider',
-  function(PusherServiceProvider, RestangularProvider){
-    console.log(RestangularProvider.defaultHeaders);
+app.config(['PusherServiceProvider',
+  function(PusherServiceProvider){
+    var PUSHER_APP_KEY = '3863968fa562d8ec8569';
     PusherServiceProvider
-      .setToken('3863968fa562d8ec8569')
+      .setToken(PUSHER_APP_KEY)
       .setOptions({
-        authEndpoint: 'http://localhost.socialbattle:8000/pusher/auth/',
-        auth: {
-          headers: RestangularProvider.defaultHeaders
-        }
+        //authEndpoint: 'http://localhost.socialbattle:8000/pusher/auth/',
       });
   }
 ]);
 
-app.constant('CLIENT_ID', 'hHH7dFdb=KpR0gpJVSiEO6rKArllw9e@=w=-?Gl1');
+
+//CLIENT_ID for official app
+//modify the heroku part only if you know what you are doing
+app.constant('CLIENT_ID', 'G7p-U!w@-Xdrv6XUSW=!Srb?;DVmA2_TXU9hw7WD');
 app.constant('API_URL', 'http://localhost.socialbattle:8000/');
 
 angular.module('states', [])
@@ -971,6 +971,10 @@ angular.module('services', ['socialBattle'])
                   // Repeat the request and then call the handlers the usual way.
                   $http(response.config).then(responseHandler, deferred.reject);
                   // Be aware that no request interceptors are called this way.
+                },
+                function(msg){
+                  console.log(msg);
+                  $http(response.config).then(responseHandler, deferred.reject);
                 }
               );
 
@@ -1046,7 +1050,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
             $state.go('user', {username: identity.username});
           },
           function(response){
-            $scope.alerts.push({type: 'danger', msg: response.data});
+            $scope.alerts.push({type: 'danger', msg: 'Incorrect Log in'});
           }
         );
     };
@@ -1098,14 +1102,20 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
 
     $scope.notifications = [];
 
+    var MAX_UNREAD = 7;
+
     var notify = function(n, type){
       $scope.no_unread++;
       $scope.notifications.unshift({
-        url: n.url,
+        id: n.id,
         type: type,
         data: n,
         read: false,
       });
+
+      if($scope.notifications.length > MAX_UNREAD){
+        $scope.notifications.pop();
+      }
     };
 
     //subscribe to pusher channel(s)
@@ -1129,10 +1139,9 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
         notify(notification, 'post');
       }
     );
-
-    Pusher.subscribe('private-lol', 'lol',
+    Pusher.subscribe(user.username, 'commentor',
       function(notification){
-        console.log(notification);
+        notify(notification, 'commentor');
       }
     );
 
@@ -1170,7 +1179,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
         $scope.notifications = notifications.results.map(
           function(n){
             return {
-              url: n.url,
+              id: n.id,
               type: n.activity.event,
               data: n.activity.data,
               read: false
@@ -1187,7 +1196,7 @@ angular.module('auth', ['restangular', 'ngStorage', 'facebook'])
       for(var i = 0; i < $scope.notifications.length; i++){
         n = $scope.notifications[i];
         if(!n.read){
-          n_endpoint = Restangular.oneUrl('notification', n.url);
+          n_endpoint = Restangular.one('notifications', n.id);
           n_endpoint.read = true;
           n.read = true;
           n_endpoint.put()
@@ -1492,7 +1501,7 @@ angular.module('notification', [])
             return {
               type: n.activity.event,
               data: n.activity.data,
-              url: n.url,
+              id: n.id,
               read: n.read,
             };
           }
@@ -1514,7 +1523,7 @@ angular.module('notification', [])
               {
                 type: n.activity.event,
                 data: n.activity.data,
-                url: n.url,
+                id: n.id,
                 read: n.read,
               }
             );
@@ -1537,13 +1546,52 @@ angular.module('notification', [])
       for(var i = 0; i < $scope.notifications.length; i++){
         n = $scope.notifications[i];
         if(!n.read){
-          n_endpoint = Restangular.oneUrl('notification', n.url);
+          n_endpoint = Restangular.one('notifications', n.id);
           n_endpoint.read = true;
           n_endpoint.put();
         }
       }
     };
 
+  }
+  ]
+)
+
+.controller('Activities',
+  ['$scope', 'Pusher',
+  function($scope, Pusher){
+    $scope.activities = [];
+    var MAX_ACTIVITIES = 7;
+
+    var push_activity = function(activity, type){
+      var verb;
+      if(activity.op == 'B'){
+        verb = 'bought';
+      }else if(activity.op == 'S'){
+        verb = 'sold';
+      }
+
+      $scope.activities.unshift({
+        type: type,
+        data: activity,
+        verb: verb,
+      });
+
+      if($scope.activities.length > MAX_ACTIVITIES){
+        $scope.activities.pop();
+      }
+    };
+
+    Pusher.subscribe($scope.username, 'activity-endbattle',
+      function(activity){
+        push_activity(activity, 'activity-endbattle');
+      }
+    );
+    Pusher.subscribe($scope.username, 'activity-transaction',
+      function(activity){
+        push_activity(activity, 'activity-transaction');
+      }
+    );
   }
   ]
 );
@@ -1585,13 +1633,17 @@ angular.module('post', ['restangular'])
 )
 
 .controller('RelaxRoomPosts',
-  ['$scope', 'Restangular', '$localStorage', 'character', 'inventory',
-  function($scope, Restangular, $localStorage, character, inventory){
+  ['$scope', 'Restangular', '$localStorage',
+    'character', 'inventory', 'room', 'Pusher',
+  function($scope, Restangular, $localStorage,
+            character, inventory, room, Pusher){
     $scope.postForm = {
       exchanged_items: [],
       character: $localStorage.character.url
     };
     $scope.searched_items = [];
+    $scope.posts = [];
+    $scope.new_posts = [];
     $scope.alerts = [];
     $scope.can_post = true;
     $scope.character = character;
@@ -1599,6 +1651,30 @@ angular.module('post', ['restangular'])
 
     var _number_given = 1;
     var _number_received = 1;
+
+    //subscribe to room channel
+    Pusher.subscribe(room.slug, 'new-post',
+      function(post){
+        if($localStorage.user.url != post.author.url){
+          //the post is not mine
+          $scope.new_posts.push(post);
+        }
+      }
+    );
+
+    //unsubscribe on exit
+    $scope.$on('$stateChangeStart', 
+      function(event, toState, toParams, fromState, fromParams){
+        Pusher.unsubscribe(room.slug);
+      }
+    );
+
+    $scope.add_new_posts = function(){
+      for(var i = 0; i < $scope.new_posts.length; i++){
+        $scope.posts.unshift($scope.new_posts[i]);
+      }
+      $scope.new_posts = [];
+    };
 
     $scope.closeAlert = function(index){
       $scope.alerts.splice(index, 1);
@@ -1742,8 +1818,10 @@ angular.module('post', ['restangular'])
 )
 
 .controller('Post',
-  ['$scope', 'Restangular', '$state', '$stateParams',
-  function($scope, Restangular, $state, $stateParams){
+  ['$scope', 'Restangular', '$state',
+    '$stateParams', 'Pusher', '$localStorage',
+  function($scope, Restangular, $state,
+            $stateParams, Pusher, $localStorage){
     var character = $scope.character;
     var inventory = $scope.inventory;
     $scope.comment = {};
@@ -1754,6 +1832,26 @@ angular.module('post', ['restangular'])
     $scope.next = undefined;
 
     $scope.editPost = $scope.post;
+
+    //subscribe to post event
+    Pusher.subscribe('post-' + $scope.post.id, 'new-comment',
+      function(comment){
+        if($localStorage.user.url != comment.author.url){
+          //the comment is not mine
+          if($scope.showing){
+            $scope.comments.unshift(comment);
+          }
+          $scope.post.no_comments++;
+        }
+      }
+    );
+
+    //unsubscribe on exit
+    $scope.$on('$stateChangeStart', 
+      function(event, toState, toParams, fromState, fromParams){
+        Pusher.unsubscribe('post-' + $scope.post.id);
+      }
+    );
 
     $scope.closeAlert = function(index){
       $scope.alerts.splice(index, 1);

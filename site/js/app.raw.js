@@ -107,11 +107,11 @@ app.config(['PusherServiceProvider',
 //CLIENT_ID for official app
 //modify the heroku part only if you know what you are doing
 //@ifdef HEROKU
-app.constant('CLIENT_ID', 'auIvhY1oX43U2mpCTJvEM4WzHVH.q-d@TBblLyw7');
+app.constant('CLIENT_ID', 'SL9IQf@YaXsv@Goo7KmyAhE1auUXUypSbD-ys0;P');
 //@endif
 
 //@ifndef HEROKU
-app.constant('CLIENT_ID', 'hHH7dFdb=KpR0gpJVSiEO6rKArllw9e@=w=-?Gl1');
+app.constant('CLIENT_ID', 'G7p-U!w@-Xdrv6XUSW=!Srb?;DVmA2_TXU9hw7WD');
 //@endif
 
 //@ifdef HEROKU
