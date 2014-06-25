@@ -132,6 +132,7 @@ CORS_ORIGIN_WHITELIST = (
 	'localhost.socialbattle:3000',
 	'localhost.socialbattle:5000',
 	'socialbattle.herokuapp.com',
+	'socialbattle-consumer.herokuapp.com',
 	'django-oauth-toolkit.herokuapp.com',
 )
 
