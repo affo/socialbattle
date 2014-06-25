@@ -37,7 +37,6 @@ class FBObjectMixin(models.Model):
 
 @receiver(pre_save)
 def add_to_fb_objects(sender, instance=None, **kwargs):
-	return
 	try:
 		if not instance.fb_id:
 			class_name = sender.__name__.lower()
