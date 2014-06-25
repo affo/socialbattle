@@ -87,8 +87,16 @@ app.config(['cfpLoadingBarProvider',
 
 app.config(['PusherServiceProvider',
   function(PusherServiceProvider){
+    //@ifdef HEROKU
+    var PUSHER_APP_KEY = 'b6ea44ef5489a5f95e11';
+    //@endif
+
+    //@ifndef HEROKU
+    var PUSHER_APP_KEY = '3863968fa562d8ec8569';
+    //@endif
+
     PusherServiceProvider
-      .setToken('3863968fa562d8ec8569')
+      .setToken(PUSHER_APP_KEY)
       .setOptions({
         //authEndpoint: 'http://localhost.socialbattle:8000/pusher/auth/',
       });

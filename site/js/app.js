@@ -74,8 +74,9 @@ app.config(['cfpLoadingBarProvider',
 
 app.config(['PusherServiceProvider',
   function(PusherServiceProvider){
+    var PUSHER_APP_KEY = '3863968fa562d8ec8569';
     PusherServiceProvider
-      .setToken('3863968fa562d8ec8569')
+      .setToken(PUSHER_APP_KEY)
       .setOptions({
         //authEndpoint: 'http://localhost.socialbattle:8000/pusher/auth/',
       });
