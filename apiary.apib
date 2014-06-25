@@ -124,6 +124,29 @@ The endpoint is used in the following flows:
         "scope": "read write"
     }
 
+### Obtaning Token Using Facebook Access Token [POST]
+This can be done using `password based` grant type and inserting fake password and username  
+(they should contain at least one space).
+
++ Request (application/x-www-form-urlencoded)
+    
+    grant_type: password
+    username: "fake username"
+    password: "fake password"
+    client_id: <client_id>
+    client_secret: <client_secret>
+    fb_token: <facebook_access_token>
+
++ Response 200 (application/json)
+
+    {
+        "access_token": "3E7ZCWuuG9UJANFcjIx7o4s9bvvz9I",
+        "token_type": "Bearer",
+        "expires_in": 7200,
+        "refresh_token": "Nf2TCquzGDrOlYl6OsEiUFn9557x5H",
+        "scope": "read write"
+    }
+
 
 
 
@@ -325,13 +348,16 @@ All PVE rooms
 
 
 # Group Post
-## User Posts [/user/{username}/posts]
+## User Posts [/user/{username}/posts{?limit}]
 All posts from the specified user
 
 ### List all posts [GET]
 This resource uses paging.  
 Pages can explored using `previous` and `next` fields of the response.  
 The number of returned resources can be limited using `?limit={integer}`.
+
++ Parameters
+    + limit (optional, integer)... The number of posts per page
 
 + Response 200 (application/json)
 
@@ -341,24 +367,45 @@ The number of returned resources can be limited using `?limit={integer}`.
         "previous": null, 
         "results": [
             {
-                "url": "http://socialbattle-api.herokuapp.com/posts/8/", 
-                "content": "Hello world!", 
+                "url": "http://socialbattle-api.herokuapp.com/posts/1/", 
+                "id": 7, 
+                "content": "Hello World!", 
                 "author": {
                     "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                     "username": "sb_user", 
                     "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
-                }, 
+                },  
+                "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
                 "room": {
                     "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                     "name": "moguri shop", 
                     "slug": "moguri-shop"
                 }, 
-                "time": "2014-06-06T14:56:53Z"
+                "time": "2014-06-25T13:07:04.049Z", 
+                "exchanged_items": [
+                    {
+                        "item": {
+                            "url": "socialbattle-api.herokuapp.com/items/potion/", 
+                            "name": "potion", 
+                            "cost": 50, 
+                            "item_type": "R", 
+                            "power": 20, 
+                            "description": "Restores minor HP", 
+                            "fb_id": "309189315911666"
+                        }, 
+                        "quantity": 10, 
+                        "given": false
+                    }
+                ], 
+                "give_guils": 0, 
+                "receive_guils": 0, 
+                "opened": true, 
+                "no_comments": 0
             }
         ]
     }
 
-## Relax Room Posts [/rooms/relax/{room-slug}/posts]
+## Relax Room Posts [/rooms/relax/{room-slug}/posts{?limit}]
 All posts in the specified relax room
 
 ### List all posts [GET]
@@ -366,42 +413,51 @@ This resource uses paging.
 Pages can explored using `previous` and `next` fields of the response.  
 The number of returned resources can be limited using `?limit={integer}`.
 
++ Parameters
+    + limit (optional, integer)... The number of posts per page
+
 + Response 200 (application/json)
 
         {
             "count": 8, 
-            "next": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/posts/?limit=2&page=2", 
+            "next": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/posts/?limit=1&page=2", 
             "previous": null, 
             "results": [
                 {
-                    "url": "http://socialbattle-api.herokuapp.com/posts/9/", 
+                    "url": "http://socialbattle-api.herokuapp.com/posts/1/", 
+                    "id": 7, 
                     "content": "Hello World!", 
                     "author": {
                         "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                         "username": "sb_user", 
                         "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
-                    }, 
+                    },  
+                    "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
                     "room": {
                         "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                         "name": "moguri shop", 
                         "slug": "moguri-shop"
                     }, 
-                    "time": "2014-06-06T15:07:42Z"
-                }, 
-                {
-                    "url": "http://socialbattle-api.herokuapp.com/posts/8/", 
-                    "content": "Hello world Again!", 
-                    "author": {
-                        "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
-                        "username": "sb_user", 
-                        "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
-                    }, 
-                    "room": {
-                        "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
-                        "name": "moguri shop", 
-                        "slug": "moguri-shop"
-                    }, 
-                    "time": "2014-06-06T14:56:53Z"
+                    "time": "2014-06-25T13:07:04.049Z", 
+                    "exchanged_items": [
+                        {
+                            "item": {
+                                "url": "socialbattle-api.herokuapp.com/items/potion/", 
+                                "name": "potion", 
+                                "cost": 50, 
+                                "item_type": "R", 
+                                "power": 20, 
+                                "description": "Restores minor HP", 
+                                "fb_id": "309189315911666"
+                            }, 
+                            "quantity": 10, 
+                            "given": false
+                        }
+                    ], 
+                    "give_guils": 0, 
+                    "receive_guils": 0, 
+                    "opened": true, 
+                    "no_comments": 0
                 }
             ]
         }
@@ -410,25 +466,56 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Request (application/json)
     
         {
-            "content": "Hello World!"
+            "content": "Hello World!", 
+            "give_guils": 0, 
+            "receive_guils": 0,
+            "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/",
+            "exchanged_items": [
+                {
+                    "item": "http://socialbattle-api.herokuapp.com/items/potion/",
+                    "quantity": 10,
+                    "given": false
+                }
+            ]
         }
 
 + Response 201 (application/json)
 
         {
-            "url": "http://socialbattle-api.herokuapp.com/posts/10/", 
+            "url": "http://socialbattle-api.herokuapp.com/posts/1/", 
+            "id": 7, 
             "content": "Hello World!", 
             "author": {
                 "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
-            }, 
+            },  
+            "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
             "room": {
                 "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                 "name": "moguri shop", 
                 "slug": "moguri-shop"
             }, 
-            "time": "2014-06-06T15:10:21.507Z"
+            "time": "2014-06-25T13:07:04.049Z", 
+            "exchanged_items": [
+                {
+                    "item": {
+                        "url": "socialbattle-api.herokuapp.com/items/potion/", 
+                        "name": "potion", 
+                        "cost": 50, 
+                        "item_type": "R", 
+                        "power": 20, 
+                        "description": "Restores minor HP", 
+                        "fb_id": "309189315911666"
+                    }, 
+                    "quantity": 10, 
+                    "given": false
+                }
+            ], 
+            "give_guils": 0, 
+            "receive_guils": 0, 
+            "opened": true, 
+            "no_comments": 0
         }
 
 ## Post [/posts/{id}]
@@ -436,19 +523,40 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Response 200 (application/json)
 
         {
-            "url": "http://socialbattle-api.herokuapp.com/posts/10/", 
+            "url": "http://socialbattle-api.herokuapp.com/posts/1/", 
+            "id": 7, 
             "content": "Hello World!", 
             "author": {
                 "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
-            }, 
+            },  
+            "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
             "room": {
                 "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                 "name": "moguri shop", 
                 "slug": "moguri-shop"
             }, 
-            "time": "2014-06-06T15:10:21Z"
+            "time": "2014-06-25T13:07:04.049Z", 
+            "exchanged_items": [
+                {
+                    "item": {
+                        "url": "socialbattle-api.herokuapp.com/items/potion/", 
+                        "name": "potion", 
+                        "cost": 50, 
+                        "item_type": "R", 
+                        "power": 20, 
+                        "description": "Restores minor HP", 
+                        "fb_id": "309189315911666"
+                    }, 
+                    "quantity": 10, 
+                    "given": false
+                }
+            ], 
+            "give_guils": 0, 
+            "receive_guils": 0, 
+            "opened": true, 
+            "no_comments": 0
         }
 
 ## Edit a Post [PATCH]
@@ -461,20 +569,41 @@ The number of returned resources can be limited using `?limit={integer}`.
 + Response 200 (application/json)
 
         {
-            "url": "http://socialbattle-api.herokuapp.com/posts/10/", 
+            "url": "http://socialbattle-api.herokuapp.com/posts/1/", 
+            "id": 7, 
             "content": "Hello World! It's sb_user!", 
             "author": {
                 "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
                 "username": "sb_user", 
                 "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
-            }, 
+            },  
+            "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
             "room": {
                 "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
                 "name": "moguri shop", 
                 "slug": "moguri-shop"
             }, 
-            "time": "2014-06-06T15:14:00.957Z"
-        }   
+            "time": "2014-06-25T13:07:04.049Z", 
+            "exchanged_items": [
+                {
+                    "item": {
+                        "url": "socialbattle-api.herokuapp.com/items/potion/", 
+                        "name": "potion", 
+                        "cost": 50, 
+                        "item_type": "R", 
+                        "power": 20, 
+                        "description": "Restores minor HP", 
+                        "fb_id": "309189315911666"
+                    }, 
+                    "quantity": 10, 
+                    "given": false
+                }
+            ], 
+            "give_guils": 0, 
+            "receive_guils": 0, 
+            "opened": true, 
+            "no_comments": 0
+        }
 
 ## Delete a Post [DELETE]
 + Response 204
@@ -1252,6 +1381,7 @@ Calculates the experience required to reach the specified level.
 ## Charge Time [/rpg/ct]
 ### Get CT [POST]
 Calculates the charge time required to perform an attack, given:  
+
 - the speed of the attacker  
 - the charge time factor of the ability (in case of magics)  
 - the charge time factor of the weapon (in case of physical attack) 
