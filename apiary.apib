@@ -323,12 +323,12 @@ All PVE rooms
 ### Retrieve a relax room [GET]
 + Response 200 (application/json)
 
-    {
-        "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
-        "name": "moguri shop", 
-        "slug": "moguri-shop", 
-        "fb_id": "716467545059393"
-    }
+        {
+            "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
+            "name": "moguri shop", 
+            "slug": "moguri-shop", 
+            "fb_id": "716467545059393"
+        }
 
 ## PVE Room [/rooms/pve/{room-slug}]
 
@@ -339,12 +339,12 @@ All PVE rooms
 ### Retrieve a PVE room [GET]
 + Response 200 (application/json)
 
-    {
-        "url": "http://socialbattle-api.herokuapp.com/rooms/pve/golmore-jungle/", 
-        "name": "golmore jungle", 
-        "slug": "golmore-jungle", 
-        "fb_id": "1415747728712053"
-    }
+        {
+            "url": "http://socialbattle-api.herokuapp.com/rooms/pve/golmore-jungle/", 
+            "name": "golmore jungle", 
+            "slug": "golmore-jungle", 
+            "fb_id": "1415747728712053"
+        }
 
 
 # Group Post
@@ -361,49 +361,49 @@ The number of returned resources can be limited using `?limit={integer}`.
 
 + Response 200 (application/json)
 
-    {
-        "count": 1, 
-        "next": null, 
-        "previous": null, 
-        "results": [
-            {
-                "url": "http://socialbattle-api.herokuapp.com/posts/1/", 
-                "id": 7, 
-                "content": "Hello World!", 
-                "author": {
-                    "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
-                    "username": "sb_user", 
-                    "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
-                },  
-                "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
-                "room": {
-                    "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
-                    "name": "moguri shop", 
-                    "slug": "moguri-shop"
-                }, 
-                "time": "2014-06-25T13:07:04.049Z", 
-                "exchanged_items": [
-                    {
-                        "item": {
-                            "url": "socialbattle-api.herokuapp.com/items/potion/", 
-                            "name": "potion", 
-                            "cost": 50, 
-                            "item_type": "R", 
-                            "power": 20, 
-                            "description": "Restores minor HP", 
-                            "fb_id": "309189315911666"
-                        }, 
-                        "quantity": 10, 
-                        "given": false
-                    }
-                ], 
-                "give_guils": 0, 
-                "receive_guils": 0, 
-                "opened": true, 
-                "no_comments": 0
-            }
-        ]
-    }
+        {
+            "count": 1, 
+            "next": null, 
+            "previous": null, 
+            "results": [
+                {
+                    "url": "http://socialbattle-api.herokuapp.com/posts/1/", 
+                    "id": 7, 
+                    "content": "Hello World!", 
+                    "author": {
+                        "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
+                        "username": "sb_user", 
+                        "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon"
+                    },  
+                    "character": "http://socialbattle-api.herokuapp.com/characters/Leviathan/", 
+                    "room": {
+                        "url": "http://socialbattle-api.herokuapp.com/rooms/relax/moguri-shop/", 
+                        "name": "moguri shop", 
+                        "slug": "moguri-shop"
+                    }, 
+                    "time": "2014-06-25T13:07:04.049Z", 
+                    "exchanged_items": [
+                        {
+                            "item": {
+                                "url": "socialbattle-api.herokuapp.com/items/potion/", 
+                                "name": "potion", 
+                                "cost": 50, 
+                                "item_type": "R", 
+                                "power": 20, 
+                                "description": "Restores minor HP", 
+                                "fb_id": "309189315911666"
+                            }, 
+                            "quantity": 10, 
+                            "given": false
+                        }
+                    ], 
+                    "give_guils": 0, 
+                    "receive_guils": 0, 
+                    "opened": true, 
+                    "no_comments": 0
+                }
+            ]
+        }
 
 ## Relax Room Posts [/rooms/relax/{room-slug}/posts{?limit}]
 All posts in the specified relax room
@@ -1049,8 +1049,7 @@ It is not possible to equip restorative items.
 # Group Transaction
 ## Transaction [/characters/{character-name}/transactions]
 ### Perform a transaction [POST]
-+ Parameters
-    + operation (required, char)... Can be `B` (Buy) or `S` (Sell)
+The `operation` could be `B` (Buy) or `S` (Sell)
 
 + Request (application/json)
 
