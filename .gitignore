@@ -4,6 +4,17 @@ celerybeat-schedule
 site/.git
 site/.gitignore
 site/Procfile
+site/bower_components
+site/node_modules
+
+#the consumer
+consumer/.git
+consumer/.gitignore
+consumer/Procfile
+consumer/.tmp
+consumer/bower_components
+consumer/node_modules
+consumer/dist
 
 ignore/*
 *.py[cod]
@@ -48,10 +59,6 @@ nosetests.xml
 doc/*
 !doc/*.tex
 !doc/master.pdf
-
-# Angular settings
-site/bower_components/*
-site/node_modules/*
 
 # Media
 socialbattle/media/*
