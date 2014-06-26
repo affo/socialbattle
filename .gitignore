@@ -10,6 +10,7 @@ site/node_modules
 #the consumer
 consumer/.git
 consumer/.gitignore
+consumer/.gitattributes
 consumer/Procfile
 consumer/.tmp
 consumer/bower_components
