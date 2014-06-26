@@ -54,12 +54,15 @@ The endpoint is used in the following flows:
 + Refresh
 
 ### Authorization Code [POST]
+The provided `redirect_uri` is required and MUST match the URI specified when registering the application.
+
 + Request (application/x-www-form-urlencoded)
     
         grant_type: authorization_code
         code: <code_obtained_through_authorization>
         client_id: <client_id>
         client_secret: <client_secret>
+        redirect_uri: <your_redirect_uri>
 
 + Response 200 (application/json)
 
@@ -151,6 +154,21 @@ This can be done using `password based` grant type and inserting fake password a
 
 
 # Group User
+## Personal info [/me]
+The detail of the currently logged user
+
+### Retrieve info [GET]
++ Response 200 (application/json)
+        
+        {
+            "url": "http://socialbattle-api.herokuapp.com/users/sb_user/", 
+            "username": "sb_user", 
+            "email": "sb_user@sb.com", 
+            "img": "http://www.gravatar.com/avatar/065328c818309bd7f18b4083fcbe656e?d=identicon", 
+            "no_following": 0, 
+            "no_followers": 0
+        }
+        
 ## User [/users/{username}]
 A single User object
 
