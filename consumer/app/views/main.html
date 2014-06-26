@@ -1,0 +1,41 @@
+<div class="jumbotron">
+  <h1>I Am a Consumer</h1>
+  <p class="lead">
+    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
+  </p>
+  <div ng-controller="SocialBattle">
+    <div ng-if="current_state.id === 0">
+      <a class="btn btn-lg btn-success" ng-href="{{uri}}">
+        Get Your Gift!<span class="glyphicon glyphicon-ok"></span>
+      </a>
+    </div>
+
+    <div ng-if="current_state.id === 1">
+      <h4 class="text-muted text-center">Select the character you want to give the gift</h4>
+      <ul class="nav nav-pills nav-stacked">
+        <li ng-repeat="c in characters">
+          <a href="" ng-click="current_state.next(c)">
+            <img ng-src="{{c.img}}" style="height: 30px; width: 30px;"/> {{c.name}}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div ng-if="current_state.id === 2">
+      <p class="text-center">
+      <strong>{{character_name}}</strong> earned a fantastic <strong>{{item_name}}</strong>!
+      </p>
+      <a class="btn btn-lg btn-success" ng-href="" ng-click="current_state.next()">
+        OK<span class="glyphicon glyphicon-ok"></span>
+      </a>
+    </div>
+
+    <div ng-if="current_state.id === 'error'">
+      <div class="alert alert-danger alert-dismissable">
+        <button type="button" class="close" ng-click="current_state.next()" aria-hidden="true">&times;</button>
+        {{error_msg}}
+      </div>
+    </div>
+
+    <h6 class="text-muted text-center">powered by SocialBattle</h6>
+  </div>
+</div>
